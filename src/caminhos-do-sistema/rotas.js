@@ -10,6 +10,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 // --- Importação das Telas ---
 import Login from "../telas/login";
 import HomePaciente from "../telas/home-paciente";
+import HomeMaster from "../telas/home-master";
+import HomeAdmin from "../telas/home-admin";
+import HomeMedico from "../telas/home-medico";
 // import HomeMedico from "../telas/home-medico";         // TODO: implementar
 // import HomeAdmin from "../telas/home-admin";           // TODO: implementar
 // import AgendarConsulta from "../telas/agendar-consulta"; // TODO: implementar
@@ -81,7 +84,7 @@ function RotasPrincipais() {
           element={
             <RotaProtegida nivelNecessario="medico">
               {/* TODO: <HomeMedico /> */}
-              <div>Área do Médico — em breve</div>
+              <HomeMedico />
             </RotaProtegida>
           }
         />
@@ -93,7 +96,7 @@ function RotasPrincipais() {
           element={
             <RotaProtegida nivelNecessario="admin_clinica">
               {/* TODO: <HomeAdmin /> */}
-              <div>Painel Administrativo — Clínica</div>
+              <HomeAdmin />
             </RotaProtegida>
           }
         />
@@ -103,7 +106,7 @@ function RotasPrincipais() {
           path="/admin/master"
           element={
             <RotaProtegida nivelNecessario="admin_master">
-              <div>Painel Admin Master - Prefeitura</div>
+              <HomeMaster />
             </RotaProtegida>
           }
         />

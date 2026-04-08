@@ -33,8 +33,6 @@ async function realizarLogin(email, senha) {
       throw new Error(dados.mensagem || "Erro ao realizar login.");
     }
 
-    // Salva o token de acesso no armazenamento local do navegador
-    localStorage.setItem("saude_token", dados.token);
     localStorage.setItem("saude_usuario", JSON.stringify(dados.usuario));
 
     return dados;
@@ -47,7 +45,7 @@ async function realizarLogin(email, senha) {
  * Realiza o logout — remove dados da sessão
  */
 function realizarLogout() {
-  localStorage.removeItem("usuario");
+  localStorage.removeItem("saude_usuario");
   // Redireciona para a tela de login
   window.location.href = "/login";
 }
@@ -57,7 +55,7 @@ function realizarLogout() {
  * @returns {boolean} true se autenticado
  */
 function estaAutenticado() {
-  return !!localStorage.getItem("usuario");
+  return !!localStorage.getItem("saude_usuario");
 }
 
 /**
@@ -65,7 +63,7 @@ function estaAutenticado() {
  * @returns {object|null} Dados do usuário ou null
  */
 function obterUsuarioAtual() {
-  const dados = localStorage.getItem("usuario");
+  const dados = localStorage.getItem("saude_usuario");
   return dados ? JSON.parse(dados) : null;
 }
 

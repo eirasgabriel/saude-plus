@@ -86,7 +86,7 @@ async function aoEnviar(e) {
 
     // PACIENTE
     if (email === "paciente@teste.com" && senha === "123456") {
-      localStorage.setItem("usuario", JSON.stringify({
+      localStorage.setItem("saude_usuario", JSON.stringify({
         email,
         nivel_acesso: "paciente"
       }));
@@ -95,7 +95,7 @@ async function aoEnviar(e) {
 
     // ADMIN CLÍNICA
     else if (email === "admin@teste.com" && senha === "123456") {
-      localStorage.setItem("usuario", JSON.stringify({
+      localStorage.setItem("saude_usuario", JSON.stringify({
         email,
         nivel_acesso: "admin_clinica"
       }));
@@ -104,11 +104,20 @@ async function aoEnviar(e) {
 
     // ADMIN MASTER
     else if (email === "master@teste.com" && senha === "123456") {
-      localStorage.setItem("usuario", JSON.stringify({
+      localStorage.setItem("saude_usuario", JSON.stringify({
         email,
         nivel_acesso: "admin_master"
       }));
       navigate("/admin/master");
+    }
+
+    // MEDICO
+    else if (email === "medico@teste.com" && senha === "123456") {
+      localStorage.setItem("saude_usuario", JSON.stringify({
+        email,
+        nivel_acesso: "medico"
+      }));
+      navigate("/medico/agenda");
     }
 
     // ERRO
@@ -137,7 +146,7 @@ async function aoEnviar(e) {
           {/* Ícone e nome do sistema */}
           <div className="mb-10 text-center">
             <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-              <span className="text-4xl">🏥</span>
+              <span className="text-4xl">+</span>
             </div>
             <h1 className="text-3xl font-bold text-white tracking-tight">Saúde+</h1>
             <p className="text-blue-100 mt-1 text-sm">Saquarema — Secretaria de Saúde</p>
@@ -267,7 +276,7 @@ async function aoEnviar(e) {
           
           {/* Logo em telas menores (não tem o painel esquerdo) */}
           <div className="lg:hidden text-center mb-8">
-            <span className="text-4xl">🏥</span>
+            <span className="text-4xl">+</span>
             <h1 className="text-2xl font-bold text-blue-400 mt-2">Saúde+</h1>
           </div>
 

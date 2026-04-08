@@ -1,5 +1,5 @@
 
-// CONFIGURAÇÃO DO BANCO DE DADOS — Saúde+
+// CONFIGURAÇÃO DO BANCO DE DADOS 
 // Arquivo responsável pela conexão e definição das tabelas
 
 
