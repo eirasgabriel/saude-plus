@@ -34,8 +34,8 @@ async function realizarLogin(email, senha) {
     }
 
     localStorage.setItem("saude_usuario", JSON.stringify(dados.usuario));
-
     return dados;
+    
   } catch (erro) {
     throw new Error(erro.message || "Falha na conexão. Tente novamente.");
   }
