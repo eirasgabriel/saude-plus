@@ -97,8 +97,11 @@ async function aoEnviar(e) {
     // ADMIN CLÍNICA
     else if (email === "admin@teste.com" && senha === "123456") {
       localStorage.setItem("saude_usuario", JSON.stringify({
+        id: 2,
+        nome: "Admin Clínica",
         email,
-        nivel_acesso: "admin_clinica"
+        nivel_acesso: "admin_clinica",
+        clinica_id: 1
       }));
       navigate("/admin/painel");
     }

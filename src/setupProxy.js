@@ -5,6 +5,7 @@
  */
 
 const agendasReservadas = new Set();
+const consultasSalvas = [];
 
 const HORAS = [
   "07:30",
@@ -143,14 +144,14 @@ module.exports = function mockApiDev(app) {
     }
 
     agendasReservadas.add(agendaId);
-
-    res.status(201).json({
-      consulta: {
-        id: Date.now(),
-        ...body,
-        status: "agendada",
-      },
-    });
+    const novaConsulta = {
+      id: Date.now(),
+      ...body,
+      status: "agendada",
+      criado_em: new Date().toISOString(),
+    };
+    consultasSalvas.push(novaConsulta);
+    res.status(201).json({ consulta: novaConsulta });
   });
 
   app.patch("/api/consultas/:consultaId/cancelar", async (req, res) => {
@@ -158,6 +159,12 @@ module.exports = function mockApiDev(app) {
       await parseJsonBody(req);
     } catch {
       /* ignorar body vazio */
+    }
+    const consultaId = Number(req.params.consultaId);
+    const consulta = consultasSalvas.find((c) => Number(c.id) === consultaId);
+    if (consulta) {
+      consulta.status = "cancelada";
+      consulta.cancelado_em = new Date().toISOString();
     }
     res.json({ ok: true, status: "cancelada" });
   });
@@ -168,6 +175,10 @@ module.exports = function mockApiDev(app) {
       res.json([]);
       return;
     }
-    res.json([]);
+    const pacienteId = Number(paciente);
+    const resultado = consultasSalvas.filter(
+      (c) => Number(c.paciente_id) === pacienteId
+    );
+    res.json(resultado);
   });
 };

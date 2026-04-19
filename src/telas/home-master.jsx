@@ -13,28 +13,29 @@ function HomeMaster() {
     const navigate = useNavigate();
 
     return (
-    // Container principal da página / ClassName="bg-white p-6" classes do tailwind CSS - mais efeciente que o css tradiconal, padroniza design automaticamente, já vem responsivo e evita arquivos CSS gigantes
-    // min-h-screen = ocupa altura inteira da tela
-    // bg-gray-100 = fundo cinza claro
-    // p-6 = espaçamento interno
-    <div className="min-h-screen bg-gray-100 p-6">
-
-      {/* TÍTULO PRINCIPAL */}
-      <h1 className="text-3xl font-bold mb-6">
-        Painel Admin Master
-      </h1>
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-blue-400 px-5 pt-12 pb-6 sticky top-0 z-10 shadow-md">
+        <p className="text-blue-100 text-sm">Admin Master</p>
+        <h1 className="text-white text-2xl font-bold leading-tight">
+          Painel Admin Master
+        </h1>
+        <p className="text-blue-100 text-sm mt-2">
+          Seja bem vindo ao Sistema de Gerenciamento de Clínicas
+        </p>
+      </header>
 
       {/* GRID DE CARDS */}
       {/* grid = ativa layout em grade */}
       {/* grid-cols-1 = 1 coluna no celular */}
       {/* md:grid-cols-3 = 3 colunas no desktop */}
       {/* gap-6 = espaço entre os blocos */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6"> {/*layout responsivo. no celular fica 1 coluna, no desktop 3 colunas automaticamente/*
+      <main className="px-4 py-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4"> {/*layout responsivo. no celular fica 1 coluna, no desktop 3 colunas automaticamente/*
 
         {/* CARD 1 - CLÍNICAS */}
         <div
             onClick={()=> navigate("/admin/master/clinicas")} 
-            className="bg-white p-6 rounded-xl shadow cursor-point hover:scale-105 transition">
+            className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:scale-105 transition">
 
           {/* Título do card */}
           <h2 className="text-xl font-semibold">Clínicas</h2>
@@ -46,7 +47,7 @@ function HomeMaster() {
         {/* CARD 2 - USUÁRIOS */}
         <div
             onClick={() => navigate("/admin/master/usuarios")}
-            className="bg-white p-6 rounded-xl shadow cursor-pointer hover:scale-105 transition">
+            className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:scale-105 transition">
 
           <h2 className="text-xl font-semibold">Usuários</h2>
 
@@ -56,7 +57,7 @@ function HomeMaster() {
         {/* CARD 3 - RELATÓRIOS */}
         <div
             onClick={() => navigate("/admin/master/relatorios")}
-            className="bg-white p-6 rounded-xl shadow cursor-pointer hover:scale-105 transition">
+            className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:scale-105 transition">
 
           <h2 className="text-xl font-semibold">Relatórios</h2>
 
@@ -64,6 +65,7 @@ function HomeMaster() {
         </div>
 
       </div>
+      </main>
     </div>
   );
 }

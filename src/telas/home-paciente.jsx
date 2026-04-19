@@ -7,6 +7,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { CLINICAS_SAQUAREMA } from "../dados/clinicas-mock";
+import MenuInferiorPaciente from "../componentes/menu-inferior-paciente";
+import { obterUsuarioAtual, realizarLogout } from "../logica-de-controle/auth";
 
 /**
  * Tela principal do Paciente
@@ -14,9 +16,10 @@ import { CLINICAS_SAQUAREMA } from "../dados/clinicas-mock";
  */
 function HomePaciente() {
   const navigate = useNavigate();
+  const usuario = obterUsuarioAtual();
 
   // Simula o nome do usuário logado (virá do contexto de autenticação)
-  const nomeUsuario = "Maria";
+  const nomeUsuario = usuario?.nome || "Paciente";
 
   // Estado da busca por clínica
   const [termoBusca, setTermoBusca] = useState("");
@@ -29,6 +32,8 @@ function HomePaciente() {
 
   // Estado de carregamento (para simular busca na API futuramente)
   const [carregando, setCarregando] = useState(false);
+  const [menuUsuarioAberto, setMenuUsuarioAberto] = useState(false);
+  const [clinicaInfoAberta, setClinicaInfoAberta] = useState(null);
 
   // Lista única de todas as especialidades disponíveis
   const todasEspecialidades = [
@@ -68,6 +73,16 @@ function HomePaciente() {
     navigate(`/paciente/agendar?clinica=${clinica.id}`);
   }
 
+  function irParaPerfil() {
+    setMenuUsuarioAberto(false);
+    navigate("/paciente/perfil");
+  }
+
+  function sairDaConta() {
+    setMenuUsuarioAberto(false);
+    realizarLogout();
+  }
+
   
   // RENDERIZAÇÃO DA TELA
   
@@ -87,12 +102,34 @@ function HomePaciente() {
             </h1>
           </div>
           {/* Botão de perfil do paciente */}
-          <button
-            className="w-11 h-11 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-white text-xl"
-            aria-label="Perfil do usuário"
-          >
-            👤
-          </button>
+          <div className="relative z-30">
+            <button
+              type="button"
+              onClick={() => setMenuUsuarioAberto((v) => !v)}
+              className="w-11 h-11 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-white text-xl"
+              aria-label="Perfil do usuário"
+            >
+              👤
+            </button>
+            {menuUsuarioAberto && (
+              <div className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-40">
+                <button
+                  type="button"
+                  onClick={irParaPerfil}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                >
+                  Meu perfil
+                </button>
+                <button
+                  type="button"
+                  onClick={sairDaConta}
+                  className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50"
+                >
+                  Sair
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Barra de busca — grande e fácil de tocar */}
@@ -251,11 +288,20 @@ function HomePaciente() {
                     📞 Ligar
                   </a>
 
+                  {/* Botão de mais informações da clínica */}
+                  <button
+                    type="button"
+                    onClick={() => setClinicaInfoAberta(clinica)}
+                    className="flex-1 bg-white border border-gray-200 text-gray-700 font-semibold py-3 rounded-xl text-sm flex items-center justify-center gap-1.5 hover:border-blue-300 transition"
+                  >
+                    ℹ️ Mais info
+                  </button>
+
                   {/* Botão principal de agendamento */}
                   <button
                     onClick={() => aoClicarAgendar(clinica)}
                     disabled={!clinica.aberta}
-                    className={`flex-[2] font-bold py-3 rounded-xl text-base transition-all duration-200 active:scale-95 ${
+                    className={`flex-[1.6] font-bold py-3 rounded-xl text-base transition-all duration-200 active:scale-95 ${
                       clinica.aberta
                         ? "bg-blue-400 text-white hover:bg-blue-500 shadow-sm"
                         : "bg-gray-200 text-gray-400 cursor-not-allowed"
@@ -270,34 +316,38 @@ function HomePaciente() {
         </div>
       </main>
 
-      {/* ---- NAVEGAÇÃO INFERIOR (Bottom Tab Bar) ---- */}
-      {/* Padrão mobile: ícones grandes, fácil de alcançar com o polegar */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 py-3 flex justify-around items-center shadow-lg z-10">
-        
-        {/* Aba: Início (ativa) */}
-        <button className="flex flex-col items-center gap-1">
-          <span className="text-2xl">🏠</span>
-          <span className="text-blue-400 text-xs font-bold">Início</span>
-        </button>
+      <MenuInferiorPaciente abaAtiva="inicio" />
 
-        {/* Aba: Minhas Consultas */}
-        <button className="flex flex-col items-center gap-1">
-          <span className="text-2xl">📅</span>
-          <span className="text-gray-400 text-xs">Consultas</span>
-        </button>
-
-        {/* Aba: Histórico */}
-        <button className="flex flex-col items-center gap-1">
-          <span className="text-2xl">📋</span>
-          <span className="text-gray-400 text-xs">Histórico</span>
-        </button>
-
-        {/* Aba: Perfil */}
-        <button className="flex flex-col items-center gap-1">
-          <span className="text-2xl">👤</span>
-          <span className="text-gray-400 text-xs">Perfil</span>
-        </button>
-      </nav>
+      {clinicaInfoAberta && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-sm p-5 shadow-xl">
+            <h3 className="text-lg font-bold text-gray-800 mb-1">
+              {clinicaInfoAberta.emoji} {clinicaInfoAberta.nome}
+            </h3>
+            <p className="text-sm text-blue-500 font-medium mb-4">
+              {clinicaInfoAberta.bairro}
+            </p>
+            <div className="space-y-2 text-sm text-gray-600">
+              <p>
+                <span className="font-semibold">Endereço:</span> {clinicaInfoAberta.endereco}
+              </p>
+              <p>
+                <span className="font-semibold">Telefone:</span> {clinicaInfoAberta.telefone}
+              </p>
+              <p>
+                <span className="font-semibold">Funcionamento:</span> {clinicaInfoAberta.horario}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setClinicaInfoAberta(null)}
+              className="w-full mt-5 bg-blue-400 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Espaço extra para não sobrepor o conteúdo com a nav bar */}
       <div className="h-24" />

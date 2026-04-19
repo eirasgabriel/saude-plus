@@ -14,6 +14,9 @@ import HomeMaster from "../telas/home-master";
 import HomeAdmin from "../telas/home-admin";
 import HomeMedico from "../telas/home-medico";
 import AgendarConsulta from "../telas/agendar-consulta";
+import PacienteConsultas from "../telas/paciente-consultas";
+import PacienteHistorico from "../telas/paciente-historico";
+import PacientePerfil from "../telas/paciente-perfil";
 
 // --- Importação da lógica de autenticação ---
 import { estaAutenticado, obterUsuarioAtual } from "../logica-de-controle/auth";
@@ -70,6 +73,30 @@ function RotasPrincipais() {
           element={
             <RotaProtegida nivelNecessario="paciente">
               <AgendarConsulta />
+            </RotaProtegida>
+          }
+        />
+        <Route
+          path="/paciente/consultas"
+          element={
+            <RotaProtegida nivelNecessario="paciente">
+              <PacienteConsultas />
+            </RotaProtegida>
+          }
+        />
+        <Route
+          path="/paciente/historico"
+          element={
+            <RotaProtegida nivelNecessario="paciente">
+              <PacienteHistorico />
+            </RotaProtegida>
+          }
+        />
+        <Route
+          path="/paciente/perfil"
+          element={
+            <RotaProtegida nivelNecessario="paciente">
+              <PacientePerfil />
             </RotaProtegida>
           }
         />
