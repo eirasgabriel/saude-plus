@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { obterUsuarioAtual } from "../logica-de-controle/auth";
+import { obterUsuarioAtual, realizarLogout } from "../logica-de-controle/auth";
 import { buscarClinicaPorId } from "../dados/clinicas-mock";
 import { listarHorariosAgenda } from "../logica-de-controle/agenda";
 
@@ -38,6 +38,7 @@ function HomeAdmin() {
   const [erroConsultas, setErroConsultas] = useState("");
   const [modoEdicaoTabela, setModoEdicaoTabela] = useState(false);
   const [consultasEmEdicao, setConsultasEmEdicao] = useState([]);
+  const [menuUsuarioAberto, setMenuUsuarioAberto] = useState(false);
 
   const horarioFuncionamento = useMemo(
     () => extrairIntervaloFuncionamento(clinicaVinculada?.horario),
@@ -117,6 +118,11 @@ function HomeAdmin() {
     );
   }
 
+  function sairDaConta() {
+    setMenuUsuarioAberto(false);
+    realizarLogout();
+  }
+
   useEffect(() => {
     carregarConsultas();
   }, [carregarConsultas]);
@@ -124,10 +130,35 @@ function HomeAdmin() {
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-blue-400 px-5 pt-12 pb-6 sticky top-0 z-10 shadow-md">
-        <p className="text-blue-100 text-sm">Admin da Clínica</p>
-        <h1 className="text-white text-2xl font-bold leading-tight">
-          Painel da Clínica
-        </h1>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-blue-100 text-sm">Admin da Clínica</p>
+            <h1 className="text-white text-2xl font-bold leading-tight">
+              Painel da Clínica
+            </h1>
+          </div>
+          <div className="relative z-30">
+            <button
+              type="button"
+              onClick={() => setMenuUsuarioAberto((v) => !v)}
+              className="w-11 h-11 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-white text-xl"
+              aria-label="Perfil do usuário"
+            >
+              👤
+            </button>
+            {menuUsuarioAberto && (
+              <div className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-40">
+                <button
+                  type="button"
+                  onClick={sairDaConta}
+                  className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50"
+                >
+                  Sair
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
         <p className="text-blue-100 text-sm mt-2">
           Seja bem-vindo ao sistema de gerenciamento da clínica {nomeClinica}
         </p>

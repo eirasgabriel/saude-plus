@@ -3,6 +3,7 @@ import { buscarHistoricoPaciente } from "../logica-de-controle/agenda";
 import { obterUsuarioAtual } from "../logica-de-controle/auth";
 import { CLINICAS_SAQUAREMA, buscarClinicaPorId } from "../dados/clinicas-mock";
 import MenuInferiorPaciente from "../componentes/menu-inferior-paciente";
+import MenuUsuarioPaciente from "../componentes/menu-usuario-paciente";
 
 function parseAgendaId(agendaId) {
   const parsed = /^ag-(\d+)-(\d{4}-\d{2}-\d{2})-t(\d{2})(\d{2})$/.exec(
@@ -13,6 +14,23 @@ function parseAgendaId(agendaId) {
   const data = parsed[2];
   const hora = `${parsed[3]}:${parsed[4]}`;
   return { clinicaId, data, hora };
+}
+
+function obterAgendaDaConsulta(consulta) {
+  const agenda = parseAgendaId(consulta.agenda_id);
+  if (agenda) return agenda;
+
+  const data = consulta.data || consulta.data_consulta;
+  const hora = consulta.hora || consulta.horario;
+  if (data && hora) {
+    return {
+      clinicaId: Number(consulta.clinica_id),
+      data,
+      hora,
+    };
+  }
+
+  return null;
 }
 
 function paraInicioDoDia(date) {
@@ -48,7 +66,7 @@ function PacienteConsultas() {
     const hoje = paraInicioDoDia(new Date());
     return consultas
       .map((consulta) => {
-        const agenda = parseAgendaId(consulta.agenda_id);
+        const agenda = obterAgendaDaConsulta(consulta);
         if (!agenda) return null;
         const clinica =
           buscarClinicaPorId(agenda.clinicaId) ||
@@ -79,7 +97,10 @@ function PacienteConsultas() {
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-blue-400 px-5 pt-12 pb-6 sticky top-0 z-10 shadow-md">
-        <h1 className="text-white text-2xl font-bold leading-tight">Próximas consultas</h1>
+        <div className="flex items-start justify-between gap-4">
+          <h1 className="text-white text-2xl font-bold leading-tight">Próximas consultas</h1>
+          <MenuUsuarioPaciente />
+        </div>
         <p className="text-blue-100 text-sm mt-1">
           Agendamentos futuros confirmados para você
         </p>

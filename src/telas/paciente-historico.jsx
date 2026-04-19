@@ -1,11 +1,15 @@
 import React from "react";
 import MenuInferiorPaciente from "../componentes/menu-inferior-paciente";
+import MenuUsuarioPaciente from "../componentes/menu-usuario-paciente";
 
 function PacienteHistorico() {
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-blue-400 px-5 pt-12 pb-6 sticky top-0 z-10 shadow-md">
-        <h1 className="text-white text-2xl font-bold leading-tight">Histórico</h1>
+        <div className="flex items-start justify-between gap-4">
+          <h1 className="text-white text-2xl font-bold leading-tight">Histórico</h1>
+          <MenuUsuarioPaciente />
+        </div>
         <p className="text-blue-100 text-sm mt-1">Seus atendimentos anteriores</p>
       </header>
 

@@ -17,6 +17,9 @@ import AgendarConsulta from "../telas/agendar-consulta";
 import PacienteConsultas from "../telas/paciente-consultas";
 import PacienteHistorico from "../telas/paciente-historico";
 import PacientePerfil from "../telas/paciente-perfil";
+import AdminGerenciarClinicas from "../telas/admin-gerenciar-clinicas";
+import AdminGerenciarUsuarios from "../telas/admin-gerenciar-usuarios";
+import AdminRelatoriosSistema from "../telas/admin-relatorios-sistema";
 
 // --- Importação da lógica de autenticação ---
 import { estaAutenticado, obterUsuarioAtual } from "../logica-de-controle/auth";
@@ -131,6 +134,30 @@ function RotasPrincipais() {
           element={
             <RotaProtegida nivelNecessario="admin_master">
               <HomeMaster />
+            </RotaProtegida>
+          }
+        />
+        <Route
+          path="/admin/master/clinicas"
+          element={
+            <RotaProtegida nivelNecessario="admin_master">
+              <AdminGerenciarClinicas />
+            </RotaProtegida>
+          }
+        />
+        <Route
+          path="/admin/master/usuarios"
+          element={
+            <RotaProtegida nivelNecessario="admin_master">
+              <AdminGerenciarUsuarios />
+            </RotaProtegida>
+          }
+        />
+        <Route
+          path="/admin/master/relatorios"
+          element={
+            <RotaProtegida nivelNecessario="admin_master">
+              <AdminRelatoriosSistema />
             </RotaProtegida>
           }
         />

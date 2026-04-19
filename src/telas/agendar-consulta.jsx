@@ -4,6 +4,7 @@
 import React, { useMemo, useState, useEffect, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { buscarClinicaPorId } from "../dados/clinicas-mock";
+import MenuUsuarioPaciente from "../componentes/menu-usuario-paciente";
 import {
   listarHorariosAgenda,
   criarAgendamento,
@@ -120,7 +121,10 @@ function AgendarConsulta() {
 
   if (!clinicaIdParam || !clinica) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-6">
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-6 relative">
+        <div className="absolute right-5 top-10 bg-blue-400 rounded-full">
+          <MenuUsuarioPaciente />
+        </div>
         <p className="text-gray-600 text-center mb-6">
           Selecione uma clínica na lista para agendar.
         </p>
@@ -139,13 +143,16 @@ function AgendarConsulta() {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <header className="bg-blue-400 px-5 pt-10 pb-6 shadow-md">
-          <button
-            type="button"
-            onClick={aoVoltar}
-            className="text-white text-sm font-medium mb-4 flex items-center gap-2"
-          >
-            ← Voltar
-          </button>
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <button
+              type="button"
+              onClick={aoVoltar}
+              className="text-white text-sm font-medium flex items-center gap-2"
+            >
+              ← Voltar
+            </button>
+            <MenuUsuarioPaciente />
+          </div>
           <h1 className="text-white text-2xl font-bold">Agendar consulta</h1>
         </header>
         <div className="p-6 text-center">
@@ -162,13 +169,16 @@ function AgendarConsulta() {
   return (
     <div className="min-h-screen bg-gray-50 pb-28">
       <header className="bg-blue-400 px-5 pt-12 pb-6 sticky top-0 z-10 shadow-md">
-        <button
-          type="button"
-          onClick={aoVoltar}
-          className="text-white text-sm font-medium mb-3 flex items-center gap-2 active:opacity-80"
-        >
-          ← Voltar às clínicas
-        </button>
+        <div className="flex items-start justify-between gap-4 mb-3">
+          <button
+            type="button"
+            onClick={aoVoltar}
+            className="text-white text-sm font-medium flex items-center gap-2 active:opacity-80"
+          >
+            ← Voltar às clínicas
+          </button>
+          <MenuUsuarioPaciente />
+        </div>
         <h1 className="text-white text-2xl font-bold leading-tight">
           Agendar consulta
         </h1>

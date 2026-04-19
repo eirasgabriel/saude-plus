@@ -29,6 +29,8 @@ function HomePaciente() {
 
   // Estado do filtro de especialidade selecionada
   const [especialidadeSelecionada, setEspecialidadeSelecionada] = useState("Todas");
+  const [bairroSelecionado, setBairroSelecionado] = useState("Todos");
+  const [filtroBuscaAberto, setFiltroBuscaAberto] = useState(false);
 
   // Estado de carregamento (para simular busca na API futuramente)
   const [carregando, setCarregando] = useState(false);
@@ -40,6 +42,15 @@ function HomePaciente() {
     "Todas",
     ...new Set(CLINICAS_SAQUAREMA.flatMap((c) => c.especialidades)),
   ];
+
+  const todosBairros = [
+    "Todos",
+    ...new Set(CLINICAS_SAQUAREMA.map((c) => c.bairro)),
+  ];
+
+  const quantidadeFiltrosAtivos =
+    (especialidadeSelecionada !== "Todas" ? 1 : 0) +
+    (bairroSelecionado !== "Todos" ? 1 : 0);
 
   // Filtra as clínicas sempre que o termo de busca ou
   // a especialidade selecionada mudar
@@ -59,11 +70,15 @@ function HomePaciente() {
         especialidadeSelecionada === "Todas" ||
         clinica.especialidades.includes(especialidadeSelecionada);
 
-      return bateTexto && bateEspecialidade;
+      const bateBairro =
+        bairroSelecionado === "Todos" ||
+        clinica.bairro === bairroSelecionado;
+
+      return bateTexto && bateEspecialidade && bateBairro;
     });
 
     setClinicasFiltradas(resultado);
-  }, [termoBusca, especialidadeSelecionada]);
+  }, [termoBusca, especialidadeSelecionada, bairroSelecionado]);
 
   /**
    * Navega para a tela de agendamento da clínica selecionada
@@ -81,6 +96,12 @@ function HomePaciente() {
   function sairDaConta() {
     setMenuUsuarioAberto(false);
     realizarLogout();
+  }
+
+  function limparFiltrosPesquisa() {
+    setTermoBusca("");
+    setEspecialidadeSelecionada("Todas");
+    setBairroSelecionado("Todos");
   }
 
   
@@ -142,47 +163,109 @@ function HomePaciente() {
             value={termoBusca}
             onChange={(e) => setTermoBusca(e.target.value)}
             placeholder="Buscar clínica ou bairro..."
-            className="w-full bg-white rounded-2xl pl-11 pr-4 py-3.5 text-base text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-200 shadow-sm"
+            className="w-full bg-white rounded-2xl pl-11 pr-24 py-3.5 text-base text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-200 shadow-sm"
           />
           {/* Botão de limpar busca */}
           {termoBusca && (
             <button
+              type="button"
               onClick={() => setTermoBusca("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 p-1"
+              className="absolute right-14 top-1/2 -translate-y-1/2 text-gray-400 p-1"
               aria-label="Limpar busca"
             >
               ✕
             </button>
           )}
+          <button
+            type="button"
+            onClick={() => setFiltroBuscaAberto((v) => !v)}
+            className={`absolute right-3 top-1/2 -translate-y-1/2 rounded-xl p-2 transition ${
+              filtroBuscaAberto || quantidadeFiltrosAtivos > 0
+                ? "bg-blue-100 text-blue-600"
+                : "text-gray-400 hover:bg-gray-100"
+            }`}
+            aria-label="Abrir filtros de pesquisa"
+          >
+            <span className="relative flex h-5 w-5 items-end justify-center gap-0.5">
+              <span className="w-1 h-2 rounded-full bg-current" />
+              <span className="w-1 h-3.5 rounded-full bg-current" />
+              <span className="w-1 h-5 rounded-full bg-current" />
+              {quantidadeFiltrosAtivos > 0 && (
+                <span className="absolute -right-2 -top-2 min-w-4 h-4 rounded-full bg-blue-500 px-1 text-[10px] leading-4 text-white text-center">
+                  {quantidadeFiltrosAtivos}
+                </span>
+              )}
+            </span>
+          </button>
         </div>
+
+        {filtroBuscaAberto && (
+          <div className="mt-3 bg-white rounded-2xl shadow-lg border border-blue-100 p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <p className="text-sm font-bold text-gray-800">Filtros de pesquisa</p>
+                <p className="text-xs text-gray-400">Refine por especialidade e bairro</p>
+              </div>
+              {quantidadeFiltrosAtivos > 0 && (
+                <button
+                  type="button"
+                  onClick={limparFiltrosPesquisa}
+                  className="text-xs text-blue-500 font-semibold"
+                >
+                  Limpar
+                </button>
+              )}
+            </div>
+
+            <div className="mb-4">
+              <p className="text-xs text-gray-500 font-medium uppercase tracking-wider mb-2">
+                Especialidades
+              </p>
+              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                {todasEspecialidades.map((esp) => (
+                  <button
+                    key={esp}
+                    type="button"
+                    onClick={() => setEspecialidadeSelecionada(esp)}
+                    className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      especialidadeSelecionada === esp
+                        ? "bg-blue-400 text-white shadow-md"
+                        : "bg-gray-50 text-gray-600 border border-gray-200"
+                    }`}
+                  >
+                    {esp}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs text-gray-500 font-medium uppercase tracking-wider mb-2">
+                Bairros
+              </p>
+              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                {todosBairros.map((bairro) => (
+                  <button
+                    key={bairro}
+                    type="button"
+                    onClick={() => setBairroSelecionado(bairro)}
+                    className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      bairroSelecionado === bairro
+                        ? "bg-blue-400 text-white shadow-md"
+                        : "bg-gray-50 text-gray-600 border border-gray-200"
+                    }`}
+                  >
+                    {bairro}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* ---- CONTEÚDO PRINCIPAL ---- */}
       <main className="px-4 py-5">
-
-        {/* Filtro por especialidade — horizontal scrollável */}
-        <div className="mb-5">
-          <p className="text-xs text-gray-500 font-medium uppercase tracking-wider mb-3">
-            Especialidades
-          </p>
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            {todasEspecialidades.map((esp) => (
-              <button
-                key={esp}
-                onClick={() => setEspecialidadeSelecionada(esp)}
-                className={`
-                  flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all
-                  ${especialidadeSelecionada === esp
-                    ? "bg-blue-400 text-white shadow-md"    // Filtro ativo
-                    : "bg-white text-gray-600 border border-gray-200 hover:border-blue-300"
-                  }
-                `}
-              >
-                {esp}
-              </button>
-            ))}
-          </div>
-        </div>
 
         {/* Contagem de resultados */}
         <div className="flex items-center justify-between mb-4">
@@ -202,13 +285,11 @@ function HomePaciente() {
               Nenhuma clínica encontrada
             </p>
             <p className="text-gray-400 text-sm mt-1">
-              Tente outro nome ou especialidade
+              Tente outro nome, especialidade ou bairro
             </p>
             <button
-              onClick={() => {
-                setTermoBusca("");
-                setEspecialidadeSelecionada("Todas");
-              }}
+              type="button"
+              onClick={limparFiltrosPesquisa}
               className="mt-4 text-blue-400 text-sm font-medium underline"
             >
               Limpar filtros
