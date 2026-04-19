@@ -87,6 +87,7 @@ async function aoEnviar(e) {
     // PACIENTE
     if (email === "paciente@teste.com" && senha === "123456") {
       localStorage.setItem("saude_usuario", JSON.stringify({
+        id: 1,
         email,
         nivel_acesso: "paciente"
       }));

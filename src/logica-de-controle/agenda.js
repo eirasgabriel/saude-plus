@@ -4,6 +4,60 @@
 // Aplica RN1: Conflito zero de horários
 
 /**
+ * Lê o corpo da resposta como JSON sem falhar com "Unexpected token '<'".
+ * Quando o servidor devolve HTML (ex.: index.html ou 404 em página), mostra mensagem útil.
+ * @param {Response} resposta
+ * @returns {Promise<object|Array>}
+ */
+async function parseJsonResposta(resposta) {
+  const texto = await resposta.text();
+  const t = texto.trim();
+  if (!t) {
+    return {};
+  }
+  if (t.startsWith("<") || t.startsWith("<!")) {
+    throw new Error(
+      "O servidor devolveu HTML em vez de JSON. Use npm run iniciar para o mock de API em desenvolvimento ou configure um backend em /api."
+    );
+  }
+  try {
+    return JSON.parse(texto);
+  } catch {
+    throw new Error("Resposta do servidor em formato inesperado.");
+  }
+}
+
+/**
+ * Lista todos os horários retornados pela API (livres e ocupados).
+ * Útil para montar a grade na tela de agendamento.
+ * @param {number|string} clinicaId
+ * @param {string} data - YYYY-MM-DD
+ * @param {number|null} [medicoId]
+ * @param {string} [especialidade] - usada pelo mock para variar slots
+ * @returns {Promise<Array<{ id, hora, disponivel, medico_id }>>}
+ */
+async function listarHorariosAgenda(clinicaId, data, medicoId = null, especialidade = "") {
+  try {
+    let url = `/api/agendas?clinica=${encodeURIComponent(String(clinicaId))}&data=${encodeURIComponent(data)}`;
+    if (especialidade) {
+      url += `&especialidade=${encodeURIComponent(especialidade)}`;
+    }
+    if (medicoId != null) {
+      url += `&medico=${encodeURIComponent(String(medicoId))}`;
+    }
+
+    const resposta = await fetch(url);
+    const dados = await parseJsonResposta(resposta);
+    if (!resposta.ok) {
+      throw new Error(dados.mensagem || "Erro ao carregar horários.");
+    }
+    return Array.isArray(dados) ? dados : [];
+  } catch (erro) {
+    throw new Error(erro.message || "Não foi possível carregar os horários. Tente novamente.");
+  }
+}
+
+/**
  * Busca os horários disponíveis de uma clínica
  * @param {number} clinicaId - ID da clínica
  * @param {string} data - Data no formato YYYY-MM-DD
@@ -12,17 +66,20 @@
  */
 async function buscarHorariosDisponiveis(clinicaId, data, medicoId = null) {
   try {
-    // Monta a URL com os filtros necessários
     let url = `/api/agendas?clinica=${clinicaId}&data=${data}`;
     if (medicoId) url += `&medico=${medicoId}`;
 
     const resposta = await fetch(url);
-    const dados = await resposta.json();
+    const dados = await parseJsonResposta(resposta);
 
-    // Retorna apenas horários com disponível = true
-    return dados.filter((horario) => horario.disponivel);
+    if (!resposta.ok) {
+      throw new Error(dados.mensagem || "Erro ao carregar horários.");
+    }
+
+    const lista = Array.isArray(dados) ? dados : [];
+    return lista.filter((horario) => horario.disponivel);
   } catch (erro) {
-    throw new Error("Não foi possível carregar os horários. Tente novamente.");
+    throw new Error(erro.message || "Não foi possível carregar os horários. Tente novamente.");
   }
 }
 
@@ -33,11 +90,15 @@ async function buscarHorariosDisponiveis(clinicaId, data, medicoId = null) {
  * @returns {object} Consulta criada
  */
 async function criarAgendamento(dadosConsulta) {
-  const { pacienteId, medicoId, agendaId, clinicaId, observacoes } = dadosConsulta;
+  const { pacienteId, medicoId, agendaId, clinicaId, observacoes, especialidade } =
+    dadosConsulta;
 
   try {
-    // Verifica conflito de horário antes de salvar (RN1: conflito zero)
-    const semConflito = await verificarConflito(medicoId, agendaId);
+    const semConflito = await verificarConflito(
+      medicoId,
+      agendaId,
+      especialidade || ""
+    );
     if (!semConflito) {
       throw new Error(
         "Este horário não está mais disponível. Por favor, escolha outro."
@@ -53,16 +114,18 @@ async function criarAgendamento(dadosConsulta) {
         agenda_id: agendaId,
         clinica_id: clinicaId,
         observacoes,
+        especialidade: especialidade || "",
         status: "agendada",
       }),
     });
 
+    const dados = await parseJsonResposta(resposta);
+
     if (!resposta.ok) {
-      const erro = await resposta.json();
-      throw new Error(erro.mensagem || "Erro ao realizar agendamento.");
+      throw new Error(dados.mensagem || "Erro ao realizar agendamento.");
     }
 
-    return await resposta.json();
+    return dados;
   } catch (erro) {
     throw new Error(erro.message || "Falha ao agendar. Tente novamente.");
   }
@@ -71,18 +134,21 @@ async function criarAgendamento(dadosConsulta) {
 /**
  * Verifica se um horário ainda está disponível (previne conflito — RN1)
  * @param {number} medicoId - ID do médico
- * @param {number} agendaId - ID do horário
+ * @param {string|number} agendaId - ID do horário
+ * @param {string} [especialidade] - alinhado ao mock / API de agendas
  * @returns {boolean} true = sem conflito, pode agendar
  */
-async function verificarConflito(medicoId, agendaId) {
+async function verificarConflito(medicoId, agendaId, especialidade = "") {
   try {
-    const resposta = await fetch(
-      `/api/agendas/${agendaId}/verificar?medico=${medicoId}`
-    );
-    const dados = await resposta.json();
+    const id = encodeURIComponent(String(agendaId));
+    let url = `/api/agendas/${id}/verificar?medico=${encodeURIComponent(String(medicoId))}`;
+    if (especialidade) {
+      url += `&especialidade=${encodeURIComponent(especialidade)}`;
+    }
+    const resposta = await fetch(url);
+    const dados = await parseJsonResposta(resposta);
     return dados.disponivel === true;
   } catch {
-    // Em caso de erro de rede, bloqueia o agendamento por segurança
     return false;
   }
 }
@@ -95,17 +161,21 @@ async function verificarConflito(medicoId, agendaId) {
  */
 async function cancelarAgendamento(consultaId, motivo) {
   try {
-    const resposta = await fetch(`/api/consultas/${consultaId}/cancelar`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ motivo, status: "cancelada" }),
-    });
-
+    const resposta = await fetch(
+      `/api/consultas/${consultaId}/cancelar`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ motivo, status: "cancelada" }),
+      }
+    );
+    const dados = await parseJsonResposta(resposta);
     if (!resposta.ok) {
-      throw new Error("Não foi possível cancelar. Tente novamente.");
+      throw new Error(
+        dados.mensagem || "Não foi possível cancelar. Tente novamente."
+      );
     }
-
-    return await resposta.json();
+    return dados;
   } catch (erro) {
     throw new Error(erro.message || "Erro ao cancelar agendamento.");
   }
@@ -119,13 +189,18 @@ async function cancelarAgendamento(consultaId, motivo) {
 async function buscarHistoricoPaciente(pacienteId) {
   try {
     const resposta = await fetch(`/api/consultas?paciente=${pacienteId}`);
-    return await resposta.json();
+    const dados = await parseJsonResposta(resposta);
+    if (!resposta.ok) {
+      throw new Error(dados.mensagem || "Erro ao carregar histórico.");
+    }
+    return Array.isArray(dados) ? dados : [];
   } catch (erro) {
-    throw new Error("Erro ao carregar seu histórico de consultas.");
+    throw new Error(erro.message || "Erro ao carregar seu histórico de consultas.");
   }
 }
 
-module.exports = {
+export {
+  listarHorariosAgenda,
   buscarHorariosDisponiveis,
   criarAgendamento,
   verificarConflito,

@@ -5,63 +5,16 @@
 
 
 import React, { useState, useEffect } from "react";
-
-
-// DADOS DAS CLÍNICAS DE SAQUAREMA (mock para desenvolvimento)
-// Substituir pela chamada real à API quando disponível
-
-const CLINICAS_SAQUAREMA = [
-  {
-    id: 1,
-    nome: "UBS Bacaxá",
-    bairro: "Bacaxá",
-    endereco: "Rua Principal, 100 — Bacaxá, Saquarema/RJ",
-    telefone: "(22) 2651-0001",
-    especialidades: ["Clínica Geral", "Pediatria", "Vacinação"],
-    aberta: true,
-    horario: "Seg a Sex: 07h às 17h",
-    emoji: "🏥",
-  },
-  {
-    id: 2,
-    nome: "UBS Itaúna",
-    bairro: "Itaúna",
-    endereco: "Av. Oceânica, 250 — Itaúna, Saquarema/RJ",
-    telefone: "(22) 2651-0002",
-    especialidades: ["Clínica Geral", "Ginecologia", "Pré-Natal"],
-    aberta: true,
-    horario: "Seg a Sex: 08h às 16h",
-    emoji: "🏨",
-  },
-  {
-    id: 3,
-    nome: "UBS Vilatur",
-    bairro: "Vilatur",
-    endereco: "Rua das Flores, 45 — Vilatur, Saquarema/RJ",
-    telefone: "(22) 2651-0003",
-    especialidades: ["Clínica Geral", "Odontologia"],
-    aberta: false, // Fechada para reforma (exemplo de status)
-    horario: "Temporariamente fechada",
-    emoji: "🏣",
-  },
-  {
-    id: 4,
-    nome: "UBS Sampaio Corrêa",
-    bairro: "Sampaio Corrêa",
-    endereco: "Estrada Municipal, 78 — Sampaio Corrêa, Saquarema/RJ",
-    telefone: "(22) 2651-0004",
-    especialidades: ["Clínica Geral", "Pediatria", "Nutrição"],
-    aberta: true,
-    horario: "Seg a Sex: 07h às 17h",
-    emoji: "🏥",
-  },
-];
+import { useNavigate } from "react-router-dom";
+import { CLINICAS_SAQUAREMA } from "../dados/clinicas-mock";
 
 /**
  * Tela principal do Paciente
  * Mostra saudação, barra de busca e lista de clínicas
  */
 function HomePaciente() {
+  const navigate = useNavigate();
+
   // Simula o nome do usuário logado (virá do contexto de autenticação)
   const nomeUsuario = "Maria";
 
@@ -112,8 +65,7 @@ function HomePaciente() {
    * @param {object} clinica - Dados da clínica escolhida
    */
   function aoClicarAgendar(clinica) {
-    // TODO: integrar com React Router → navigate(`/paciente/agendar?clinica=${clinica.id}`)
-    alert(`Você escolheu: ${clinica.nome}\nRedirecionando para agendamento...`);
+    navigate(`/paciente/agendar?clinica=${clinica.id}`);
   }
 
   
