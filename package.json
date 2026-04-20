@@ -1,38 +1,17 @@
 {
   "name": "saude-plus",
   "version": "1.0.0",
-  "description": "Sistema de Agendamento de Saúde do Município de Saquarema",
   "private": true,
+  "description": "Monorepo do Saude+ com frontend React e backend Node",
   "scripts": {
-    "iniciar": "react-scripts start",
-    "compilar": "react-scripts build",
-    "testar": "react-scripts test",
-    "ejetar": "react-scripts eject"
-  },
-  "dependencies": {
-    "axios": "^1.6.7",
-    "date-fns": "^3.3.1",
-    "lucide-react": "^0.344.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.30.3",
-    "react-scripts": "5.0.1"
-  },
-  "devDependencies": {
-    "autoprefixer": "^10.4.17",
-    "postcss": "^8.4.35",
-    "tailwindcss": "^3.4.1"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "dev": "node scripts/start-dev.js",
+    "frontend": "npm --prefix frontend run iniciar",
+    "frontend:build": "npm --prefix frontend run compilar",
+    "frontend:test": "npm --prefix frontend run testar",
+    "backend": "npm --prefix backend start",
+    "backend:check": "npm --prefix backend run check",
+    "iniciar": "node scripts/start-dev.js",
+    "compilar": "npm run frontend:build",
+    "testar": "npm run frontend:test"
   }
 }

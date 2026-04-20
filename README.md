@@ -1,175 +1,81 @@
-# Saúde+ — Sistema de Agendamento de Consultas
+# Saude+
 
-Sistema web para gerenciamento de consultas médicas no município de Saquarema, com diferentes níveis de acesso (Paciente, Admin Clínica e Admin Master).
+Sistema de agendamento de consultas para Saquarema, organizado como monorepo:
 
----
+- `frontend`: aplicacao React.
+- `backend`: API Node em Clean Architecture.
 
-## Visão Geral
+## Como Rodar
 
-O **Saúde+** é uma aplicação desenvolvida em React com foco em:
+Instale as dependencias do frontend, se necessario:
 
-* Experiência mobile para pacientes
-* Painel administrativo para clínicas e prefeitura
-* Agendamento simples e rápido
-* Controle de acesso por nível de usuário
-
----
-
-## Tipos de Usuário
-
-* **Paciente**
-
-  * Visualiza clínicas
-  * Agenda consultas
-
-* **Admin Clínica**
-
-  * Gerencia agenda da clínica
-  * Visualiza consultas
-
-* **Admin Master (Prefeitura)**
-
-  * Gerencia todas as clínicas
-  * Controle total do sistema
-
----
-
-## Tecnologias Utilizadas
-
-* **React.js** → Interface
-* **JavaScript (ES6+)** → Lógica
-* **JSX** → Estrutura de componentes
-* **Tailwind CSS** → Estilização
-* **React Router DOM** → Navegação
-* **Node.js + NPM** → Ambiente de execução
-
----
-
-## Estrutura do Projeto
-
-```
-/saude-plus
-│ package.json
-│ tailwind.config.js
-│ postcss.config.js
-│
-├── /public
-│   └── index.html
-│
-├── /src
-│   ├── index.js
-│   ├── index.css
-│   │
-│   ├── /telas
-│   │   ├── login.jsx
-│   │   ├── home-paciente.jsx
-│   │   ├── admin-painel.jsx
-│   │   └── admin-master.jsx
-│   │
-│   ├── /componentes
-│   │   ├── botao.jsx
-│   │   └── card-clinica.jsx
-│   │
-│   ├── /logica-de-controle
-│   │   ├── auth.js
-│   │   └── agenda.js
-│   │
-│   ├── /caminhos-do-sistema
-│   │   └── rotas.js
-│   │
-│   └── /configuracoes
-│       └── banco-dados.js
-```
-
----
-
-## Como Rodar o Projeto
-
-### 1. Instalar dependências
-
-```
+```bash
+cd frontend
 npm install
 ```
 
----
+Na raiz do projeto, rode tudo junto:
 
-### 2. Rodar o projeto
-
-```
+```bash
 npm run iniciar
 ```
 
----
+Esse comando inicia o backend e o frontend no mesmo terminal. Se preferir rodar separado, use:
 
-### 3. Acessar no navegador
-
+```bash
+npm run backend
+npm run frontend
 ```
-http://localhost:3000
-```
 
----
+O frontend fica em `http://localhost:3000` e encaminha `/api` para o backend em `http://localhost:3333`.
 
-## Usuários de Teste
+## Scripts Da Raiz
 
-Use esses acessos para testar:
+- `npm run iniciar`: inicia backend e frontend juntos.
+- `npm run dev`: alias de desenvolvimento para iniciar backend e frontend juntos.
+- `npm run frontend`: inicia somente o React em `frontend/`.
+- `npm run frontend:build`: compila o React em `frontend/build`.
+- `npm run backend`: inicia a API em `backend/`.
+- `npm run backend:check`: valida a sintaxe do backend.
+- `npm run compilar`: alias para `npm run frontend:build`.
 
-```
+## Usuarios De Teste
+
+```text
 Paciente:
 email: paciente@teste.com
 senha: 123456
 
-Admin Clínica:
+Admin Clinica:
 email: admin@teste.com
 senha: 123456
 
 Admin Master:
 email: master@teste.com
 senha: 123456
+
+Medico:
+email: medico@teste.com
+senha: 123456
 ```
 
----
+## Estrutura
 
-## Regras de Negócio
+```text
+saude-plus/
+  backend/
+    src/
+      application/
+      domain/
+      infrastructure/
+      main/
+  frontend/
+    public/
+    src/
+    package.json
+  package.json
+```
 
-* RN1: Não pode haver conflito de horários (um médico por vez)
-* RN2: Médicos só acessam dados da própria clínica
-* RN3: Apenas Admin Master pode criar novas clínicas
+## Observacao
 
----
-
-## Identidade Visual
-
-* Azul Claro: `#60A5FA`
-* Branco: `#FFFFFF`
-* Estilo: Minimalista, moderno e responsivo
-
----
-
-## Status do Projeto
-
-* Login funcional com validação
-* Rotas protegidas por nível de acesso
-* Navegação entre telas
-* Painéis administrativos em construção
-* Integração com backend pendente
-
----
-
-## Próximos Passos
-
-* Integração com API (backend)
-* Banco de dados real
-* Sistema de agendamento completo
-* Dashboard com métricas
-* Cadastro de clínicas e médicos
-
----
-
-## Licença
-
-Este projeto é de uso educacional e para desenvolvimento do sistema Saúde+.
-
----
-
-
-Projeto em evolução contínua.
+O frontend consome o backend via API. Nao ha mais dados mockados no frontend.

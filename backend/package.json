@@ -1,0 +1,14 @@
+{
+  "name": "saude-plus-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Backend do Saude+ preparado em Clean Architecture",
+  "main": "src/main/index.js",
+  "scripts": {
+    "start": "node src/main/index.js",
+    "check": "node --check src/main/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
