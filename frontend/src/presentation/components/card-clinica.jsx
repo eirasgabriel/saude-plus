@@ -28,11 +28,11 @@ function CardClinica({
 }) {
   return (
     // Container do card — sombra suave, bordas arredondadas, fácil de tocar
-    <div className="bg-white rounded-2xl shadow-md p-5 border border-gray-100 w-full">
+    <div className="w-full rounded-2xl border border-gray-100 bg-white p-4 shadow-md sm:p-5">
       
       {/* Cabeçalho: nome da clínica + indicador de funcionamento */}
-      <div className="flex items-start justify-between mb-3">
-        <div>
+      <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
           <h2 className="text-lg font-bold text-gray-800">{nome}</h2>
           {/* Bairro em destaque — referência regional para o paciente */}
           <span className="text-blue-400 font-medium text-sm">{bairro}</span>
@@ -41,7 +41,7 @@ function CardClinica({
         {/* Badge de status: Aberta / Fechada */}
         <span
           className={`
-            text-xs font-semibold px-3 py-1 rounded-full
+            self-start rounded-full px-3 py-1 text-xs font-semibold sm:self-auto
             ${aberta
               ? "bg-green-100 text-green-700"   // Verde quando aberta
               : "bg-red-100 text-red-500"        // Vermelho quando fechada
@@ -55,7 +55,7 @@ function CardClinica({
       {/* Endereço — ícone de localização */}
       <div className="flex items-start gap-2 mb-2">
         <span className="text-gray-400 text-sm mt-0.5">📍</span>
-        <p className="text-gray-600 text-sm">{endereco}</p>
+        <p className="min-w-0 break-words text-sm text-gray-600">{endereco}</p>
       </div>
 
       {/* Telefone — clicável no mobile para discagem direta */}

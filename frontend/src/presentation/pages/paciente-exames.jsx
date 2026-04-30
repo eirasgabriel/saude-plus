@@ -1,45 +1,122 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ouvirClinicasAtualizadas } from "../../application/clinicas/clinicas-eventos";
 import { listarClinicas } from "../../application/clinicas/clinicas-use-cases";
+import CabecalhoApp from "../components/cabecalho-app";
+import FotoClinica from "../components/foto-clinica";
 import MenuInferiorPaciente from "../components/menu-inferior-paciente";
 import MenuUsuarioPaciente from "../components/menu-usuario-paciente";
+
+function clinicaEstaDisponivel(clinica) {
+  return clinica.aberta !== false && clinica.status !== "temporariamente_fechada";
+}
+
+function obterEspecialidadesExames(clinica) {
+  return (clinica.especialidadesExames || [])
+    .map((especialidade) => String(especialidade || "").trim())
+    .filter(Boolean);
+}
 
 function PacienteExames() {
   const navigate = useNavigate();
   const [termoBusca, setTermoBusca] = useState("");
   const [clinicas, setClinicas] = useState([]);
   const [clinicasFiltradas, setClinicasFiltradas] = useState([]);
+  const [especialidadeSelecionada, setEspecialidadeSelecionada] = useState("Todos");
   const [bairroSelecionado, setBairroSelecionado] = useState("Todos");
   const [filtroBuscaAberto, setFiltroBuscaAberto] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [erroCarregamento, setErroCarregamento] = useState("");
-  const [clinicaInfoAberta, setClinicaInfoAberta] = useState(null);
 
   const todosBairros = [
     "Todos",
     ...new Set(clinicas.map((clinica) => clinica.bairro).filter(Boolean)),
   ];
 
-  const quantidadeFiltrosAtivos = bairroSelecionado !== "Todos" ? 1 : 0;
+  const clinicasBaseEspecialidades = useMemo(() => {
+    const termo = termoBusca.toLowerCase().trim();
+
+    return clinicas.filter((clinica) => {
+      const nome = String(clinica.nome || "").toLowerCase();
+      const bairro = String(clinica.bairro || "").toLowerCase();
+      const exames = obterEspecialidadesExames(clinica).join(" ").toLowerCase();
+      const bateTexto =
+        !termo || nome.includes(termo) || bairro.includes(termo) || exames.includes(termo);
+      const bateBairro =
+        bairroSelecionado === "Todos" || clinica.bairro === bairroSelecionado;
+
+      return clinicaEstaDisponivel(clinica) && bateTexto && bateBairro;
+    });
+  }, [bairroSelecionado, clinicas, termoBusca]);
+
+  const especialidadesExamesDisponiveis = useMemo(() => {
+    const contagem = new Map();
+
+    clinicasBaseEspecialidades.forEach((clinica) => {
+      const especialidadesUnicas = new Set(obterEspecialidadesExames(clinica));
+      especialidadesUnicas.forEach((especialidade) => {
+        contagem.set(especialidade, (contagem.get(especialidade) || 0) + 1);
+      });
+    });
+
+    return [
+      { nome: "Todos", quantidade: clinicasBaseEspecialidades.length },
+      ...Array.from(contagem.entries())
+        .sort(([a], [b]) => a.localeCompare(b, "pt-BR"))
+        .map(([nome, quantidade]) => ({ nome, quantidade })),
+    ];
+  }, [clinicasBaseEspecialidades]);
+
+  const quantidadeFiltrosAtivos =
+    (especialidadeSelecionada !== "Todos" ? 1 : 0) +
+    (bairroSelecionado !== "Todos" ? 1 : 0);
+
+  async function carregarClinicas() {
+    setCarregando(true);
+    setErroCarregamento("");
+
+    try {
+      const lista = await listarClinicas();
+      const clinicasDisponiveis = Array.isArray(lista) ? lista : [];
+      setClinicas(clinicasDisponiveis);
+      setClinicasFiltradas(clinicasDisponiveis);
+    } catch (erro) {
+      setErroCarregamento(erro.message || "Nao foi possivel carregar as unidades.");
+    } finally {
+      setCarregando(false);
+    }
+  }
 
   useEffect(() => {
-    async function carregarClinicas() {
-      setCarregando(true);
-      setErroCarregamento("");
+    carregarClinicas();
+  }, []);
 
-      try {
-        const lista = await listarClinicas();
-        const clinicasDisponiveis = Array.isArray(lista) ? lista : [];
-        setClinicas(clinicasDisponiveis);
-        setClinicasFiltradas(clinicasDisponiveis);
-      } catch (erro) {
-        setErroCarregamento(erro.message || "Nao foi possivel carregar as unidades.");
-      } finally {
-        setCarregando(false);
+  useEffect(() => ouvirClinicasAtualizadas(carregarClinicas), []);
+
+  useEffect(() => {
+    const existeEspecialidadeSelecionada = especialidadesExamesDisponiveis.some(
+      (especialidade) => especialidade.nome === especialidadeSelecionada
+    );
+
+    if (!existeEspecialidadeSelecionada) {
+      setEspecialidadeSelecionada("Todos");
+    }
+  }, [especialidadeSelecionada, especialidadesExamesDisponiveis]);
+
+  useEffect(() => {
+    function recarregarAoVoltar() {
+      if (document.visibilityState === "visible") {
+        carregarClinicas();
       }
     }
 
-    carregarClinicas();
+    document.addEventListener("visibilitychange", recarregarAoVoltar);
+    window.addEventListener("focus", carregarClinicas);
+
+    return () => {
+      document.removeEventListener("visibilitychange", recarregarAoVoltar);
+      window.removeEventListener("focus", carregarClinicas);
+    };
   }, []);
 
   useEffect(() => {
@@ -47,15 +124,29 @@ function PacienteExames() {
     const resultado = clinicas.filter((clinica) => {
       const nome = String(clinica.nome || "").toLowerCase();
       const bairro = String(clinica.bairro || "").toLowerCase();
-      const bateTexto = !termo || nome.includes(termo) || bairro.includes(termo);
+      const exames = obterEspecialidadesExames(clinica);
+      const temExames = exames.length > 0;
+      const examesTexto = exames.join(" ").toLowerCase();
+      const bateTexto =
+        !termo || nome.includes(termo) || bairro.includes(termo) || examesTexto.includes(termo);
+      const bateEspecialidade =
+        especialidadeSelecionada === "Todos" || exames.includes(especialidadeSelecionada);
       const bateBairro =
         bairroSelecionado === "Todos" || clinica.bairro === bairroSelecionado;
+      const bateDisponibilidadeEspecialidade =
+        especialidadeSelecionada === "Todos" || clinicaEstaDisponivel(clinica);
 
-      return bateTexto && bateBairro;
+      return (
+        temExames &&
+        bateTexto &&
+        bateEspecialidade &&
+        bateBairro &&
+        bateDisponibilidadeEspecialidade
+      );
     });
 
     setClinicasFiltradas(resultado);
-  }, [bairroSelecionado, clinicas, termoBusca]);
+  }, [bairroSelecionado, clinicas, especialidadeSelecionada, termoBusca]);
 
   function aoClicarAgendar(clinica) {
     navigate(`/paciente/agendar-exame?clinica=${clinica.id}`);
@@ -63,38 +154,36 @@ function PacienteExames() {
 
   function limparFiltrosPesquisa() {
     setTermoBusca("");
+    setEspecialidadeSelecionada("Todos");
     setBairroSelecionado("Todos");
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="sticky top-0 z-10 bg-blue-400 px-5 pb-6 pt-12 shadow-md">
-        <div className="mb-4 flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold leading-tight text-white">Exames</h1>
-            <p className="mt-1 text-sm text-blue-100">
-              Escolha uma unidade para agendar seu exame
-            </p>
-          </div>
-          <MenuUsuarioPaciente />
-        </div>
+      <CabecalhoApp
+        titulo="Exames"
+        descricao="Escolha uma unidade para agendar seu exame"
+        acao={<MenuUsuarioPaciente />}
+      />
 
+      <main className="app-content space-y-4">
+        <section className="rounded-xl border border-gray-100 bg-white p-3 shadow-sm">
         <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg text-gray-400">
+          <span className="absolute left-4 top-1/2 hidden -translate-y-1/2 text-sm text-gray-400 sm:block">
             Buscar
           </span>
           <input
             type="text"
             value={termoBusca}
             onChange={(e) => setTermoBusca(e.target.value)}
-            placeholder="Unidade ou bairro..."
-            className="w-full rounded-2xl bg-white py-3.5 pl-20 pr-24 text-base text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+            placeholder="Unidade, exame ou bairro..."
+            className="w-full rounded-xl border border-gray-100 bg-gray-50 py-2.5 pl-4 pr-24 text-sm text-gray-700 placeholder:text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 sm:pl-20"
           />
           {termoBusca && (
             <button
               type="button"
               onClick={() => setTermoBusca("")}
-              className="absolute right-14 top-1/2 -translate-y-1/2 p-1 text-gray-400"
+              className="absolute right-14 top-1/2 -translate-y-1/2 p-1 text-sm text-gray-400"
               aria-label="Limpar busca"
             >
               X
@@ -124,11 +213,11 @@ function PacienteExames() {
         </div>
 
         {filtroBuscaAberto && (
-          <div className="mt-3 rounded-2xl border border-blue-100 bg-white p-4 shadow-lg">
+          <div className="mt-3 rounded-xl border border-blue-100 bg-white p-3 shadow-sm">
             <div className="mb-3 flex items-center justify-between">
               <div>
                 <p className="text-sm font-bold text-gray-800">Filtros de pesquisa</p>
-                <p className="text-xs text-gray-400">Refine por bairro</p>
+                <p className="text-xs text-gray-400">Refine por exame e bairro</p>
               </div>
               {quantidadeFiltrosAtivos > 0 && (
                 <button
@@ -141,30 +230,55 @@ function PacienteExames() {
               )}
             </div>
 
-            <p className="mb-2 text-xs font-medium uppercase text-gray-500">
-              Bairros
-            </p>
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              {todosBairros.map((bairro) => (
-                <button
-                  key={bairro}
-                  type="button"
-                  onClick={() => setBairroSelecionado(bairro)}
-                  className={`flex-shrink-0 rounded-full px-4 py-2 text-sm font-medium transition ${
-                    bairroSelecionado === bairro
-                      ? "bg-blue-400 text-white shadow-md"
-                      : "border border-gray-200 bg-gray-50 text-gray-600"
-                  }`}
-                >
-                  {bairro}
-                </button>
-              ))}
+            <div className="mb-4">
+              <p className="mb-2 text-xs font-medium uppercase text-gray-500">
+                Exames
+              </p>
+              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                {especialidadesExamesDisponiveis.map((especialidade) => (
+                  <button
+                    key={especialidade.nome}
+                    type="button"
+                    onClick={() => setEspecialidadeSelecionada(especialidade.nome)}
+                    className={`flex-shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition ${
+                      especialidadeSelecionada === especialidade.nome
+                        ? "bg-blue-400 text-white shadow-md"
+                        : "border border-gray-200 bg-gray-50 text-gray-600"
+                    }`}
+                  >
+                    {especialidade.nome}
+                    <span className="ml-2 rounded-full bg-white/40 px-1.5 text-xs">
+                      {especialidade.quantidade}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="mb-2 text-xs font-medium uppercase text-gray-500">
+                Bairros
+              </p>
+              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                {todosBairros.map((bairro) => (
+                  <button
+                    key={bairro}
+                    type="button"
+                    onClick={() => setBairroSelecionado(bairro)}
+                    className={`flex-shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition ${
+                      bairroSelecionado === bairro
+                        ? "bg-blue-400 text-white shadow-md"
+                        : "border border-gray-200 bg-gray-50 text-gray-600"
+                    }`}
+                  >
+                    {bairro}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
-      </header>
-
-      <main className="px-4 py-5">
+        </section>
         {carregando && (
           <p className="py-6 text-center text-sm text-gray-500">
             Carregando unidades...
@@ -196,7 +310,7 @@ function PacienteExames() {
               Nenhuma unidade encontrada
             </p>
             <p className="mt-1 text-sm text-gray-400">
-              Tente outro nome ou bairro
+              Tente outro nome, exame ou bairro
             </p>
             <button
               type="button"
@@ -208,7 +322,7 @@ function PacienteExames() {
           </div>
         )}
 
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {clinicasFiltradas.map((clinica) => (
             <article
               key={clinica.id}
@@ -221,9 +335,7 @@ function PacienteExames() {
               <div className="p-5">
                 <div className="mb-3 flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-2xl">
-                      {clinica.emoji || "+"}
-                    </div>
+                    <FotoClinica src={clinica.fotoPerfil} nome={clinica.nome} />
                     <div>
                       <h2 className="text-base font-bold leading-tight text-gray-800">
                         {clinica.nome}
@@ -253,7 +365,7 @@ function PacienteExames() {
                 </p>
 
                 <div className="mb-4 flex flex-wrap gap-1.5">
-                  {["Coleta", "Exames laboratoriais", "Resultados"].map((servico) => (
+                  {obterEspecialidadesExames(clinica).map((servico) => (
                     <span
                       key={servico}
                       className="rounded-full bg-blue-50 px-2.5 py-1 text-xs text-blue-600"
@@ -263,7 +375,7 @@ function PacienteExames() {
                   ))}
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row">
                   <a
                     href={`tel:${clinica.telefone}`}
                     className="flex flex-1 items-center justify-center rounded-xl bg-gray-100 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-200"
@@ -272,7 +384,11 @@ function PacienteExames() {
                   </a>
                   <button
                     type="button"
-                    onClick={() => setClinicaInfoAberta(clinica)}
+                    onClick={() =>
+                      navigate(`/paciente/clinicas/${clinica.id}`, {
+                        state: { origem: "exames" },
+                      })
+                    }
                     className="flex flex-1 items-center justify-center rounded-xl border border-gray-200 bg-white py-3 text-sm font-semibold text-gray-700 transition hover:border-blue-300"
                   >
                     Mais info
@@ -280,14 +396,16 @@ function PacienteExames() {
                   <button
                     type="button"
                     onClick={() => aoClicarAgendar(clinica)}
-                    disabled={!clinica.aberta}
+                    disabled={!clinica.aberta || !obterEspecialidadesExames(clinica).length}
                     className={`flex-[1.6] rounded-xl py-3 text-base font-bold transition active:scale-95 ${
-                      clinica.aberta
+                      clinica.aberta && obterEspecialidadesExames(clinica).length
                         ? "bg-blue-400 text-white shadow-sm hover:bg-blue-500"
                         : "cursor-not-allowed bg-gray-200 text-gray-400"
                     }`}
                   >
-                    {clinica.aberta ? "Agendar" : "Indisponivel"}
+                    {clinica.aberta && obterEspecialidadesExames(clinica).length
+                      ? "Agendar"
+                      : "Indisponivel"}
                   </button>
                 </div>
               </div>
@@ -297,40 +415,6 @@ function PacienteExames() {
       </main>
 
       <MenuInferiorPaciente abaAtiva="exames" />
-
-      {clinicaInfoAberta && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl">
-            <h3 className="mb-1 text-lg font-bold text-gray-800">
-              {clinicaInfoAberta.emoji || "+"} {clinicaInfoAberta.nome}
-            </h3>
-            <p className="mb-4 text-sm font-medium text-blue-500">
-              {clinicaInfoAberta.bairro}
-            </p>
-            <div className="space-y-2 text-sm text-gray-600">
-              <p>
-                <span className="font-semibold">Endereco:</span>{" "}
-                {clinicaInfoAberta.endereco}
-              </p>
-              <p>
-                <span className="font-semibold">Telefone:</span>{" "}
-                {clinicaInfoAberta.telefone}
-              </p>
-              <p>
-                <span className="font-semibold">Funcionamento:</span>{" "}
-                {clinicaInfoAberta.horario}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setClinicaInfoAberta(null)}
-              className="mt-5 w-full rounded-xl bg-blue-400 py-3 font-semibold text-white hover:bg-blue-500"
-            >
-              Fechar
-            </button>
-          </div>
-        </div>
-      )}
 
       <div className="h-24" />
     </div>

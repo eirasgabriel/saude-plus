@@ -4,6 +4,7 @@ import {
   criarClinicaApi,
   listarClinicasApi,
 } from "../../infrastructure/api/clinicas-api";
+import { notificarClinicasAtualizadas } from "./clinicas-eventos";
 
 async function listarClinicas() {
   const dados = await listarClinicasApi();
@@ -17,18 +18,24 @@ async function buscarClinicaPorId(id) {
 
 async function salvarClinica(clinica) {
   if (clinica.id) {
-    return atualizarClinicaApi(clinica.id, clinica);
+    const atualizada = await atualizarClinicaApi(clinica.id, clinica);
+    notificarClinicasAtualizadas();
+    return atualizada;
   }
 
-  return criarClinicaApi(clinica);
+  const criada = await criarClinicaApi(clinica);
+  notificarClinicasAtualizadas();
+  return criada;
 }
 
 async function alternarStatusClinica(clinica) {
   const proximoStatus = clinica.status === "ativa" ? "temporariamente_fechada" : "ativa";
-  return atualizarClinicaApi(clinica.id, {
+  const atualizada = await atualizarClinicaApi(clinica.id, {
     ...clinica,
     status: proximoStatus,
   });
+  notificarClinicasAtualizadas();
+  return atualizada;
 }
 
 export { listarClinicas, buscarClinicaPorId, salvarClinica, alternarStatusClinica };

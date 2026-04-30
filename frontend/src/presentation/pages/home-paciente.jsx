@@ -1,9 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { ArrowRight, CalendarDays, TestTube2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { buscarHistoricoPaciente } from "../../application/agenda/agendamento-use-cases";
 import { obterUsuarioAtual } from "../../application/auth/auth-service";
 import { listarExamesPaciente } from "../../application/exames/exames-use-cases";
+import { ouvirClinicasAtualizadas } from "../../application/clinicas/clinicas-eventos";
 import { listarClinicas } from "../../application/clinicas/clinicas-use-cases";
+import CabecalhoApp from "../components/cabecalho-app";
 import MenuInferiorPaciente from "../components/menu-inferior-paciente";
 import MenuUsuarioPaciente from "../components/menu-usuario-paciente";
 
@@ -60,30 +63,32 @@ function HomePaciente() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
 
-  useEffect(() => {
-    async function carregarDashboard() {
-      const pacienteId = usuario?.id != null ? Number(usuario.id) : 1;
-      setCarregando(true);
-      setErro("");
+  async function carregarDashboard() {
+    const pacienteId = usuario?.id != null ? Number(usuario.id) : 1;
+    setCarregando(true);
+    setErro("");
 
-      try {
-        const [listaConsultas, listaClinicas, listaExames] = await Promise.all([
-          buscarHistoricoPaciente(pacienteId),
-          listarClinicas(),
-          listarExamesPaciente(pacienteId),
-        ]);
-        setConsultas(Array.isArray(listaConsultas) ? listaConsultas : []);
-        setClinicas(Array.isArray(listaClinicas) ? listaClinicas : []);
-        setExames(Array.isArray(listaExames) ? listaExames : []);
-      } catch (e) {
-        setErro(e.message || "Nao foi possivel carregar suas consultas.");
-      } finally {
-        setCarregando(false);
-      }
+    try {
+      const [listaConsultas, listaClinicas, listaExames] = await Promise.all([
+        buscarHistoricoPaciente(pacienteId),
+        listarClinicas(),
+        listarExamesPaciente(pacienteId),
+      ]);
+      setConsultas(Array.isArray(listaConsultas) ? listaConsultas : []);
+      setClinicas(Array.isArray(listaClinicas) ? listaClinicas : []);
+      setExames(Array.isArray(listaExames) ? listaExames : []);
+    } catch (e) {
+      setErro(e.message || "Nao foi possivel carregar suas consultas.");
+    } finally {
+      setCarregando(false);
     }
+  }
 
+  useEffect(() => {
     carregarDashboard();
   }, [usuario?.id]);
+
+  useEffect(() => ouvirClinicasAtualizadas(carregarDashboard), [usuario?.id]);
 
   const consultasFuturas = useMemo(() => {
     const hoje = paraInicioDoDia(new Date());
@@ -117,43 +122,53 @@ function HomePaciente() {
         const dataExame = paraInicioDoDia(new Date(`${exame.data}T00:00:00`));
         return dataExame >= hoje && exame.status !== "cancelado";
       })
+      .map((exame) => {
+        const clinica = clinicas.find(
+          (item) => Number(item.id) === Number(exame.clinica_id)
+        );
+
+        return {
+          ...exame,
+          clinica_nome: clinica?.nome || exame.clinica_nome,
+          clinica_bairro: clinica?.bairro || exame.clinica_bairro,
+        };
+      })
       .sort((a, b) =>
         `${a.data} ${a.horario}`.localeCompare(`${b.data} ${b.horario}`)
       );
-  }, [exames]);
+  }, [clinicas, exames]);
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="sticky top-0 z-10 bg-blue-400 px-5 pb-6 pt-12 shadow-md">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-sm text-blue-100">Ola, {nomeUsuario}</p>
-            <h1 className="text-2xl font-bold leading-tight text-white">
-              Sua dashboard
-            </h1>
-          </div>
-          <MenuUsuarioPaciente />
-        </div>
-        <p className="mt-1 text-sm text-blue-100">
-          Acompanhe seus proximos atendimentos
-        </p>
-      </header>
+      <CabecalhoApp
+        contexto={`Ola, ${nomeUsuario}`}
+        titulo="Sua dashboard"
+        descricao="Acompanhe seus proximos atendimentos"
+        acao={<MenuUsuarioPaciente />}
+      />
 
-      <main className="space-y-4 px-4 py-5">
-        <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-          <div className="mb-4 flex items-start justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-bold text-gray-800">Proximas consultas</h2>
-              <p className="mt-1 text-sm text-gray-500">
+      <main className="app-content dashboard-shell">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <section className="dashboard-section">
+          <div className="dashboard-section-header">
+            <div className="flex items-start gap-3">
+              <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-500">
+                <CalendarDays className="h-5 w-5" aria-hidden="true" />
+              </div>
+              <div>
+              <h2 className="dashboard-section-title">Proximas consultas</h2>
+              <p className="dashboard-section-description">
                 Agendamentos futuros confirmados para voce
               </p>
+              </div>
             </div>
             <button
               type="button"
               onClick={() => navigate("/paciente/consultas")}
-              className="rounded-lg bg-blue-50 px-3 py-2 text-xs font-bold text-blue-600 hover:bg-blue-100"
+              className="dashboard-action"
             >
-              Agendar
+              <span>Agendar</span>
+              <ArrowRight className="ml-1 h-4 w-4" aria-hidden="true" />
             </button>
           </div>
 
@@ -170,7 +185,7 @@ function HomePaciente() {
           )}
 
           {!carregando && !erro && consultasFuturas.length === 0 && (
-            <div className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-5 text-center">
+            <div className="dashboard-card-muted text-center">
               <p className="font-semibold text-gray-700">Nenhuma consulta futura</p>
               <p className="mt-1 text-sm text-gray-500">
                 Seus proximos agendamentos aparecerao aqui.
@@ -183,7 +198,7 @@ function HomePaciente() {
               {consultasFuturas.map((consulta) => (
                 <article
                   key={consulta.id}
-                  className="rounded-xl border border-gray-100 bg-gray-50 p-4"
+                  className="dashboard-card-muted"
                 >
                   <p className="font-bold text-gray-800">{consulta.clinicaNome}</p>
                   <p className="mt-1 text-sm text-gray-500">{consulta.clinicaBairro}</p>
@@ -207,25 +222,31 @@ function HomePaciente() {
           )}
         </section>
 
-        <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-          <div className="mb-4 flex items-start justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-bold text-gray-800">Proximos exames</h2>
-              <p className="mt-1 text-sm text-gray-500">
+        <section className="dashboard-section">
+          <div className="dashboard-section-header">
+            <div className="flex items-start gap-3">
+              <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                <TestTube2 className="h-5 w-5" aria-hidden="true" />
+              </div>
+              <div>
+              <h2 className="dashboard-section-title">Proximos exames</h2>
+              <p className="dashboard-section-description">
                 Solicitacoes e resultados previstos
               </p>
+              </div>
             </div>
             <button
               type="button"
               onClick={() => navigate("/paciente/exames")}
-              className="rounded-lg bg-blue-50 px-3 py-2 text-xs font-bold text-blue-600 hover:bg-blue-100"
+              className="dashboard-action"
             >
-              Ver exames
+              <span>Ver exames</span>
+              <ArrowRight className="ml-1 h-4 w-4" aria-hidden="true" />
             </button>
           </div>
 
           {proximosExames.length === 0 ? (
-            <div className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-5 text-center">
+            <div className="dashboard-card-muted text-center">
               <p className="font-semibold text-gray-700">Nenhum exame futuro</p>
               <p className="mt-1 text-sm text-gray-500">
                 Seus proximos exames aparecerao aqui.
@@ -236,7 +257,7 @@ function HomePaciente() {
               {proximosExames.map((exame) => (
                 <article
                   key={exame.id}
-                  className="rounded-xl border border-gray-100 bg-gray-50 p-4"
+                  className="dashboard-card-muted"
                 >
                   <p className="font-bold text-gray-800">{exame.tipo}</p>
                   <p className="mt-1 text-sm text-gray-500">{exame.clinica_nome}</p>
@@ -254,6 +275,7 @@ function HomePaciente() {
             </div>
           )}
         </section>
+        </div>
       </main>
 
       <MenuInferiorPaciente abaAtiva="inicio" />

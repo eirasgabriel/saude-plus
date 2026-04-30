@@ -1,62 +1,362 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { ClipboardList, FileText, Stethoscope, TestTube2 } from "lucide-react";
+import { buscarHistoricoPaciente } from "../../application/agenda/agendamento-use-cases";
+import { obterUsuarioAtual } from "../../application/auth/auth-service";
+import { listarClinicas } from "../../application/clinicas/clinicas-use-cases";
+import { listarExamesPaciente } from "../../application/exames/exames-use-cases";
+import CabecalhoApp from "../components/cabecalho-app";
 import MenuInferiorPaciente from "../components/menu-inferior-paciente";
 import MenuUsuarioPaciente from "../components/menu-usuario-paciente";
 
-const DOCUMENTOS = [
-  {
-    id: 1,
-    titulo: "Comprovantes de consultas",
-    descricao: "Baixe comprovantes dos agendamentos realizados.",
-  },
-  {
-    id: 2,
-    titulo: "Resultados de exames",
-    descricao: "Acesse arquivos liberados pelas unidades de saude.",
-  },
-  {
-    id: 3,
-    titulo: "Declaracoes",
-    descricao: "Documentos emitidos para atendimentos e comparecimento.",
-  },
-];
+function parseAgendaId(agendaId) {
+  const parsed = /^ag-(\d+)-(\d{4}-\d{2}-\d{2})-t(\d{2})(\d{2})$/.exec(
+    String(agendaId || "")
+  );
+  if (!parsed) return null;
+
+  return {
+    clinicaId: Number(parsed[1]),
+    data: parsed[2],
+    hora: `${parsed[3]}:${parsed[4]}`,
+  };
+}
+
+function obterAgendaDaConsulta(consulta) {
+  const agenda = parseAgendaId(consulta.agenda_id);
+  if (agenda) return agenda;
+
+  const data = consulta.data || consulta.data_consulta;
+  const hora = consulta.hora || consulta.horario;
+  if (!data || !hora) return null;
+
+  return {
+    clinicaId: Number(consulta.clinica_id),
+    data,
+    hora,
+  };
+}
+
+function paraInicioDoDia(date) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function formatarData(dataIso) {
+  if (!dataIso) return "-";
+
+  const [y, m, d] = String(dataIso).split("-").map(Number);
+  if (!y || !m || !d) return "-";
+
+  return new Date(y, m - 1, d).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
+function normalizarNomeArquivo(texto) {
+  return String(texto || "documento")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+function baixarArquivo(nomeArquivo, conteudo) {
+  const blob = new Blob([conteudo], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = nomeArquivo;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function montarConteudoDocumento(documento, usuario) {
+  return [
+    `Saude+ - ${documento.categoria}`,
+    "",
+    `Paciente: ${usuario?.nome || "Paciente"}`,
+    `Documento: ${documento.titulo}`,
+    `Data: ${formatarData(documento.data)}`,
+    `Unidade: ${documento.clinica}`,
+    documento.medico ? `Medico: ${documento.medico}` : null,
+    documento.especialidade ? `Especialidade: ${documento.especialidade}` : null,
+    documento.horario ? `Horario: ${documento.horario}` : null,
+    documento.status ? `Status: ${documento.status}` : null,
+    "",
+    documento.descricao,
+    "",
+    "Documento gerado a partir dos anexos liberados no Saude+.",
+  ]
+    .filter((linha) => linha !== null)
+    .join("\n");
+}
+
+function montarDownloadsConsultas(consultas, clinicas) {
+  const hoje = paraInicioDoDia(new Date());
+
+  return consultas
+    .map((consulta) => {
+      const agenda = obterAgendaDaConsulta(consulta);
+      if (!agenda) return null;
+
+      const status = String(consulta.status || "realizada").toLowerCase();
+      const dataConsulta = paraInicioDoDia(new Date(`${agenda.data}T00:00:00`));
+      const consultaComAnexos =
+        status !== "cancelada" && (dataConsulta < hoje || status === "realizada");
+
+      if (!consultaComAnexos) return null;
+
+      const clinica =
+        clinicas.find((item) => Number(item.id) === Number(agenda.clinicaId)) ||
+        clinicas.find((item) => Number(item.id) === Number(consulta.clinica_id));
+
+      return {
+        id: String(consulta.id),
+        data: agenda.data,
+        horario: agenda.hora,
+        clinica: clinica?.nome || "Clinica nao identificada",
+        medico: consulta.medico || `Medico ${consulta.medico_id || ""}`.trim(),
+        especialidade: consulta.especialidade || "Atendimento",
+        status,
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => `${b.data} ${b.horario}`.localeCompare(`${a.data} ${a.horario}`));
+}
+
+function criarDocumentoExame(exame) {
+  return {
+    id: `exame-${exame.id}`,
+    categoria: "Exame",
+    titulo: exame.tipo || "Resultado de exame",
+    data: exame.data,
+    horario: exame.horario,
+    clinica: exame.clinica_nome || "Unidade nao informada",
+    status: exame.status || "liberado",
+    descricao: `Resultado anexado para ${exame.tipo || "exame"}.`,
+  };
+}
+
+function criarDocumentoProntuario(consulta) {
+  return {
+    id: `prontuario-${consulta.id}`,
+    categoria: "Prontuario",
+    titulo: `Prontuario - ${consulta.especialidade}`,
+    data: consulta.data,
+    horario: consulta.horario,
+    clinica: consulta.clinica,
+    medico: consulta.medico,
+    especialidade: consulta.especialidade,
+    status: consulta.status,
+    descricao:
+      "Registro clinico anexado pelo medico com resumo do atendimento, conduta e orientacoes.",
+  };
+}
+
+function criarDocumentoAtestado(consulta) {
+  return {
+    id: `atestado-${consulta.id}`,
+    categoria: "Atestado",
+    titulo: `Atestado - ${consulta.especialidade}`,
+    data: consulta.data,
+    horario: consulta.horario,
+    clinica: consulta.clinica,
+    medico: consulta.medico,
+    especialidade: consulta.especialidade,
+    status: consulta.status,
+    descricao:
+      "Atestado anexado pelo medico para comprovacao de comparecimento ao atendimento.",
+  };
+}
 
 function PacienteDownloads() {
+  const usuario = obterUsuarioAtual();
+  const [consultas, setConsultas] = useState([]);
+  const [exames, setExames] = useState([]);
+  const [clinicas, setClinicas] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState("");
+
+  useEffect(() => {
+    async function carregarDownloads() {
+      const pacienteId = usuario?.id != null ? Number(usuario.id) : 1;
+      setCarregando(true);
+      setErro("");
+
+      try {
+        const [listaConsultas, listaExames, listaClinicas] = await Promise.all([
+          buscarHistoricoPaciente(pacienteId),
+          listarExamesPaciente(pacienteId),
+          listarClinicas(),
+        ]);
+
+        setConsultas(Array.isArray(listaConsultas) ? listaConsultas : []);
+        setExames(Array.isArray(listaExames) ? listaExames : []);
+        setClinicas(Array.isArray(listaClinicas) ? listaClinicas : []);
+      } catch (falha) {
+        setErro(falha.message || "Nao foi possivel carregar os downloads.");
+      } finally {
+        setCarregando(false);
+      }
+    }
+
+    carregarDownloads();
+  }, [usuario?.id]);
+
+  const gruposDownloads = useMemo(() => {
+    const consultasComAnexos = montarDownloadsConsultas(consultas, clinicas);
+    const examesDisponiveis = exames
+      .filter((exame) => String(exame.status || "").toLowerCase() !== "cancelado")
+      .sort((a, b) =>
+        `${b.data || ""} ${b.horario || ""}`.localeCompare(
+          `${a.data || ""} ${a.horario || ""}`
+        )
+      );
+
+    return [
+      {
+        chave: "exames",
+        titulo: "Exames",
+        descricao: "Resultados e laudos anexados pelas unidades.",
+        Icone: TestTube2,
+        documentos: examesDisponiveis.map(criarDocumentoExame),
+      },
+      {
+        chave: "prontuarios",
+        titulo: "Prontuarios",
+        descricao: "Registros clinicos anexados pelos medicos.",
+        Icone: ClipboardList,
+        documentos: consultasComAnexos.map(criarDocumentoProntuario),
+      },
+      {
+        chave: "atestados",
+        titulo: "Atestados",
+        descricao: "Atestados e comprovantes emitidos pelos medicos.",
+        Icone: Stethoscope,
+        documentos: consultasComAnexos.map(criarDocumentoAtestado),
+      },
+    ];
+  }, [clinicas, consultas, exames]);
+
+  function baixarDocumento(documento) {
+    const nomeArquivo = `${normalizarNomeArquivo(documento.categoria)}-${normalizarNomeArquivo(
+      documento.titulo
+    )}-${documento.data || "sem-data"}.txt`;
+
+    baixarArquivo(nomeArquivo, montarConteudoDocumento(documento, usuario));
+  }
+
+  function baixarGrupo(grupo) {
+    const conteudo = grupo.documentos
+      .map((documento) => montarConteudoDocumento(documento, usuario))
+      .join("\n\n---\n\n");
+    const nomeArquivo = `${normalizarNomeArquivo(grupo.titulo)}-saude-plus.txt`;
+
+    baixarArquivo(nomeArquivo, conteudo);
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="sticky top-0 z-10 bg-blue-400 px-5 pb-6 pt-12 shadow-md">
-        <div className="flex items-start justify-between gap-4">
-          <h1 className="text-2xl font-bold leading-tight text-white">Downloads</h1>
-          <MenuUsuarioPaciente />
-        </div>
-        <p className="mt-1 text-sm text-blue-100">
-          Documentos e arquivos do paciente
-        </p>
-      </header>
+      <CabecalhoApp
+        titulo="Downloads"
+        descricao="Exames, prontuarios e atestados anexados"
+        acao={<MenuUsuarioPaciente />}
+      />
 
-      <main className="space-y-3 px-4 py-5">
-        {DOCUMENTOS.map((documento) => (
-          <div
-            key={documento.id}
-            className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="font-bold text-gray-800">{documento.titulo}</p>
-                <p className="mt-1 text-sm text-gray-500">{documento.descricao}</p>
-              </div>
-              <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-500">
-                Em breve
-              </span>
-            </div>
-            <button
-              type="button"
-              disabled
-              className="mt-4 w-full rounded-xl bg-gray-100 py-3 text-sm font-bold text-gray-400"
-            >
-              Nenhum arquivo disponivel
-            </button>
+      <main className="app-content-narrow space-y-4">
+        {carregando && (
+          <p className="rounded-2xl border border-gray-100 bg-white p-5 text-sm text-gray-500 shadow-sm">
+            Carregando arquivos...
+          </p>
+        )}
+
+        {!carregando && erro && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+            <p className="text-sm text-red-600">{erro}</p>
           </div>
-        ))}
+        )}
+
+        {!carregando &&
+          !erro &&
+          gruposDownloads.map((grupo) => {
+            const Icone = grupo.Icone;
+            const quantidade = grupo.documentos.length;
+
+            return (
+              <section
+                key={grupo.chave}
+                className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-500">
+                    <Icone className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h2 className="font-bold text-gray-800">{grupo.titulo}</h2>
+                        <p className="mt-1 text-sm text-gray-500">{grupo.descricao}</p>
+                      </div>
+                      <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-500">
+                        {quantidade}
+                      </span>
+                    </div>
+
+                    {quantidade > 0 ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => baixarGrupo(grupo)}
+                          className="mt-4 w-full rounded-xl bg-blue-400 py-3 text-sm font-bold text-white transition hover:bg-blue-500"
+                        >
+                          Baixar todos
+                        </button>
+
+                        <div className="mt-3 space-y-2">
+                          {grupo.documentos.map((documento) => (
+                            <div
+                              key={documento.id}
+                              className="rounded-xl border border-gray-100 bg-gray-50 p-3"
+                            >
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="min-w-0">
+                                  <p className="truncate text-sm font-semibold text-gray-800">
+                                    {documento.titulo}
+                                  </p>
+                                  <p className="mt-0.5 text-xs text-gray-500">
+                                    {formatarData(documento.data)} - {documento.clinica}
+                                  </p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => baixarDocumento(documento)}
+                                  className="flex flex-shrink-0 items-center gap-1 rounded-lg bg-white px-3 py-2 text-xs font-bold text-blue-600 shadow-sm hover:bg-blue-50"
+                                >
+                                  <FileText className="h-4 w-4" aria-hidden="true" />
+                                  Baixar
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <p className="mt-4 rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-500">
+                        Nenhum arquivo anexado nesta categoria.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </section>
+            );
+          })}
       </main>
 
       <MenuInferiorPaciente abaAtiva="downloads" />

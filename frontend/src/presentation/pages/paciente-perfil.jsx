@@ -1,36 +1,294 @@
-import React from "react";
-import { obterUsuarioAtual } from "../../application/auth/auth-service";
+import React, { useEffect, useState } from "react";
+import {
+  obterUsuarioAtual,
+  registrarUsuarioAutenticado,
+} from "../../application/auth/auth-service";
+import { salvarUsuario } from "../../application/usuarios/usuarios-use-cases";
+import { buscarEnderecoPorCep } from "../../infrastructure/api/cep-api";
+import CabecalhoApp from "../components/cabecalho-app";
+import ControleNotificacoesPush from "../components/controle-notificacoes-push";
 import MenuInferiorPaciente from "../components/menu-inferior-paciente";
 import MenuUsuarioPaciente from "../components/menu-usuario-paciente";
 
+const CAMPOS_PERFIL = [
+  { chave: "nome", rotulo: "Nome", autoComplete: "name" },
+  { chave: "email", rotulo: "E-mail", tipo: "email", autoComplete: "email" },
+  { chave: "cpf", rotulo: "CPF", inputMode: "numeric" },
+  { chave: "telefone", rotulo: "Telefone", inputMode: "tel", autoComplete: "tel" },
+  { chave: "cep", rotulo: "CEP", inputMode: "numeric", autoComplete: "postal-code" },
+  { chave: "endereco", rotulo: "Endereco", autoComplete: "street-address" },
+  { chave: "bairro", rotulo: "Bairro", autoComplete: "address-level3" },
+  { chave: "cidade", rotulo: "Cidade", autoComplete: "address-level2" },
+  { chave: "estado", rotulo: "UF", autoComplete: "address-level1" },
+];
+
+function somenteNumeros(valor) {
+  return String(valor || "").replace(/\D/g, "");
+}
+
+function formatarCpf(valor) {
+  const numeros = somenteNumeros(valor).slice(0, 11);
+  return numeros
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+}
+
+function formatarTelefone(valor) {
+  const numeros = somenteNumeros(valor).slice(0, 11);
+
+  if (numeros.length <= 10) {
+    return numeros
+      .replace(/(\d{2})(\d)/, "($1) $2")
+      .replace(/(\d{4})(\d)/, "$1-$2");
+  }
+
+  return numeros
+    .replace(/(\d{2})(\d)/, "($1) $2")
+    .replace(/(\d{5})(\d)/, "$1-$2");
+}
+
+function formatarCep(valor) {
+  const numeros = somenteNumeros(valor).slice(0, 8);
+  return numeros.replace(/(\d{5})(\d)/, "$1-$2");
+}
+
+function montarFormulario(usuario) {
+  return {
+    nome: usuario?.nome || "",
+    email: usuario?.email || "",
+    cpf: formatarCpf(usuario?.cpf || ""),
+    telefone: formatarTelefone(usuario?.telefone || ""),
+    cep: formatarCep(usuario?.cep || ""),
+    endereco: usuario?.endereco || "",
+    bairro: usuario?.bairro || "",
+    cidade: usuario?.cidade || "",
+    estado: String(usuario?.estado || "").toUpperCase().slice(0, 2),
+  };
+}
+
+function validarFormulario(formulario) {
+  const cpfNumeros = somenteNumeros(formulario.cpf);
+  const telefoneNumeros = somenteNumeros(formulario.telefone);
+  const cepNumeros = somenteNumeros(formulario.cep);
+
+  if (!formulario.nome.trim()) return "Informe seu nome completo.";
+  if (!formulario.email.trim()) return "Informe seu email.";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formulario.email)) {
+    return "Informe um email valido.";
+  }
+  if (cpfNumeros.length !== 11) return "Informe um CPF com 11 digitos.";
+  if (telefoneNumeros.length < 10) return "Informe um telefone com DDD.";
+  if (cepNumeros.length !== 8) return "Informe um CEP com 8 digitos.";
+  if (!formulario.endereco.trim()) return "Informe seu endereco.";
+  if (!formulario.bairro.trim()) return "Informe seu bairro.";
+  if (!formulario.cidade.trim()) return "Informe sua cidade.";
+  if (formulario.estado.trim().length !== 2) return "Informe a UF com 2 letras.";
+
+  return "";
+}
+
 function PacientePerfil() {
-  const usuario = obterUsuarioAtual();
+  const [usuario, setUsuario] = useState(() => obterUsuarioAtual());
+  const [formulario, setFormulario] = useState(() => montarFormulario(usuario));
+  const [editando, setEditando] = useState(false);
+  const [mensagem, setMensagem] = useState("");
+  const [erro, setErro] = useState("");
+  const [carregando, setCarregando] = useState(false);
+  const [buscandoCep, setBuscandoCep] = useState(false);
+
+  useEffect(() => {
+    setFormulario(montarFormulario(usuario));
+  }, [usuario]);
+
+  function alterarCampo(campo, valor) {
+    const normalizadores = {
+      cpf: formatarCpf,
+      telefone: formatarTelefone,
+      cep: formatarCep,
+      estado: (v) => v.toUpperCase().slice(0, 2),
+    };
+
+    setFormulario((atual) => ({
+      ...atual,
+      [campo]: normalizadores[campo] ? normalizadores[campo](valor) : valor,
+    }));
+  }
+
+  function iniciarEdicao() {
+    setErro("");
+    setMensagem("");
+    setFormulario(montarFormulario(usuario));
+    setEditando(true);
+  }
+
+  function cancelarEdicao() {
+    setErro("");
+    setMensagem("");
+    setFormulario(montarFormulario(usuario));
+    setEditando(false);
+  }
+
+  async function preencherEnderecoPorCep() {
+    const cepNumeros = somenteNumeros(formulario.cep);
+    if (!editando || cepNumeros.length !== 8) return;
+
+    setBuscandoCep(true);
+    setErro("");
+
+    try {
+      const endereco = await buscarEnderecoPorCep(cepNumeros);
+      setFormulario((atual) => ({
+        ...atual,
+        cep: formatarCep(endereco.cep),
+        endereco: endereco.endereco || atual.endereco,
+        bairro: endereco.bairro || atual.bairro,
+        cidade: endereco.cidade || atual.cidade,
+        estado: endereco.estado || atual.estado,
+      }));
+    } catch (erroCep) {
+      setErro(erroCep.message || "Nao foi possivel consultar o CEP.");
+    } finally {
+      setBuscandoCep(false);
+    }
+  }
+
+  async function salvarPerfil(evento) {
+    evento.preventDefault();
+    setErro("");
+    setMensagem("");
+
+    const mensagemErro = validarFormulario(formulario);
+    if (mensagemErro) {
+      setErro(mensagemErro);
+      return;
+    }
+
+    setCarregando(true);
+
+    try {
+      const dadosAtualizados = await salvarUsuario({
+        ...usuario,
+        nome: formulario.nome.trim(),
+        email: formulario.email.trim(),
+        cpf: somenteNumeros(formulario.cpf),
+        telefone: somenteNumeros(formulario.telefone),
+        cep: somenteNumeros(formulario.cep),
+        endereco: formulario.endereco.trim(),
+        bairro: formulario.bairro.trim(),
+        cidade: formulario.cidade.trim(),
+        estado: formulario.estado.trim().toUpperCase(),
+      });
+      const usuarioAtualizado = { ...usuario, ...dadosAtualizados };
+
+      registrarUsuarioAutenticado(usuarioAtualizado);
+      setUsuario(usuarioAtualizado);
+      setEditando(false);
+      setMensagem("Dados atualizados com sucesso.");
+    } catch (erroSalvar) {
+      setErro(erroSalvar.message || "Nao foi possivel atualizar seus dados.");
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  const estiloInput =
+    "mt-1 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-800 shadow-sm transition hover:border-blue-300 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:bg-gray-50";
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-blue-400 px-5 pt-12 pb-6 sticky top-0 z-10 shadow-md">
-        <div className="flex items-start justify-between gap-4">
-          <h1 className="text-white text-2xl font-bold leading-tight">Meu perfil</h1>
-          <MenuUsuarioPaciente mostrarPerfil={false} />
-        </div>
-        <p className="text-blue-100 text-sm mt-1">Dados da sua conta</p>
-      </header>
+      <CabecalhoApp
+        titulo="Meu perfil"
+        descricao="Dados da sua conta"
+        acao={<MenuUsuarioPaciente mostrarPerfil={false} />}
+      />
 
-      <main className="px-4 py-6">
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm space-y-3">
-          <div>
-            <p className="text-xs uppercase tracking-wider text-gray-400">Nome</p>
-            <p className="text-gray-800 font-semibold">{usuario?.nome || "Paciente"}</p>
+      <main className="app-content-narrow space-y-4">
+        <form
+          onSubmit={salvarPerfil}
+          className="space-y-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm"
+        >
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-gray-800">Dados pessoais</h2>
+              <p className="text-sm text-gray-500">
+                Informacoes usadas no seu cadastro de paciente.
+              </p>
+            </div>
+            {!editando && (
+              <button
+                type="button"
+                onClick={iniciarEdicao}
+                className="rounded-xl bg-blue-50 px-4 py-2 text-sm font-bold text-blue-600 transition hover:bg-blue-100"
+              >
+                Editar
+              </button>
+            )}
           </div>
-          <div>
-            <p className="text-xs uppercase tracking-wider text-gray-400">E-mail</p>
-            <p className="text-gray-700">{usuario?.email || "Não informado"}</p>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {CAMPOS_PERFIL.map((campo) => (
+              <label
+                key={campo.chave}
+                className={campo.chave === "endereco" ? "block sm:col-span-2" : "block"}
+              >
+                <span className="text-xs font-bold uppercase tracking-wide text-gray-400">
+                  {campo.rotulo}
+                </span>
+                <input
+                  type={campo.tipo || "text"}
+                  value={formulario[campo.chave]}
+                  onChange={(evento) => alterarCampo(campo.chave, evento.target.value)}
+                  onBlur={campo.chave === "cep" ? preencherEnderecoPorCep : undefined}
+                  disabled={!editando || carregando}
+                  inputMode={campo.inputMode}
+                  autoComplete={campo.autoComplete}
+                  className={estiloInput}
+                />
+              </label>
+            ))}
           </div>
-          <div>
-            <p className="text-xs uppercase tracking-wider text-gray-400">Nível de acesso</p>
-            <p className="text-gray-700">{usuario?.nivel_acesso || "paciente"}</p>
-          </div>
-        </div>
+
+          {buscandoCep && (
+            <p className="rounded-xl bg-blue-50 px-4 py-3 text-sm font-medium text-blue-600">
+              Buscando endereco...
+            </p>
+          )}
+
+          {erro && (
+            <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
+              {erro}
+            </p>
+          )}
+
+          {mensagem && (
+            <p className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
+              {mensagem}
+            </p>
+          )}
+
+          {editando && (
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <button
+                type="submit"
+                disabled={carregando}
+                className="flex-1 rounded-xl bg-blue-400 py-3 font-bold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {carregando ? "Salvando..." : "Salvar alteracoes"}
+              </button>
+              <button
+                type="button"
+                onClick={cancelarEdicao}
+                disabled={carregando}
+                className="rounded-xl bg-gray-100 px-4 py-3 font-bold text-gray-700 transition hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Cancelar
+              </button>
+            </div>
+          )}
+        </form>
+
+        <ControleNotificacoesPush />
       </main>
 
       <MenuInferiorPaciente abaAtiva="perfil" />

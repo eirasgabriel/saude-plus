@@ -47,6 +47,7 @@ const clinicasSeed = [
     endereco: "Rua Principal, 100 - Bacaxa, Saquarema/RJ",
     telefone: "(22) 2651-0001",
     especialidades: ["Clinica Geral", "Pediatria", "Vacinacao"],
+    especialidadesExames: ["Hemograma completo", "Glicemia em jejum", "Urina tipo 1"],
     aberta: true,
     status: "ativa",
     responsavel: "Dra. Helena Martins",
@@ -55,6 +56,8 @@ const clinicasSeed = [
     satisfacao: 94,
     horario: "Seg a Sex: 07h as 17h",
     emoji: "+",
+    latitude: -22.9169,
+    longitude: -42.6169,
   },
   {
     id: 2,
@@ -63,6 +66,7 @@ const clinicasSeed = [
     endereco: "Av. Oceanica, 250 - Itauna, Saquarema/RJ",
     telefone: "(22) 2651-0002",
     especialidades: ["Clinica Geral", "Ginecologia", "Pre-Natal"],
+    especialidadesExames: ["Colesterol total e fracoes", "Ultrassonografia", "Preventivo"],
     aberta: true,
     status: "ativa",
     responsavel: "Dr. Ricardo Azevedo",
@@ -71,6 +75,8 @@ const clinicasSeed = [
     satisfacao: 91,
     horario: "Seg a Sex: 08h as 16h",
     emoji: "+",
+    latitude: -22.9338,
+    longitude: -42.4939,
   },
   {
     id: 3,
@@ -79,6 +85,7 @@ const clinicasSeed = [
     endereco: "Rua das Flores, 45 - Vilatur, Saquarema/RJ",
     telefone: "(22) 2651-0003",
     especialidades: ["Clinica Geral", "Odontologia"],
+    especialidadesExames: ["Raio-X", "Hemograma completo"],
     aberta: false,
     status: "temporariamente_fechada",
     responsavel: "Enf. Marcos Vieira",
@@ -87,6 +94,8 @@ const clinicasSeed = [
     satisfacao: 86,
     horario: "Temporariamente fechada",
     emoji: "+",
+    latitude: -22.9344,
+    longitude: -42.6835,
   },
   {
     id: 4,
@@ -95,6 +104,7 @@ const clinicasSeed = [
     endereco: "Estrada Municipal, 78 - Sampaio Correa, Saquarema/RJ",
     telefone: "(22) 2651-0004",
     especialidades: ["Clinica Geral", "Pediatria", "Nutricao"],
+    especialidadesExames: ["Hemograma completo", "Glicemia em jejum", "Colesterol total e fracoes"],
     aberta: true,
     status: "ativa",
     responsavel: "Dra. Priscila Rocha",
@@ -103,6 +113,8 @@ const clinicasSeed = [
     satisfacao: 93,
     horario: "Seg a Sex: 07h as 17h",
     emoji: "+",
+    latitude: -22.8747,
+    longitude: -42.6594,
   },
 ];
 

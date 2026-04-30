@@ -1,11 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ouvirClinicasAtualizadas } from "../../application/clinicas/clinicas-eventos";
 import { listarClinicas } from "../../application/clinicas/clinicas-use-cases";
 import {
   alternarStatusUsuario,
   listarUsuarios,
   salvarUsuario as salvarUsuarioApi,
 } from "../../application/usuarios/usuarios-use-cases";
+import { ouvirUsuariosAtualizados } from "../../application/usuarios/usuarios-eventos";
+import CabecalhoApp from "../components/cabecalho-app";
 
 const ROTULOS_NIVEIS = {
   admin_master: "Admin master",
@@ -32,6 +35,14 @@ function AdminGerenciarUsuarios() {
   const [usuarioEditandoId, setUsuarioEditandoId] = useState(null);
   const [mensagem, setMensagem] = useState("");
 
+  async function carregarClinicas() {
+    try {
+      setClinicas(await listarClinicas());
+    } catch (erro) {
+      setMensagem(erro.message || "Nao foi possivel carregar as clinicas.");
+    }
+  }
+
   async function carregarDados() {
     setMensagem("");
     try {
@@ -48,6 +59,25 @@ function AdminGerenciarUsuarios() {
 
   useEffect(() => {
     carregarDados();
+  }, []);
+
+  useEffect(() => ouvirClinicasAtualizadas(carregarClinicas), []);
+  useEffect(() => ouvirUsuariosAtualizados(carregarDados), []);
+
+  useEffect(() => {
+    function aoVoltarParaTela() {
+      if (document.visibilityState === "visible") {
+        carregarClinicas();
+      }
+    }
+
+    document.addEventListener("visibilitychange", aoVoltarParaTela);
+    window.addEventListener("focus", carregarClinicas);
+
+    return () => {
+      document.removeEventListener("visibilitychange", aoVoltarParaTela);
+      window.removeEventListener("focus", carregarClinicas);
+    };
   }, []);
 
   const usuariosFiltrados = useMemo(() => {
@@ -137,24 +167,16 @@ function AdminGerenciarUsuarios() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-blue-400 px-5 pt-10 pb-6 sticky top-0 z-10 shadow-md">
-        <button
-          type="button"
-          onClick={() => navigate("/admin/master")}
-          className="text-blue-50 text-sm font-semibold mb-4"
-        >
-          Voltar ao painel
-        </button>
-        <p className="text-blue-100 text-sm">Admin Master</p>
-        <h1 className="text-white text-2xl font-bold leading-tight">
-          Gerenciar usuarios
-        </h1>
-        <p className="text-blue-100 text-sm mt-2">
-          Controle acessos de pacientes, medicos, administradores de clinica e prefeitura.
-        </p>
-      </header>
+      <CabecalhoApp
+        compacto
+        aoVoltar={() => navigate("/admin/master")}
+        textoVoltar="Voltar ao painel"
+        voltarSomenteIcone
+        titulo="Gerenciar usuarios"
+        descricao="Controle acessos de pacientes, medicos, administradores de clinica e prefeitura."
+      />
 
-      <main className="px-4 py-5 space-y-5">
+      <main className="app-content space-y-5">
         <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
             <p className="text-gray-500 text-sm">Usuarios</p>

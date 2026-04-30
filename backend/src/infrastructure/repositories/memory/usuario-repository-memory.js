@@ -1,15 +1,62 @@
+const fs = require("fs");
+const path = require("path");
 const { usuariosSeed } = require("./seeds");
 
-function criarUsuarioRepositoryMemory(usuarios = usuariosSeed) {
-  const registros = [...usuarios];
+const CAMINHO_PADRAO_DADOS = path.resolve(__dirname, "../../../../data/usuarios.json");
+
+function copiarUsuario(usuario) {
+  return JSON.parse(JSON.stringify(usuario));
+}
+
+function removerSenha(usuario) {
+  const { senha, ...usuarioSeguro } = usuario;
+  return copiarUsuario(usuarioSeguro);
+}
+
+function carregarRegistros(usuarios, caminhoDados) {
+  if (!fs.existsSync(caminhoDados)) {
+    return usuarios.map(copiarUsuario);
+  }
+
+  try {
+    const conteudo = fs.readFileSync(caminhoDados, "utf8");
+    const dados = JSON.parse(conteudo);
+
+    if (Array.isArray(dados)) {
+      return dados.map(copiarUsuario);
+    }
+
+    console.warn(`Arquivo de usuarios ignorado: formato invalido em ${caminhoDados}`);
+  } catch (erro) {
+    console.warn(`Nao foi possivel carregar usuarios persistidos em ${caminhoDados}:`, erro.message);
+  }
+
+  return usuarios.map(copiarUsuario);
+}
+
+async function persistirRegistros(caminhoDados, registros) {
+  await fs.promises.mkdir(path.dirname(caminhoDados), { recursive: true });
+
+  const temporario = `${caminhoDados}.tmp`;
+  const conteudo = `${JSON.stringify(registros, null, 2)}\n`;
+
+  await fs.promises.writeFile(temporario, conteudo, "utf8");
+  await fs.promises.rm(caminhoDados, { force: true });
+  await fs.promises.rename(temporario, caminhoDados);
+}
+
+function criarUsuarioRepositoryMemory(usuarios = usuariosSeed, opcoes = {}) {
+  const caminhoDados = opcoes.caminhoDados || CAMINHO_PADRAO_DADOS;
+  const registros = carregarRegistros(usuarios, caminhoDados);
 
   return {
     async buscarPorEmail(email) {
-      return registros.find((usuario) => usuario.email === email) || null;
+      const usuario = registros.find((item) => item.email === email);
+      return usuario ? copiarUsuario(usuario) : null;
     },
 
     async listar() {
-      return registros.map(({ senha, ...usuario }) => usuario);
+      return registros.map(removerSenha);
     },
 
     async salvar(dados) {
@@ -22,8 +69,8 @@ function criarUsuarioRepositoryMemory(usuarios = usuariosSeed) {
       };
 
       registros.unshift(novoUsuario);
-      const { senha, ...usuarioSeguro } = novoUsuario;
-      return usuarioSeguro;
+      await persistirRegistros(caminhoDados, registros);
+      return removerSenha(novoUsuario);
     },
 
     async atualizar(id, dados) {
@@ -36,8 +83,8 @@ function criarUsuarioRepositoryMemory(usuarios = usuariosSeed) {
         id: registros[index].id,
       };
 
-      const { senha, ...usuarioSeguro } = registros[index];
-      return usuarioSeguro;
+      await persistirRegistros(caminhoDados, registros);
+      return removerSenha(registros[index]);
     },
   };
 }

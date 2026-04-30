@@ -1,10 +1,24 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import {
+  Activity,
+  Building2,
+  CalendarDays,
+  CheckCircle2,
+  Clock3,
+  LogOut,
+  Percent,
+  UserCircle,
+} from "lucide-react";
 import { obterUsuarioAtual, realizarLogout } from "../../application/auth/auth-service";
+import { ouvirConsultasAtualizadas } from "../../application/agenda/consultas-eventos";
+import { ouvirClinicasAtualizadas } from "../../application/clinicas/clinicas-eventos";
 import { buscarClinicaPorId } from "../../application/clinicas/clinicas-use-cases";
+import { ouvirUsuariosAtualizados } from "../../application/usuarios/usuarios-eventos";
 import {
   RELATORIO_VAZIO,
   obterRelatoriosSistema,
 } from "../../application/sistema/relatorios-use-cases";
+import CabecalhoApp from "../components/cabecalho-app";
 import MenuInferiorAdmin from "../components/menu-inferior-admin";
 
 function HomeAdmin() {
@@ -14,30 +28,43 @@ function HomeAdmin() {
   const [carregandoRelatorio, setCarregandoRelatorio] = useState(false);
   const [erro, setErro] = useState("");
   const [menuUsuarioAberto, setMenuUsuarioAberto] = useState(false);
+  const tempoFechamentoMenuRef = useRef(null);
   const nomeClinica = clinicaVinculada?.nome || "Clinica nao identificada";
 
-  useEffect(() => {
-    async function carregarDados() {
-      if (!usuario?.clinica_id) return;
+  async function carregarDados() {
+    if (!usuario?.clinica_id) return;
 
-      setCarregandoRelatorio(true);
-      setErro("");
-      try {
-        const [clinica, relatorioSistema] = await Promise.all([
-          buscarClinicaPorId(usuario.clinica_id),
-          obterRelatoriosSistema(),
-        ]);
-        setClinicaVinculada(clinica);
-        setRelatorio(relatorioSistema);
-      } catch (falha) {
-        setErro(falha.message || "Nao foi possivel carregar o painel da clinica.");
-      } finally {
-        setCarregandoRelatorio(false);
-      }
+    setCarregandoRelatorio(true);
+    setErro("");
+    try {
+      const [clinica, relatorioSistema] = await Promise.all([
+        buscarClinicaPorId(usuario.clinica_id),
+        obterRelatoriosSistema(),
+      ]);
+      setClinicaVinculada(clinica);
+      setRelatorio(relatorioSistema);
+    } catch (falha) {
+      setErro(falha.message || "Nao foi possivel carregar o painel da clinica.");
+    } finally {
+      setCarregandoRelatorio(false);
     }
+  }
 
+  useEffect(() => {
     carregarDados();
   }, [usuario?.clinica_id]);
+
+  useEffect(() => ouvirClinicasAtualizadas(carregarDados), [usuario?.clinica_id]);
+  useEffect(() => ouvirConsultasAtualizadas(carregarDados), [usuario?.clinica_id]);
+  useEffect(() => ouvirUsuariosAtualizados(carregarDados), [usuario?.clinica_id]);
+
+  useEffect(() => {
+    return () => {
+      if (tempoFechamentoMenuRef.current) {
+        clearTimeout(tempoFechamentoMenuRef.current);
+      }
+    };
+  }, []);
 
   const relatorioClinica = useMemo(() => {
     const itemRelatorio = relatorio.porClinica.find(
@@ -58,55 +85,79 @@ function HomeAdmin() {
   }, [clinicaVinculada, relatorio.porClinica]);
 
   function sairDaConta() {
+    cancelarFechamentoDoMenu();
     setMenuUsuarioAberto(false);
     realizarLogout();
   }
 
+  function cancelarFechamentoDoMenu() {
+    if (tempoFechamentoMenuRef.current) {
+      clearTimeout(tempoFechamentoMenuRef.current);
+      tempoFechamentoMenuRef.current = null;
+    }
+  }
+
+  function fecharMenuAoSairDoHover() {
+    cancelarFechamentoDoMenu();
+    tempoFechamentoMenuRef.current = setTimeout(() => {
+      setMenuUsuarioAberto(false);
+    }, 350);
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="sticky top-0 z-10 bg-blue-400 px-5 pb-6 pt-12 shadow-md">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-sm text-blue-100">Admin da Clinica</p>
-            <h1 className="text-2xl font-bold leading-tight text-white">
-              Painel da Clinica
-            </h1>
-          </div>
-          <div className="relative z-30">
+      <CabecalhoApp
+        contexto="Admin da Clinica"
+        titulo="Painel da Clinica"
+        descricao={`Seja bem-vindo ao sistema de gerenciamento da clinica ${nomeClinica}`}
+        acao={
+          <div
+            className="relative z-30"
+            onMouseEnter={cancelarFechamentoDoMenu}
+            onMouseLeave={fecharMenuAoSairDoHover}
+          >
             <button
               type="button"
               onClick={() => setMenuUsuarioAberto((v) => !v)}
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-white bg-opacity-20 text-xl text-white"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white transition hover:bg-white/30"
               aria-label="Perfil do usuario"
             >
-              +
+              <UserCircle className="h-6 w-6" aria-hidden="true" />
             </button>
             {menuUsuarioAberto && (
-              <div className="absolute right-0 z-40 mt-2 w-40 rounded-xl border border-gray-100 bg-white py-2 shadow-lg">
+              <div className="absolute right-0 z-40 mt-4 w-56 overflow-hidden rounded-2xl border border-blue-100/80 bg-white shadow-xl shadow-blue-950/10 ring-1 ring-black/5 sm:right-1/2 sm:translate-x-1/2">
+                <div className="border-b border-gray-100 bg-blue-50/70 px-4 py-3">
+                  <p className="text-xs font-bold uppercase tracking-wide text-blue-500">
+                    Conta
+                  </p>
+                  <p className="mt-0.5 text-sm font-semibold text-gray-800">
+                    Opcoes do usuario
+                  </p>
+                </div>
                 <button
                   type="button"
                   onClick={sairDaConta}
-                  className="w-full px-4 py-2 text-left text-sm text-red-500 hover:bg-red-50"
+                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-red-500 transition hover:bg-red-50"
                 >
-                  Sair
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-red-50 text-red-500">
+                    <LogOut className="h-4 w-4" aria-hidden="true" />
+                  </span>
+                  <span>Sair</span>
                 </button>
               </div>
             )}
           </div>
-        </div>
-        <p className="mt-2 text-sm text-blue-100">
-          Seja bem-vindo ao sistema de gerenciamento da clinica {nomeClinica}
-        </p>
-      </header>
+        }
+      />
 
-      <main className="space-y-4 px-4 py-5">
-        <section className="space-y-3">
-          <div className="flex items-start justify-between gap-3">
+      <main className="app-content dashboard-shell">
+        <section className="space-y-4">
+          <div className="dashboard-section-header mb-0">
             <div>
-              <h2 className="text-xl font-semibold text-gray-800">
+              <h2 className="dashboard-section-title sm:text-xl">
                 Relatorio geral da clinica
               </h2>
-              <p className="text-sm text-gray-500">
+              <p className="dashboard-section-description">
                 Indicadores da unidade vinculada: {nomeClinica}
               </p>
             </div>
@@ -124,8 +175,11 @@ function HomeAdmin() {
           )}
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-              <p className="text-sm text-gray-500">Consultas no mes</p>
+            <div className="dashboard-metric">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <p className="text-sm text-gray-500">Consultas no mes</p>
+                <CalendarDays className="h-5 w-5 text-blue-400" aria-hidden="true" />
+              </div>
               <strong className="text-3xl text-gray-800">
                 {relatorioClinica.consultas}
               </strong>
@@ -134,8 +188,11 @@ function HomeAdmin() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-              <p className="text-sm text-gray-500">Pendencias</p>
+            <div className="dashboard-metric">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <p className="text-sm text-gray-500">Pendencias</p>
+                <Clock3 className="h-5 w-5 text-amber-500" aria-hidden="true" />
+              </div>
               <strong className="text-3xl text-gray-800">
                 {Math.max(
                   relatorioClinica.consultas -
@@ -149,8 +206,11 @@ function HomeAdmin() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-              <p className="text-sm text-gray-500">Ocupacao</p>
+            <div className="dashboard-metric">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <p className="text-sm text-gray-500">Ocupacao</p>
+                <Percent className="h-5 w-5 text-emerald-500" aria-hidden="true" />
+              </div>
               <strong className="text-3xl text-gray-800">
                 {relatorioClinica.ocupacao}%
               </strong>
@@ -162,8 +222,11 @@ function HomeAdmin() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-              <p className="text-sm text-gray-500">Atendimentos</p>
+            <div className="dashboard-metric">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <p className="text-sm text-gray-500">Atendimentos</p>
+                <Activity className="h-5 w-5 text-blue-400" aria-hidden="true" />
+              </div>
               <strong className="text-3xl text-gray-800">
                 {relatorioClinica.atendimentosMes}
               </strong>
@@ -174,15 +237,21 @@ function HomeAdmin() {
           </div>
 
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-            <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-              <p className="text-sm text-gray-500">Capacidade diaria</p>
+            <div className="dashboard-metric">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <p className="text-sm text-gray-500">Capacidade diaria</p>
+                <Building2 className="h-5 w-5 text-blue-400" aria-hidden="true" />
+              </div>
               <strong className="text-2xl text-gray-800">
                 {relatorioClinica.capacidadeDiaria}
               </strong>
               <p className="mt-1 text-xs text-gray-400">atendimentos por dia</p>
             </div>
-            <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-              <p className="text-sm text-gray-500">Status da unidade</p>
+            <div className="dashboard-metric">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <p className="text-sm text-gray-500">Status da unidade</p>
+                <CheckCircle2 className="h-5 w-5 text-emerald-500" aria-hidden="true" />
+              </div>
               <strong className="text-2xl capitalize text-gray-800">
                 {relatorioClinica.status.replaceAll("_", " ")}
               </strong>
@@ -190,8 +259,11 @@ function HomeAdmin() {
                 {clinicaVinculada?.aberta ? "Recebendo agendamentos" : "Sem novos agendamentos"}
               </p>
             </div>
-            <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-              <p className="text-sm text-gray-500">Especialidades</p>
+            <div className="dashboard-metric">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <p className="text-sm text-gray-500">Especialidades</p>
+                <Activity className="h-5 w-5 text-blue-400" aria-hidden="true" />
+              </div>
               <strong className="text-2xl text-gray-800">
                 {(clinicaVinculada?.especialidades || []).length}
               </strong>

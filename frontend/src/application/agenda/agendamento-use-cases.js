@@ -1,4 +1,5 @@
 import { montarConsultasLocaisPaciente } from "../../domain/agenda/consultas-locais";
+import { notificarConsultasAtualizadas } from "./consultas-eventos";
 import {
   buscarConsultasClinicaApi,
   buscarConsultasPacienteApi,
@@ -34,7 +35,7 @@ async function criarAgendamento(dadosConsulta) {
       );
     }
 
-    return criarConsultaApi({
+    const consulta = await criarConsultaApi({
       paciente_id: pacienteId,
       medico_id: medicoId,
       agenda_id: agendaId,
@@ -43,6 +44,8 @@ async function criarAgendamento(dadosConsulta) {
       especialidade: especialidade || "",
       status: "agendada",
     });
+    notificarConsultasAtualizadas();
+    return consulta;
   } catch (erro) {
     throw new Error(erro.message || "Falha ao agendar. Tente novamente.");
   }
@@ -59,7 +62,9 @@ async function verificarConflito(medicoId, agendaId, especialidade = "") {
 
 async function cancelarAgendamento(consultaId, motivo) {
   try {
-    return cancelarConsultaApi(consultaId, motivo);
+    const resultado = await cancelarConsultaApi(consultaId, motivo);
+    notificarConsultasAtualizadas();
+    return resultado;
   } catch (erro) {
     throw new Error(erro.message || "Erro ao cancelar agendamento.");
   }

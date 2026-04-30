@@ -1,7 +1,10 @@
 const { AppError } = require("../../domain/errors/app-error");
 
 function normalizarClinica(dados) {
-  return {
+  const latitude = dados.latitude != null && dados.latitude !== "" ? Number(dados.latitude) : null;
+  const longitude = dados.longitude != null && dados.longitude !== "" ? Number(dados.longitude) : null;
+
+  const payload = {
     nome: dados.nome?.trim(),
     bairro: dados.bairro?.trim(),
     endereco: dados.endereco?.trim() || "",
@@ -13,10 +16,21 @@ function normalizarClinica(dados) {
           .split(",")
           .map((item) => item.trim())
           .filter(Boolean),
+    especialidadesExames: Array.isArray(dados.especialidadesExames)
+      ? dados.especialidadesExames
+      : String(dados.especialidadesExames || dados.especialidades_exames || "")
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean),
     horario: dados.horario?.trim() || "Seg a Sex: 07h as 17h",
     capacidadeDiaria: Number(dados.capacidadeDiaria || dados.capacidade_diaria || 0),
     status: dados.status || "ativa",
+    latitude,
+    longitude,
+    fotoPerfil: dados.fotoPerfil || dados.foto_perfil || "",
   };
+
+  return payload;
 }
 
 function criarSalvarClinica({ clinicaRepository }) {
@@ -25,6 +39,21 @@ function criarSalvarClinica({ clinicaRepository }) {
 
     if (!payload.nome || !payload.bairro) {
       throw new AppError("Informe pelo menos o nome e o bairro da clinica.", 422, "CLINICA_INVALIDA");
+    }
+
+    if (
+      !Number.isFinite(payload.latitude) ||
+      payload.latitude < -90 ||
+      payload.latitude > 90 ||
+      !Number.isFinite(payload.longitude) ||
+      payload.longitude < -180 ||
+      payload.longitude > 180
+    ) {
+      throw new AppError(
+        "Latitude e longitude validas sao obrigatorias para localizar a clinica no Google Maps.",
+        422,
+        "COORDENADAS_INVALIDAS"
+      );
     }
 
     if (dados.id) {

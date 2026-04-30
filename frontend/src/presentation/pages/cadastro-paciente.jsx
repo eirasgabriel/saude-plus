@@ -2,12 +2,19 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { registrarUsuarioAutenticado } from "../../application/auth/auth-service";
 import { salvarUsuario } from "../../application/usuarios/usuarios-use-cases";
+import { buscarEnderecoPorCep } from "../../infrastructure/api/cep-api";
+import LogoSaudePlus from "../components/logo-saude-plus";
 
 const FORMULARIO_INICIAL = {
   nome: "",
   email: "",
   cpf: "",
   telefone: "",
+  cep: "",
+  endereco: "",
+  bairro: "",
+  cidade: "",
+  estado: "",
   senha: "",
   confirmarSenha: "",
 };
@@ -38,9 +45,15 @@ function formatarTelefone(valor) {
     .replace(/(\d{5})(\d)/, "$1-$2");
 }
 
+function formatarCep(valor) {
+  const numeros = somenteNumeros(valor).slice(0, 8);
+  return numeros.replace(/(\d{5})(\d)/, "$1-$2");
+}
+
 function validarFormulario(formulario) {
   const cpfNumeros = somenteNumeros(formulario.cpf);
   const telefoneNumeros = somenteNumeros(formulario.telefone);
+  const cepNumeros = somenteNumeros(formulario.cep);
   const possuiCampoVazio = Object.values(formulario).some(
     (valor) => !valor.trim()
   );
@@ -53,6 +66,7 @@ function validarFormulario(formulario) {
   }
   if (cpfNumeros.length !== 11) return "Informe um CPF com 11 digitos.";
   if (telefoneNumeros.length < 10) return "Informe um telefone com DDD.";
+  if (cepNumeros.length !== 8) return "Informe um CEP com 8 digitos.";
   if (formulario.senha.length < 6) {
     return "A senha deve ter pelo menos 6 caracteres.";
   }
@@ -69,6 +83,7 @@ function CadastroPaciente() {
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
+  const [buscandoCep, setBuscandoCep] = useState(false);
   const estiloInput =
     "mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 text-base text-gray-800 bg-white hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition shadow-sm";
 
@@ -76,12 +91,38 @@ function CadastroPaciente() {
     const normalizadores = {
       cpf: formatarCpf,
       telefone: formatarTelefone,
+      cep: formatarCep,
+      estado: (v) => v.toUpperCase().slice(0, 2),
     };
 
     setFormulario((atual) => ({
       ...atual,
       [campo]: normalizadores[campo] ? normalizadores[campo](valor) : valor,
     }));
+  }
+
+  async function preencherEnderecoPorCep() {
+    const cepNumeros = somenteNumeros(formulario.cep);
+    if (cepNumeros.length !== 8) return;
+
+    setBuscandoCep(true);
+    setErro("");
+
+    try {
+      const endereco = await buscarEnderecoPorCep(cepNumeros);
+      setFormulario((atual) => ({
+        ...atual,
+        cep: formatarCep(endereco.cep),
+        endereco: endereco.endereco || atual.endereco,
+        bairro: endereco.bairro || atual.bairro,
+        cidade: endereco.cidade || atual.cidade,
+        estado: endereco.estado || atual.estado,
+      }));
+    } catch (erroCep) {
+      setErro(erroCep.message || "Nao foi possivel consultar o CEP.");
+    } finally {
+      setBuscandoCep(false);
+    }
   }
 
   async function aoEnviar(evento) {
@@ -103,6 +144,11 @@ function CadastroPaciente() {
         email: formulario.email.trim(),
         cpf: somenteNumeros(formulario.cpf),
         telefone: somenteNumeros(formulario.telefone),
+        cep: somenteNumeros(formulario.cep),
+        endereco: formulario.endereco.trim(),
+        bairro: formulario.bairro.trim(),
+        cidade: formulario.cidade.trim(),
+        estado: formulario.estado.trim().toUpperCase(),
         senha: formulario.senha,
         nivel_acesso: "paciente",
         clinica_id: null,
@@ -123,9 +169,7 @@ function CadastroPaciente() {
     <div className="min-h-screen bg-gray-50 lg:flex">
       <section className="hidden lg:flex w-1/2 bg-gradient-to-br from-blue-400 to-blue-600 flex-col items-center justify-center p-12 text-white">
         <div className="text-center">
-          <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">
-            <span className="text-5xl">+</span>
-          </div>
+          <LogoSaudePlus className="mx-auto mb-6 shadow-xl" size="xl" />
           <h1 className="text-5xl font-bold mb-3">Saude+</h1>
           <p className="text-blue-100 text-lg mb-10">
             Saude na palma da mao
@@ -149,19 +193,17 @@ function CadastroPaciente() {
         </div>
       </section>
 
-      <main className="min-h-screen flex-1 flex items-center justify-center bg-gradient-to-b from-white-400 to-white-500 px-5 py-8 lg:min-h-0 lg:bg-gray-50 lg:p-8">
+      <main className="flex min-h-svh flex-1 items-center justify-center bg-gradient-to-b from-white-400 to-white-500 px-4 py-6 sm:px-6 sm:py-8 lg:min-h-0 lg:bg-gray-50 lg:p-8">
         <div className="w-full max-w-2xl">
           <div className="lg:hidden mb-7 text-center text-white">
-            <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-              <span className="text-4xl">+</span>
-            </div>
+            <LogoSaudePlus className="mx-auto mb-4" size="lg" />
             <h1 className="text-3xl font-bold tracking-tight">Saude+</h1>
             <p className="text-blue-100 mt-1 text-sm">
               Saquarema - Secretaria de Saude
             </p>
           </div>
 
-          <div className="bg-white rounded-3xl shadow-xl p-6 sm:p-8 lg:shadow-sm lg:border lg:border-gray-100">
+          <div className="rounded-2xl bg-white p-5 shadow-xl sm:rounded-3xl sm:p-8 lg:border lg:border-gray-100 lg:shadow-sm">
             <div className="mb-6">
               <Link
                 to="/login"
@@ -227,6 +269,70 @@ function CadastroPaciente() {
                 </label>
 
                 <label className="block">
+                  <span className="text-sm font-semibold text-gray-700">CEP</span>
+                  <input
+                    value={formulario.cep}
+                    onChange={(evento) => alterarCampo("cep", evento.target.value)}
+                    onBlur={preencherEnderecoPorCep}
+                    placeholder="00000-000"
+                    inputMode="numeric"
+                    autoComplete="postal-code"
+                    className={estiloInput}
+                  />
+                  {buscandoCep && (
+                    <span className="mt-1 block text-xs font-medium text-blue-500">
+                      Buscando endereco...
+                    </span>
+                  )}
+                </label>
+
+                <label className="block">
+                  <span className="text-sm font-semibold text-gray-700">Endereco</span>
+                  <input
+                    value={formulario.endereco}
+                    onChange={(evento) => alterarCampo("endereco", evento.target.value)}
+                    placeholder="Rua, avenida ou estrada"
+                    autoComplete="street-address"
+                    className={estiloInput}
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="text-sm font-semibold text-gray-700">Bairro</span>
+                  <input
+                    value={formulario.bairro}
+                    onChange={(evento) => alterarCampo("bairro", evento.target.value)}
+                    placeholder="Bairro"
+                    autoComplete="address-level3"
+                    className={estiloInput}
+                  />
+                </label>
+
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_84px]">
+                  <label className="block">
+                    <span className="text-sm font-semibold text-gray-700">Cidade</span>
+                    <input
+                      value={formulario.cidade}
+                      onChange={(evento) => alterarCampo("cidade", evento.target.value)}
+                      placeholder="Cidade"
+                      autoComplete="address-level2"
+                      className={estiloInput}
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className="text-sm font-semibold text-gray-700">UF</span>
+                    <input
+                      value={formulario.estado}
+                      onChange={(evento) => alterarCampo("estado", evento.target.value)}
+                      placeholder="RJ"
+                      autoComplete="address-level1"
+                      className={estiloInput}
+                    />
+                  </label>
+                </div>
+
+                <label className="block">
                   <span className="text-sm font-semibold text-gray-700">Senha</span>
                   <input
                     type="password"
@@ -272,7 +378,7 @@ function CadastroPaciente() {
                 disabled={carregando}
                 className="w-full bg-blue-400 hover:bg-blue-500 text-white font-bold py-4 rounded-xl text-lg transition-all duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {carregando ? "Criando cadastro..." : "Criar cadastro de paciente"}
+                {carregando ? "Criando cadastro..." : "Cadastrar-se"}
               </button>
             </form>
           </div>

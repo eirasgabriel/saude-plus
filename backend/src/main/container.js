@@ -21,6 +21,25 @@ function criarContainer() {
   const clinicaRepository = criarClinicaRepositoryMemory();
   const agendaRepository = criarAgendaRepositoryMemory();
   const consultaRepository = criarConsultaRepositoryMemory();
+  const pushSubscriptions = [];
+
+  async function salvarPushSubscription(subscription) {
+    if (!subscription || !subscription.endpoint) {
+      return { salvo: false, total: pushSubscriptions.length };
+    }
+
+    const existente = pushSubscriptions.findIndex(
+      (item) => item.endpoint === subscription.endpoint
+    );
+
+    if (existente >= 0) {
+      pushSubscriptions[existente] = subscription;
+    } else {
+      pushSubscriptions.push(subscription);
+    }
+
+    return { salvo: true, total: pushSubscriptions.length };
+  }
 
   return {
     repositories: {
@@ -47,6 +66,7 @@ function criarContainer() {
         usuarioRepository,
         consultaRepository,
       }),
+      salvarPushSubscription,
     },
   };
 }

@@ -4,6 +4,10 @@ import {
   RELATORIO_VAZIO,
   obterRelatoriosSistema,
 } from "../../application/sistema/relatorios-use-cases";
+import { ouvirClinicasAtualizadas } from "../../application/clinicas/clinicas-eventos";
+import { ouvirConsultasAtualizadas } from "../../application/agenda/consultas-eventos";
+import { ouvirUsuariosAtualizados } from "../../application/usuarios/usuarios-eventos";
+import CabecalhoApp from "../components/cabecalho-app";
 
 const ROTULOS_STATUS = {
   agendada: "Agendada",
@@ -18,29 +22,45 @@ function formatarData(data) {
   return `${dia}/${mes}/${ano}`;
 }
 
+function formatarAtualizacao(dataIso) {
+  if (!dataIso) return "Atualizando em tempo real";
+
+  return new Date(dataIso).toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function AdminRelatoriosSistema() {
   const navigate = useNavigate();
   const [relatorio, setRelatorio] = useState(RELATORIO_VAZIO);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState("");
 
-  useEffect(() => {
-    async function carregarRelatorios() {
-      setCarregando(true);
-      setErro("");
-      try {
-        setRelatorio(await obterRelatoriosSistema());
-      } catch (falha) {
-        setErro(falha.message || "Nao foi possivel carregar os relatorios.");
-      } finally {
-        setCarregando(false);
-      }
+  async function carregarRelatorios() {
+    setCarregando(true);
+    setErro("");
+    try {
+      setRelatorio(await obterRelatoriosSistema());
+    } catch (falha) {
+      setErro(falha.message || "Nao foi possivel carregar os relatorios.");
+    } finally {
+      setCarregando(false);
     }
+  }
 
+  useEffect(() => {
     carregarRelatorios();
   }, []);
 
-  const { resumo, porClinica, porEspecialidade, porStatus, consultasRecentes } = relatorio;
+  useEffect(() => ouvirClinicasAtualizadas(carregarRelatorios), []);
+  useEffect(() => ouvirConsultasAtualizadas(carregarRelatorios), []);
+  useEffect(() => ouvirUsuariosAtualizados(carregarRelatorios), []);
+
+  const { atualizadoEm, periodo, resumo, porClinica, porEspecialidade, porStatus, consultasRecentes } = relatorio;
   const maiorVolumeEspecialidade = Math.max(
     ...porEspecialidade.map((item) => item.total),
     1
@@ -48,24 +68,23 @@ function AdminRelatoriosSistema() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-blue-400 px-5 pt-10 pb-6 sticky top-0 z-10 shadow-md">
-        <button
-          type="button"
-          onClick={() => navigate("/admin/master")}
-          className="text-blue-50 text-sm font-semibold mb-4"
-        >
-          Voltar ao painel
-        </button>
-        <p className="text-blue-100 text-sm">Admin Master</p>
-        <h1 className="text-white text-2xl font-bold leading-tight">
-          Relatorios do sistema
-        </h1>
-        <p className="text-blue-100 text-sm mt-2">
-          Indicadores calculados a partir das clinicas, usuarios e consultas cadastradas.
-        </p>
-      </header>
+      <CabecalhoApp
+        compacto
+        aoVoltar={() => navigate("/admin/master")}
+        textoVoltar="Voltar ao painel"
+        voltarSomenteIcone
+        titulo="Relatorios do sistema"
+        descricao={
+          <>
+            Indicadores calculados a partir das clinicas, usuarios e consultas cadastradas.
+            <span className="mt-1 block text-xs">
+              Atualizado em {formatarAtualizacao(atualizadoEm)}
+            </span>
+          </>
+        }
+      />
 
-      <main className="px-4 py-5 space-y-5">
+      <main className="app-content space-y-5">
         {carregando && (
           <p className="text-center text-sm text-gray-500">Carregando relatorios...</p>
         )}
@@ -80,7 +99,9 @@ function AdminRelatoriosSistema() {
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
             <p className="text-gray-500 text-sm">Consultas no mes</p>
             <strong className="text-3xl text-gray-800">{resumo.consultasMes}</strong>
-            <p className="text-xs text-gray-400 mt-1">Base abril/2026</p>
+            <p className="text-xs text-gray-400 mt-1">
+              Periodo {periodo.rotulo || "atual"}
+            </p>
           </div>
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
             <p className="text-gray-500 text-sm">Realizadas</p>

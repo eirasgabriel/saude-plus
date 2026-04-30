@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { LogOut, UserCircle } from "lucide-react";
 import { obterUsuarioAtual, realizarLogout } from "../../application/auth/auth-service";
+import { ouvirClinicasAtualizadas } from "../../application/clinicas/clinicas-eventos";
 import { buscarClinicaPorId } from "../../application/clinicas/clinicas-use-cases";
+import CabecalhoApp from "../components/cabecalho-app";
 import MenuInferiorAdmin from "../components/menu-inferior-admin";
 
 const EXAMES_DO_DIA = [
@@ -25,64 +28,101 @@ function AdminExamesClinica() {
   const [clinicaVinculada, setClinicaVinculada] = useState(null);
   const [erro, setErro] = useState("");
   const [menuUsuarioAberto, setMenuUsuarioAberto] = useState(false);
+  const tempoFechamentoMenuRef = useRef(null);
   const nomeClinica = clinicaVinculada?.nome || "Clinica nao identificada";
 
-  useEffect(() => {
-    async function carregarClinicaVinculada() {
-      if (!usuario?.clinica_id) return;
+  async function carregarClinicaVinculada() {
+    if (!usuario?.clinica_id) return;
 
-      setErro("");
-      try {
-        setClinicaVinculada(await buscarClinicaPorId(usuario.clinica_id));
-      } catch (falha) {
-        setErro(falha.message || "Nao foi possivel carregar a clinica vinculada.");
-      }
+    setErro("");
+    try {
+      setClinicaVinculada(await buscarClinicaPorId(usuario.clinica_id));
+    } catch (falha) {
+      setErro(falha.message || "Nao foi possivel carregar a clinica vinculada.");
     }
+  }
 
+  useEffect(() => {
     carregarClinicaVinculada();
   }, [usuario?.clinica_id]);
 
+  useEffect(() => ouvirClinicasAtualizadas(carregarClinicaVinculada), [usuario?.clinica_id]);
+
+  useEffect(() => {
+    return () => {
+      if (tempoFechamentoMenuRef.current) {
+        clearTimeout(tempoFechamentoMenuRef.current);
+      }
+    };
+  }, []);
+
   function sairDaConta() {
+    cancelarFechamentoDoMenu();
     setMenuUsuarioAberto(false);
     realizarLogout();
   }
 
+  function cancelarFechamentoDoMenu() {
+    if (tempoFechamentoMenuRef.current) {
+      clearTimeout(tempoFechamentoMenuRef.current);
+      tempoFechamentoMenuRef.current = null;
+    }
+  }
+
+  function fecharMenuAoSairDoHover() {
+    cancelarFechamentoDoMenu();
+    tempoFechamentoMenuRef.current = setTimeout(() => {
+      setMenuUsuarioAberto(false);
+    }, 350);
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="sticky top-0 z-10 bg-blue-400 px-5 pb-6 pt-12 shadow-md">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-sm text-blue-100">Admin da Clinica</p>
-            <h1 className="text-2xl font-bold leading-tight text-white">Exames</h1>
-          </div>
-          <div className="relative z-30">
+      <CabecalhoApp
+        contexto="Admin da Clinica"
+        titulo="Exames"
+        descricao={`Exames da clinica ${nomeClinica}`}
+        acao={
+          <div
+            className="relative z-30"
+            onMouseEnter={cancelarFechamentoDoMenu}
+            onMouseLeave={fecharMenuAoSairDoHover}
+          >
             <button
               type="button"
               onClick={() => setMenuUsuarioAberto((v) => !v)}
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-white bg-opacity-20 text-xl text-white"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white transition hover:bg-white/30"
               aria-label="Perfil do usuario"
             >
-              +
+              <UserCircle className="h-6 w-6" aria-hidden="true" />
             </button>
             {menuUsuarioAberto && (
-              <div className="absolute right-0 z-40 mt-2 w-40 rounded-xl border border-gray-100 bg-white py-2 shadow-lg">
+              <div className="absolute right-0 z-40 mt-3 w-56 overflow-hidden rounded-2xl border border-blue-100/80 bg-white shadow-xl shadow-blue-950/10 ring-1 ring-black/5">
+                <div className="border-b border-gray-100 bg-blue-50/70 px-4 py-3">
+                  <p className="text-xs font-bold uppercase tracking-wide text-blue-500">
+                    Conta
+                  </p>
+                  <p className="mt-0.5 text-sm font-semibold text-gray-800">
+                    Opcoes do usuario
+                  </p>
+                </div>
                 <button
                   type="button"
                   onClick={sairDaConta}
-                  className="w-full px-4 py-2 text-left text-sm text-red-500 hover:bg-red-50"
+                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-red-500 transition hover:bg-red-50"
                 >
-                  Sair
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-red-50 text-red-500">
+                    <LogOut className="h-4 w-4" aria-hidden="true" />
+                  </span>
+                  <span>Sair</span>
                 </button>
               </div>
             )}
           </div>
-        </div>
-        <p className="mt-2 text-sm text-blue-100">
-          Exames da clinica {nomeClinica}
-        </p>
-      </header>
+        }
+      />
 
-      <main className="space-y-4 px-4 py-5">
+      <main className="app-content space-y-4">
         {erro && (
           <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
             <p className="text-sm text-red-600">{erro}</p>

@@ -6,6 +6,7 @@ function enviarJson(res, statusCode, payload) {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Cache-Control": "no-store",
   });
   res.end(JSON.stringify(payload));
 }

@@ -68,6 +68,13 @@ function criarServidorHttp(useCases) {
         return;
       }
 
+      if (req.method === "POST" && pathname === "/api/notificacoes/subscriptions") {
+        const body = await lerJson(req);
+        const resultado = await useCases.salvarPushSubscription(body);
+        enviarJson(res, 201, resultado);
+        return;
+      }
+
       const usuarioMatch = /^\/api\/usuarios\/([^/]+)$/.exec(pathname);
       if (req.method === "PUT" && usuarioMatch) {
         const body = await lerJson(req);

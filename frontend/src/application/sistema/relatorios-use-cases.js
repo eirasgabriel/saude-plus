@@ -1,6 +1,12 @@
 import { obterRelatoriosSistemaApi } from "../../infrastructure/api/relatorios-api";
 
 const RELATORIO_VAZIO = {
+  atualizadoEm: null,
+  periodo: {
+    mes: null,
+    ano: null,
+    rotulo: "",
+  },
   resumo: {
     totalClinicas: 0,
     clinicasAtivas: 0,
@@ -23,6 +29,10 @@ async function obterRelatoriosSistema() {
   return {
     ...RELATORIO_VAZIO,
     ...dados,
+    periodo: {
+      ...RELATORIO_VAZIO.periodo,
+      ...(dados?.periodo || {}),
+    },
     resumo: {
       ...RELATORIO_VAZIO.resumo,
       ...(dados?.resumo || {}),

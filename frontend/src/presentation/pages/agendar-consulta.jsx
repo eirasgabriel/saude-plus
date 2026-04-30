@@ -3,7 +3,10 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { ouvirClinicasAtualizadas } from "../../application/clinicas/clinicas-eventos";
 import { buscarClinicaPorId } from "../../application/clinicas/clinicas-use-cases";
+import CabecalhoApp from "../components/cabecalho-app";
+import FotoClinica from "../components/foto-clinica";
 import MenuUsuarioPaciente from "../components/menu-usuario-paciente";
 import {
   listarHorariosAgenda,
@@ -48,27 +51,29 @@ function AgendarConsulta() {
   const [sucesso, setSucesso] = useState(false);
   const [erroAcao, setErroAcao] = useState("");
 
-  useEffect(() => {
-    async function carregarClinica() {
-      if (!clinicaIdParam) {
-        setClinica(null);
-        return;
-      }
-
-      setCarregandoClinica(true);
-      setErroAcao("");
-      try {
-        setClinica(await buscarClinicaPorId(clinicaIdParam));
-      } catch (erro) {
-        setClinica(null);
-        setErroAcao(erro.message || "Nao foi possivel carregar a clinica.");
-      } finally {
-        setCarregandoClinica(false);
-      }
+  const carregarClinica = useCallback(async () => {
+    if (!clinicaIdParam) {
+      setClinica(null);
+      return;
     }
 
-    carregarClinica();
+    setCarregandoClinica(true);
+    setErroAcao("");
+    try {
+      setClinica(await buscarClinicaPorId(clinicaIdParam));
+    } catch (erro) {
+      setClinica(null);
+      setErroAcao(erro.message || "Nao foi possivel carregar a clinica.");
+    } finally {
+      setCarregandoClinica(false);
+    }
   }, [clinicaIdParam]);
+
+  useEffect(() => {
+    carregarClinica();
+  }, [carregarClinica]);
+
+  useEffect(() => ouvirClinicasAtualizadas(carregarClinica), [carregarClinica]);
 
   const carregarHorarios = useCallback(async () => {
     if (!clinica || !especialidade || !data) return;
@@ -99,7 +104,7 @@ function AgendarConsulta() {
   }, [data, especialidade]);
 
   useEffect(() => {
-    if (clinica?.especialidades?.length && !especialidade) {
+    if (clinica?.especialidades?.length && !clinica.especialidades.includes(especialidade)) {
       setEspecialidade(clinica.especialidades[0]);
     }
   }, [clinica, especialidade]);
@@ -169,19 +174,14 @@ function AgendarConsulta() {
   if (!clinica.aberta) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
-        <header className="bg-blue-400 px-5 pt-10 pb-6 shadow-md">
-          <div className="flex items-start justify-between gap-4 mb-4">
-            <button
-              type="button"
-              onClick={aoVoltar}
-              className="text-white text-sm font-medium flex items-center gap-2"
-            >
-              ← Voltar
-            </button>
-            <MenuUsuarioPaciente />
-          </div>
-          <h1 className="text-white text-2xl font-bold">Agendar consulta</h1>
-        </header>
+        <CabecalhoApp
+          compacto
+          fixo={false}
+          aoVoltar={aoVoltar}
+          textoVoltar="Voltar"
+          titulo="Agendar consulta"
+          acao={<MenuUsuarioPaciente />}
+        />
         <div className="p-6 text-center">
           <p className="text-gray-600">
             Esta unidade não está recebendo agendamentos no momento.
@@ -195,32 +195,25 @@ function AgendarConsulta() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-28">
-      <header className="bg-blue-400 px-5 pt-12 pb-6 sticky top-0 z-10 shadow-md">
-        <div className="flex items-start justify-between gap-4 mb-3">
-          <button
-            type="button"
-            onClick={aoVoltar}
-            className="text-white text-sm font-medium flex items-center gap-2 active:opacity-80"
-          >
-            ← Voltar às clínicas
-          </button>
-          <MenuUsuarioPaciente />
-        </div>
-        <h1 className="text-white text-2xl font-bold leading-tight">
-          Agendar consulta
-        </h1>
-        <p className="text-blue-100 text-sm mt-1">Escolha data e horário</p>
-      </header>
+      <CabecalhoApp
+        aoVoltar={aoVoltar}
+        textoVoltar="Voltar as clinicas"
+        titulo="Agendar consulta"
+        descricao="Escolha data e horario"
+        acao={<MenuUsuarioPaciente />}
+      />
 
-      <main className="px-4 py-5 space-y-5">
+      <main className="app-content-narrow space-y-5">
         <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div
             className={`h-1.5 w-full ${clinica.aberta ? "bg-green-400" : "bg-gray-300"}`}
           />
           <div className="p-5 flex gap-4">
-            <div className="w-14 h-14 bg-blue-50 rounded-xl flex items-center justify-center text-3xl shrink-0">
-              {clinica.emoji}
-            </div>
+            <FotoClinica
+              src={clinica.fotoPerfil}
+              nome={clinica.nome}
+              className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-blue-50 text-2xl font-bold text-blue-500"
+            />
             <div>
               <h2 className="text-base font-bold text-gray-800">{clinica.nome}</h2>
               <p className="text-blue-400 text-sm font-medium">{clinica.bairro}</p>
@@ -235,7 +228,7 @@ function AgendarConsulta() {
           <p className="text-xs text-gray-500 font-medium uppercase tracking-wider mb-3">
             Especialidade
           </p>
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             {clinica.especialidades.map((esp) => (
               <button
                 key={esp}
@@ -323,17 +316,19 @@ function AgendarConsulta() {
         )}
       </main>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-4 py-4 shadow-lg z-20">
-        <button
-          type="button"
-          disabled={
-            !horarioSelecionado?.disponivel || enviando || carregandoHorarios
-          }
-          onClick={aoConfirmar}
-          className="w-full bg-blue-400 hover:bg-blue-500 disabled:bg-gray-200 disabled:text-gray-400 text-white font-bold py-4 rounded-xl text-lg transition-all active:scale-[0.98]"
-        >
-          {enviando ? "Confirmando..." : "Confirmar agendamento"}
-        </button>
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-gray-100 bg-white/95 px-4 pt-4 shadow-lg backdrop-blur safe-bottom-nav">
+        <div className="mx-auto w-full max-w-3xl">
+          <button
+            type="button"
+            disabled={
+              !horarioSelecionado?.disponivel || enviando || carregandoHorarios
+            }
+            onClick={aoConfirmar}
+            className="w-full rounded-xl bg-blue-400 py-4 text-base font-bold text-white transition hover:bg-blue-500 active:scale-[0.98] disabled:bg-gray-200 disabled:text-gray-400 sm:text-lg"
+          >
+            {enviando ? "Confirmando..." : "Confirmar agendamento"}
+          </button>
+        </div>
       </div>
 
       {sucesso && (

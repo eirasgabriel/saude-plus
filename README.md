@@ -39,6 +39,28 @@ O frontend fica em `http://localhost:3000` e encaminha `/api` para o backend em 
 - `npm run backend:check`: valida a sintaxe do backend.
 - `npm run compilar`: alias para `npm run frontend:build`.
 
+## PWA E Notificacoes
+
+O frontend registra `/sw.js`, usa `/manifest.json` e fica pronto para instalacao como PWA. As notificacoes funcionam em modo demonstracao local quando a permissao do navegador e concedida.
+
+Para criar subscriptions push reais, configure a chave publica VAPID no frontend:
+
+```bash
+REACT_APP_VAPID_PUBLIC_KEY=sua_chave_publica
+```
+
+A chave privada VAPID deve ficar apenas no backend quando o envio real via `web-push` for conectado.
+
+## Google Maps
+
+A tela de detalhes da clinica usa Google Maps. Para habilitar o mapa, o marcador e o preenchimento automatico de coordenadas pelo endereco, configure uma chave publica do Google Maps no frontend com Maps JavaScript API e geocodificacao habilitadas:
+
+```bash
+REACT_APP_GOOGLE_MAPS_API_KEY=sua_chave_google_maps
+```
+
+Sem essa variavel, o sistema usa um iframe/link do Google Maps como fallback para desenvolvimento.
+
 ## Usuarios De Teste
 
 ```text

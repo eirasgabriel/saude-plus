@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { buscarHistoricoPaciente } from "../../application/agenda/agendamento-use-cases";
 import { obterUsuarioAtual } from "../../application/auth/auth-service";
+import { ouvirClinicasAtualizadas } from "../../application/clinicas/clinicas-eventos";
 import { listarClinicas } from "../../application/clinicas/clinicas-use-cases";
 import {
   excluirExamePaciente,
   listarExamesPaciente,
 } from "../../application/exames/exames-use-cases";
+import CabecalhoApp from "../components/cabecalho-app";
 import MenuInferiorPaciente from "../components/menu-inferior-paciente";
 import MenuUsuarioPaciente from "../components/menu-usuario-paciente";
 
@@ -138,49 +140,51 @@ function PacienteHistorico() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
 
-  useEffect(() => {
-    async function carregarHistorico() {
-      const usuario = obterUsuarioAtual();
-      const pacienteId = usuario?.id != null ? Number(usuario.id) : 1;
-      setCarregando(true);
-      setErro("");
+  async function carregarHistorico() {
+    const usuario = obterUsuarioAtual();
+    const pacienteId = usuario?.id != null ? Number(usuario.id) : 1;
+    setCarregando(true);
+    setErro("");
 
-      try {
-        const [listaConsultas, listaClinicas, listaExames] = await Promise.all([
-          buscarHistoricoPaciente(pacienteId),
-          listarClinicas(),
-          listarExamesPaciente(pacienteId),
+    try {
+      const [listaConsultas, listaClinicas, listaExames] = await Promise.all([
+        buscarHistoricoPaciente(pacienteId),
+        listarClinicas(),
+        listarExamesPaciente(pacienteId),
+      ]);
+      const consultasCarregadas = Array.isArray(listaConsultas) ? listaConsultas : [];
+      const examesCarregados = Array.isArray(listaExames) ? listaExames : [];
+
+      if (ehUsuarioTeste(usuario)) {
+        setConsultas([
+          ...consultasCarregadas.filter(
+            (consulta) => String(consulta.id) !== ID_CONSULTA_TESTE_EIRASBIEL
+          ),
+          montarConsultaTeste(usuario),
         ]);
-        const consultasCarregadas = Array.isArray(listaConsultas) ? listaConsultas : [];
-        const examesCarregados = Array.isArray(listaExames) ? listaExames : [];
-
-        if (ehUsuarioTeste(usuario)) {
-          setConsultas([
-            ...consultasCarregadas.filter(
-              (consulta) => String(consulta.id) !== ID_CONSULTA_TESTE_EIRASBIEL
-            ),
-            montarConsultaTeste(usuario),
-          ]);
-          setExames([
-            ...examesCarregados.filter(
-              (exame) => String(exame.id) !== ID_EXAME_TESTE_EIRASBIEL
-            ),
-            montarExameTeste(usuario),
-          ]);
-        } else {
-          setConsultas(consultasCarregadas);
-          setExames(examesCarregados);
-        }
-        setClinicas(Array.isArray(listaClinicas) ? listaClinicas : []);
-      } catch (e) {
-        setErro(e.message || "Nao foi possivel carregar seu historico.");
-      } finally {
-        setCarregando(false);
+        setExames([
+          ...examesCarregados.filter(
+            (exame) => String(exame.id) !== ID_EXAME_TESTE_EIRASBIEL
+          ),
+          montarExameTeste(usuario),
+        ]);
+      } else {
+        setConsultas(consultasCarregadas);
+        setExames(examesCarregados);
       }
+      setClinicas(Array.isArray(listaClinicas) ? listaClinicas : []);
+    } catch (e) {
+      setErro(e.message || "Nao foi possivel carregar seu historico.");
+    } finally {
+      setCarregando(false);
     }
+  }
 
+  useEffect(() => {
     carregarHistorico();
   }, []);
+
+  useEffect(() => ouvirClinicasAtualizadas(carregarHistorico), []);
 
   const consultasHistorico = useMemo(() => {
     const hoje = paraInicioDoDia(new Date());
@@ -249,17 +253,13 @@ function PacienteHistorico() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="sticky top-0 z-10 bg-blue-400 px-5 pb-6 pt-12 shadow-md">
-        <div className="flex items-start justify-between gap-4">
-          <h1 className="text-2xl font-bold leading-tight text-white">Histórico</h1>
-          <MenuUsuarioPaciente />
-        </div>
-        <p className="mt-1 text-sm text-blue-100">
-          Consultas e exames anteriores em um só lugar
-        </p>
-      </header>
+      <CabecalhoApp
+        titulo="Histórico"
+        descricao="Consultas e exames anteriores em um só lugar"
+        acao={<MenuUsuarioPaciente />}
+      />
 
-      <main className="grid grid-cols-1 gap-4 px-4 py-5 lg:grid-cols-2">
+      <main className="app-content grid grid-cols-1 gap-4 lg:grid-cols-2">
         <section className="space-y-3">
           <div>
             <h2 className="text-lg font-bold text-gray-800">Consultas</h2>

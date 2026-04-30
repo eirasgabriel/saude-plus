@@ -12,6 +12,8 @@ function criarClinica(dados) {
     endereco: dados.endereco || "",
     telefone: dados.telefone || "",
     especialidades: dados.especialidades || [],
+    especialidadesExames: dados.especialidadesExames || [],
+    fotoPerfil: dados.fotoPerfil || "",
     aberta: dados.aberta !== false,
     horario: dados.horario || "",
   };

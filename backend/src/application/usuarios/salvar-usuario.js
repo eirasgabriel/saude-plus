@@ -32,6 +32,16 @@ function criarSalvarUsuario({ usuarioRepository }) {
       payload.telefone = String(dados.telefone).replace(/\D/g, "");
     }
 
+    if (dados.cep) {
+      payload.cep = String(dados.cep).replace(/\D/g, "");
+    }
+
+    for (const campo of ["endereco", "bairro", "cidade", "estado"]) {
+      if (dados[campo]) {
+        payload[campo] = String(dados[campo]).trim();
+      }
+    }
+
     if (dados.senha) {
       payload.senha = String(dados.senha);
     }

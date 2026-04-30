@@ -3,6 +3,7 @@ import {
   criarUsuarioApi,
   listarUsuariosApi,
 } from "../../infrastructure/api/usuarios-api";
+import { notificarUsuariosAtualizados } from "./usuarios-eventos";
 
 async function listarUsuarios() {
   const dados = await listarUsuariosApi();
@@ -11,17 +12,23 @@ async function listarUsuarios() {
 
 async function salvarUsuario(usuario) {
   if (usuario.id) {
-    return atualizarUsuarioApi(usuario.id, usuario);
+    const atualizado = await atualizarUsuarioApi(usuario.id, usuario);
+    notificarUsuariosAtualizados();
+    return atualizado;
   }
 
-  return criarUsuarioApi(usuario);
+  const criado = await criarUsuarioApi(usuario);
+  notificarUsuariosAtualizados();
+  return criado;
 }
 
 async function alternarStatusUsuario(usuario) {
-  return atualizarUsuarioApi(usuario.id, {
+  const atualizado = await atualizarUsuarioApi(usuario.id, {
     ...usuario,
     status: usuario.status === "ativo" ? "bloqueado" : "ativo",
   });
+  notificarUsuariosAtualizados();
+  return atualizado;
 }
 
 export { listarUsuarios, salvarUsuario, alternarStatusUsuario };

@@ -23,6 +23,7 @@ import PacienteDownloads from "../../presentation/pages/paciente-downloads";
 import PacienteExames from "../../presentation/pages/paciente-exames";
 import PacienteHistorico from "../../presentation/pages/paciente-historico";
 import PacientePerfil from "../../presentation/pages/paciente-perfil";
+import PacienteClinicaDetalhes from "../../presentation/pages/paciente-clinica-detalhes";
 import AdminGerenciarClinicas from "../../presentation/pages/admin-gerenciar-clinicas";
 import AdminGerenciarUsuarios from "../../presentation/pages/admin-gerenciar-usuarios";
 import AdminRelatoriosSistema from "../../presentation/pages/admin-relatorios-sistema";
@@ -106,6 +107,14 @@ function RotasPrincipais() {
           element={
             <RotaProtegida nivelNecessario="paciente">
               <PacienteExames />
+            </RotaProtegida>
+          }
+        />
+        <Route
+          path="/paciente/clinicas/:id"
+          element={
+            <RotaProtegida nivelNecessario="paciente">
+              <PacienteClinicaDetalhes />
             </RotaProtegida>
           }
         />

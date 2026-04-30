@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { obterUsuarioAtual } from "../../application/auth/auth-service";
 import { criarAgendamentoExame } from "../../application/exames/exames-use-cases";
+import { ouvirClinicasAtualizadas } from "../../application/clinicas/clinicas-eventos";
 import { buscarClinicaPorId } from "../../application/clinicas/clinicas-use-cases";
+import CabecalhoApp from "../components/cabecalho-app";
+import FotoClinica from "../components/foto-clinica";
 import MenuUsuarioPaciente from "../components/menu-usuario-paciente";
 
-const TIPOS_EXAMES = [
-  "Hemograma completo",
-  "Glicemia em jejum",
-  "Colesterol total e fracoes",
-  "Urina tipo 1",
-  "Raio-X",
-  "Ultrassonografia",
-];
-
 const HORARIOS_EXAMES = ["07:30", "08:00", "08:30", "09:00", "09:30", "10:00"];
+
+function obterEspecialidadesExames(clinica) {
+  return (clinica?.especialidadesExames || [])
+    .map((especialidade) => String(especialidade || "").trim())
+    .filter(Boolean);
+}
 
 function dataMinimaHoje() {
   const d = new Date();
@@ -41,35 +41,49 @@ function AgendarExame() {
   const clinicaIdParam = params.get("clinica");
   const [clinica, setClinica] = useState(null);
   const [carregandoClinica, setCarregandoClinica] = useState(false);
-  const [tipoExame, setTipoExame] = useState(TIPOS_EXAMES[0]);
+  const [tipoExame, setTipoExame] = useState("");
   const [data, setData] = useState(dataMinimaHoje());
   const [horario, setHorario] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [erroAcao, setErroAcao] = useState("");
   const [sucesso, setSucesso] = useState(null);
+  const tiposExames = useMemo(() => obterEspecialidadesExames(clinica), [clinica]);
 
-  useEffect(() => {
-    async function carregarClinica() {
-      if (!clinicaIdParam) {
-        setClinica(null);
-        return;
-      }
-
-      setCarregandoClinica(true);
-      setErroAcao("");
-      try {
-        setClinica(await buscarClinicaPorId(clinicaIdParam));
-      } catch (erro) {
-        setClinica(null);
-        setErroAcao(erro.message || "Nao foi possivel carregar a unidade.");
-      } finally {
-        setCarregandoClinica(false);
-      }
+  const carregarClinica = useCallback(async () => {
+    if (!clinicaIdParam) {
+      setClinica(null);
+      return;
     }
 
-    carregarClinica();
+    setCarregandoClinica(true);
+    setErroAcao("");
+    try {
+      setClinica(await buscarClinicaPorId(clinicaIdParam));
+    } catch (erro) {
+      setClinica(null);
+      setErroAcao(erro.message || "Nao foi possivel carregar a unidade.");
+    } finally {
+      setCarregandoClinica(false);
+    }
   }, [clinicaIdParam]);
+
+  useEffect(() => {
+    carregarClinica();
+  }, [carregarClinica]);
+
+  useEffect(() => ouvirClinicasAtualizadas(carregarClinica), [carregarClinica]);
+
+  useEffect(() => {
+    if (tiposExames.length === 0) {
+      setTipoExame("");
+      return;
+    }
+
+    if (!tiposExames.includes(tipoExame)) {
+      setTipoExame(tiposExames[0]);
+    }
+  }, [tipoExame, tiposExames]);
 
   function aoVoltar() {
     navigate("/paciente/exames");
@@ -139,19 +153,14 @@ function AgendarExame() {
   if (!clinica.aberta) {
     return (
       <div className="flex min-h-screen flex-col bg-gray-50">
-        <header className="bg-blue-400 px-5 pb-6 pt-10 shadow-md">
-          <div className="mb-4 flex items-start justify-between gap-4">
-            <button
-              type="button"
-              onClick={aoVoltar}
-              className="text-sm font-medium text-white"
-            >
-              Voltar
-            </button>
-            <MenuUsuarioPaciente />
-          </div>
-          <h1 className="text-2xl font-bold text-white">Agendar exame</h1>
-        </header>
+        <CabecalhoApp
+          compacto
+          fixo={false}
+          aoVoltar={aoVoltar}
+          textoVoltar="Voltar"
+          titulo="Agendar exame"
+          acao={<MenuUsuarioPaciente />}
+        />
         <div className="p-6 text-center">
           <p className="text-gray-600">
             Esta unidade nao esta recebendo agendamentos no momento.
@@ -163,32 +172,25 @@ function AgendarExame() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-28">
-      <header className="sticky top-0 z-10 bg-blue-400 px-5 pb-6 pt-12 shadow-md">
-        <div className="mb-3 flex items-start justify-between gap-4">
-          <button
-            type="button"
-            onClick={aoVoltar}
-            className="text-sm font-medium text-white active:opacity-80"
-          >
-            Voltar as unidades
-          </button>
-          <MenuUsuarioPaciente />
-        </div>
-        <h1 className="text-2xl font-bold leading-tight text-white">
-          Agendar exame
-        </h1>
-        <p className="mt-1 text-sm text-blue-100">Escolha exame, data e horario</p>
-      </header>
+      <CabecalhoApp
+        aoVoltar={aoVoltar}
+        textoVoltar="Voltar as unidades"
+        titulo="Agendar exame"
+        descricao="Escolha exame, data e horario"
+        acao={<MenuUsuarioPaciente />}
+      />
 
-      <main className="space-y-5 px-4 py-5">
+      <main className="app-content-narrow space-y-5">
         <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
           <div
             className={`h-1.5 w-full ${clinica.aberta ? "bg-green-400" : "bg-gray-300"}`}
           />
           <div className="flex gap-4 p-5">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-3xl">
-              {clinica.emoji || "+"}
-            </div>
+            <FotoClinica
+              src={clinica.fotoPerfil}
+              nome={clinica.nome}
+              className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-blue-50 text-2xl font-bold text-blue-500"
+            />
             <div>
               <h2 className="text-base font-bold text-gray-800">{clinica.nome}</h2>
               <p className="text-sm font-medium text-blue-400">{clinica.bairro}</p>
@@ -201,8 +203,8 @@ function AgendarExame() {
           <p className="mb-3 text-xs font-medium uppercase text-gray-500">
             Tipo de exame
           </p>
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {TIPOS_EXAMES.map((exame) => (
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            {tiposExames.map((exame) => (
               <button
                 key={exame}
                 type="button"
@@ -217,6 +219,11 @@ function AgendarExame() {
               </button>
             ))}
           </div>
+          {tiposExames.length === 0 && (
+            <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+              Esta unidade ainda nao possui exames cadastrados.
+            </p>
+          )}
         </section>
 
         <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
@@ -279,15 +286,17 @@ function AgendarExame() {
         )}
       </main>
 
-      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-gray-100 bg-white px-4 py-4 shadow-lg">
-        <button
-          type="button"
-          disabled={!horario || enviando}
-          onClick={aoConfirmar}
-          className="w-full rounded-xl bg-blue-400 py-4 text-lg font-bold text-white transition hover:bg-blue-500 active:scale-[0.98] disabled:bg-gray-200 disabled:text-gray-400"
-        >
-          {enviando ? "Confirmando..." : "Confirmar agendamento"}
-        </button>
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-gray-100 bg-white/95 px-4 pt-4 shadow-lg backdrop-blur safe-bottom-nav">
+        <div className="mx-auto w-full max-w-3xl">
+          <button
+            type="button"
+            disabled={!tipoExame || !horario || enviando}
+            onClick={aoConfirmar}
+            className="w-full rounded-xl bg-blue-400 py-4 text-base font-bold text-white transition hover:bg-blue-500 active:scale-[0.98] disabled:bg-gray-200 disabled:text-gray-400 sm:text-lg"
+          >
+            {enviando ? "Confirmando..." : "Confirmar agendamento"}
+          </button>
+        </div>
       </div>
 
       {sucesso && (
