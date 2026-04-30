@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "nome": "Ana Paula Souza",
+    "email": "paciente@teste.com",
+    "senha": "123456",
+    "nivel_acesso": "paciente",
+    "clinica_id": null,
+    "status": "ativo"
+  },
+  {
+    "id": 2,
+    "nome": "Admin Clinica",
+    "email": "admin@teste.com",
+    "senha": "123456",
+    "nivel_acesso": "admin_clinica",
+    "clinica_id": 1,
+    "status": "ativo"
+  },
+  {
+    "id": 3,
+    "nome": "Admin Master",
+    "email": "master@teste.com",
+    "senha": "123456",
+    "nivel_acesso": "admin_master",
+    "clinica_id": null,
+    "status": "ativo"
+  },
+  {
+    "id": 4,
+    "nome": "Roberto Lima",
+    "email": "medico@teste.com",
+    "senha": "123456",
+    "nivel_acesso": "medico",
+    "clinica_id": 1,
+    "status": "ativo"
+  }
+]

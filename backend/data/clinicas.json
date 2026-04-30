@@ -1,0 +1,112 @@
+[
+  {
+    "id": 1,
+    "nome": "Hospital Nossa Senhora de Nazareth",
+    "bairro": "Verde Vale",
+    "endereco": "R. O Lto Verde Vale, 259 - Verde Vale, Saquarema - RJ",
+    "telefone": "",
+    "especialidades": [
+      "Cirurgias",
+      "Procedimentos"
+    ],
+    "especialidadesExames": [
+      "Ressonância Magnética",
+      "Tomografia",
+      "Ultrassonografia",
+      "Raio-X",
+      "Endoscopia",
+      "Colonoscopia",
+      "Ecocardiograma"
+    ],
+    "aberta": true,
+    "status": "ativa",
+    "responsavel": "Dra. Helena Martins",
+    "capacidadeDiaria": 0,
+    "atendimentosMes": 1284,
+    "satisfacao": 94,
+    "horario": "Seg a Sex: 07h as 17h",
+    "emoji": "+",
+    "latitude": -22.896606037338213,
+    "longitude": -42.4778866967937,
+    "fotoPerfil": ""
+  },
+  {
+    "id": 2,
+    "nome": "UBS Itauna",
+    "bairro": "Itauna",
+    "endereco": "Av. Oceanica, 250 - Itauna, Saquarema/RJ",
+    "telefone": "(22) 2651-0002",
+    "especialidades": [
+      "Clinica Geral",
+      "Ginecologia",
+      "Pre-Natal"
+    ],
+    "especialidadesExames": [
+      "Colesterol total e fracoes",
+      "Ultrassonografia",
+      "Preventivo"
+    ],
+    "aberta": true,
+    "status": "ativa",
+    "responsavel": "Dr. Ricardo Azevedo",
+    "capacidadeDiaria": 74,
+    "atendimentosMes": 986,
+    "satisfacao": 91,
+    "horario": "Seg a Sex: 08h as 16h",
+    "emoji": "+",
+    "latitude": -22.9338,
+    "longitude": -42.4939
+  },
+  {
+    "id": 3,
+    "nome": "UBS Vilatur",
+    "bairro": "Vilatur",
+    "endereco": "Rua das Flores, 45 - Vilatur, Saquarema/RJ",
+    "telefone": "(22) 2651-0003",
+    "especialidades": [
+      "Clinica Geral",
+      "Odontologia"
+    ],
+    "especialidadesExames": [
+      "Raio-X",
+      "Hemograma completo"
+    ],
+    "aberta": false,
+    "status": "temporariamente_fechada",
+    "responsavel": "Enf. Marcos Vieira",
+    "capacidadeDiaria": 42,
+    "atendimentosMes": 236,
+    "satisfacao": 86,
+    "horario": "Temporariamente fechada",
+    "emoji": "+",
+    "latitude": -22.9344,
+    "longitude": -42.6835
+  },
+  {
+    "id": 4,
+    "nome": "UBS Sampaio Correa",
+    "bairro": "Sampaio Correa",
+    "endereco": "Estrada Municipal, 78 - Sampaio Correa, Saquarema/RJ",
+    "telefone": "(22) 2651-0004",
+    "especialidades": [
+      "Clinica Geral",
+      "Pediatria",
+      "Nutricao"
+    ],
+    "especialidadesExames": [
+      "Hemograma completo",
+      "Glicemia em jejum",
+      "Colesterol total e fracoes"
+    ],
+    "aberta": true,
+    "status": "ativa",
+    "responsavel": "Dra. Priscila Rocha",
+    "capacidadeDiaria": 88,
+    "atendimentosMes": 1108,
+    "satisfacao": 93,
+    "horario": "Seg a Sex: 07h as 17h",
+    "emoji": "+",
+    "latitude": -22.8747,
+    "longitude": -42.6594
+  }
+]
