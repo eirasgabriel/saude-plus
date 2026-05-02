@@ -486,6 +486,11 @@ function AdminGerenciarClinicas() {
           </form>
 
           <section className="space-y-4">
+            {carregando && (
+              <p className="rounded-xl bg-white px-4 py-3 text-sm text-gray-500">
+                Carregando clinicas...
+              </p>
+            )}
             {clinicas.map((clinica) => (
               <article
                 key={clinica.id}

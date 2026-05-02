@@ -20,6 +20,7 @@ const ROTULOS_NIVEIS = {
 const USUARIO_INICIAL = {
   nome: "",
   email: "",
+  senha: "",
   nivel_acesso: "paciente",
   clinica_id: "",
   status: "ativo",
@@ -122,6 +123,11 @@ function AdminGerenciarUsuarios() {
       return;
     }
 
+    if (!usuarioEditandoId && formulario.senha.length < 8) {
+      setMensagem("Informe uma senha inicial com pelo menos 8 caracteres.");
+      return;
+    }
+
     const clinicaId = formulario.clinica_id ? Number(formulario.clinica_id) : null;
 
     try {
@@ -132,6 +138,7 @@ function AdminGerenciarUsuarios() {
         nivel_acesso: formulario.nivel_acesso,
         clinica_id: clinicaId,
         status: formulario.status,
+        ...(formulario.senha ? { senha: formulario.senha } : {}),
       });
       setMensagem(usuarioEditandoId ? "Usuario atualizado no backend." : "Usuario criado no backend.");
       limparFormulario();
@@ -146,6 +153,7 @@ function AdminGerenciarUsuarios() {
     setFormulario({
       nome: usuario.nome,
       email: usuario.email,
+      senha: "",
       nivel_acesso: usuario.nivel_acesso,
       clinica_id: usuario.clinica_id || "",
       status: usuario.status,
@@ -223,6 +231,18 @@ function AdminGerenciarUsuarios() {
               value={formulario.email}
               onChange={(evento) => alterarCampo("email", evento.target.value)}
               placeholder="Email de acesso"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            />
+            <input
+              type="password"
+              value={formulario.senha}
+              onChange={(evento) => alterarCampo("senha", evento.target.value)}
+              placeholder={
+                usuarioEditandoId
+                  ? "Nova senha (opcional)"
+                  : "Senha inicial (minimo de 8 caracteres)"
+              }
+              autoComplete="new-password"
               className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
             <select

@@ -14,6 +14,7 @@ function CabecalhoApp({
   textoVoltar = "Voltar",
   voltarSomenteIcone = false,
   children,
+  compacto = false,
   fixo = true,
   className = "",
   tituloClassName = "",
@@ -34,7 +35,9 @@ function CabecalhoApp({
       <div className="app-header-inner">
         <div
           className={juntarClasses(
-            "flex min-h-[96px] py-4 sm:min-h-[104px]",
+            compacto
+              ? "flex min-h-[67px] py-2 sm:min-h-[73px] sm:py-3"
+              : "flex min-h-[67px] py-2 sm:min-h-[73px] sm:py-3",
             voltarLateral
               ? "items-center gap-3 sm:gap-4"
               : "flex-col justify-center"
@@ -77,11 +80,22 @@ function CabecalhoApp({
               )}
             >
               <div className="min-w-0">
-                {contexto && <p className="text-sm text-blue-100">{contexto}</p>}
+                {contexto && (
+                  <p
+                    className={juntarClasses(
+                      compacto ? "text-xs" : "text-sm",
+                      "text-blue-100"
+                    )}
+                  >
+                    {contexto}
+                  </p>
+                )}
                 {titulo && (
                   <h1
                     className={juntarClasses(
-                      "text-2xl font-bold leading-tight text-white sm:text-[1.7rem]",
+                      compacto
+                        ? "text-xl font-bold leading-tight text-white sm:text-2xl"
+                        : "text-xl font-bold leading-tight text-white sm:text-2xl",
                       tituloClassName
                     )}
                   >
@@ -91,7 +105,7 @@ function CabecalhoApp({
                 {descricao && (
                   <p
                     className={juntarClasses(
-                      "mt-1 text-sm text-blue-100",
+                      compacto ? "mt-0.5 text-xs text-blue-100" : "mt-1 text-sm text-blue-100",
                       descricaoClassName
                     )}
                   >

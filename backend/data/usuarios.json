@@ -3,7 +3,7 @@
     "id": 1,
     "nome": "Ana Paula Souza",
     "email": "paciente@teste.com",
-    "senha": "123456",
+    "senha_hash": "scrypt$16384$8$1$RfJ39JAMRFqpuVO-LMQqNA$GBqSvNrIcIRsZJHoYiWhFyMWjGIWRVF2XGtpnylAftUGA5h5t7A97Iq-neBj87JM0shOnhTJqQmSXm29n5UOFw",
     "nivel_acesso": "paciente",
     "clinica_id": null,
     "status": "ativo"
@@ -12,7 +12,7 @@
     "id": 2,
     "nome": "Admin Clinica",
     "email": "admin@teste.com",
-    "senha": "123456",
+    "senha_hash": "scrypt$16384$8$1$G0fC3Qgpq9tVaOEKu8CaKA$5S9Ly9Du7uNOU_9NtAaDKWTJGw0mr50H2fgE-L7HdhocRAS2yf4Yp_Tu3waNtue0us5ZjVmVHexkjAji6o_voA",
     "nivel_acesso": "admin_clinica",
     "clinica_id": 1,
     "status": "ativo"
@@ -21,7 +21,7 @@
     "id": 3,
     "nome": "Admin Master",
     "email": "master@teste.com",
-    "senha": "123456",
+    "senha_hash": "scrypt$16384$8$1$QZ2XToNhzC4hzxP3youHQA$vjfpKhtXq1gDrSZ_XLu_ti5XKIme2DQxjuhcNBZqKOlriwrxGTAdyNyZWpWkrGfQcIMw55sPYarIUVhEuNFvjg",
     "nivel_acesso": "admin_master",
     "clinica_id": null,
     "status": "ativo"
@@ -30,7 +30,7 @@
     "id": 4,
     "nome": "Roberto Lima",
     "email": "medico@teste.com",
-    "senha": "123456",
+    "senha_hash": "scrypt$16384$8$1$vpccIKeYlN--53wGIlF87A$Z0-bOvsMh86G1W0eFN9j4k8AQVUkgtmVZDxkXYdzAY2k0JTPbTAw5Ef5Z8yf5c6alLmSzUrscqR_s7oA_LRnSQ",
     "nivel_acesso": "medico",
     "clinica_id": 1,
     "status": "ativo"

@@ -158,10 +158,12 @@ function HomeMaster() {
           </div>
           <div className="dashboard-metric">
             <div className="mb-3 flex items-center justify-between gap-3">
-              <p className="text-sm text-gray-500">Consultas no mes</p>
+              <p className="text-sm text-gray-500">Agendamentos no mes</p>
               <CalendarDays className="h-5 w-5 text-blue-400" aria-hidden="true" />
             </div>
-            <strong className="text-3xl text-gray-800">{resumo.consultasMes}</strong>
+            <strong className="text-3xl text-gray-800">
+              {resumo.agendamentosMes || resumo.consultasMes}
+            </strong>
           </div>
           <div className="dashboard-metric">
             <div className="mb-3 flex items-center justify-between gap-3">

@@ -1,33 +1,55 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { realizarLogin } from "../../application/auth/auth-service";
+import { realizarLogin, recuperarSenha } from "../../application/auth/auth-service";
 import { usarDispositivo } from "../../infrastructure/device/use-dispositivo";
 import LogoSaudePlus from "../components/logo-saude-plus";
+
+function emailValido(valor) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor);
+}
 
 function Login() {
   const navigate = useNavigate();
   const dispositivo = usarDispositivo();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [novaSenha, setNovaSenha] = useState("");
+  const [confirmarNovaSenha, setConfirmarNovaSenha] = useState("");
+  const [codigoRecuperacao, setCodigoRecuperacao] = useState("");
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState("");
+  const [mensagem, setMensagem] = useState("");
   const [senhaVisivel, setSenhaVisivel] = useState(false);
+  const [modoRecuperacao, setModoRecuperacao] = useState(false);
 
-  function validarFormulario() {
+  function validarFormularioLogin() {
     if (!email.trim()) return "Por favor, informe seu e-mail.";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!emailValido(email)) {
       return "E-mail invalido. Verifique e tente novamente.";
     }
     if (!senha) return "Por favor, informe sua senha.";
-    if (senha.length < 6) return "A senha deve ter pelo menos 6 caracteres.";
+    if (senha.length < 8) return "A senha deve ter pelo menos 8 caracteres.";
+    return "";
+  }
+
+  function validarFormularioRecuperacao() {
+    if (!email.trim()) return "Informe o e-mail cadastrado.";
+    if (!emailValido(email)) return "Informe um e-mail valido.";
+    if (novaSenha.length < 8) {
+      return "A nova senha deve ter pelo menos 8 caracteres.";
+    }
+    if (novaSenha !== confirmarNovaSenha) {
+      return "A confirmacao precisa ser igual a nova senha.";
+    }
     return "";
   }
 
   async function aoEnviar(e) {
     e.preventDefault();
     setErro("");
+    setMensagem("");
 
-    const mensagemErro = validarFormulario();
+    const mensagemErro = validarFormularioLogin();
     if (mensagemErro) {
       setErro(mensagemErro);
       return;
@@ -35,7 +57,7 @@ function Login() {
 
     setCarregando(true);
     try {
-      const dados = await realizarLogin(email, senha);
+      const dados = await realizarLogin(email.trim(), senha);
       const nivelAcesso = dados.usuario?.nivel_acesso;
 
       const rotasPorNivel = {
@@ -53,7 +75,65 @@ function Login() {
     }
   }
 
-  const formulario = (
+  async function aoRecuperarSenha(e) {
+    e.preventDefault();
+    setErro("");
+    setMensagem("");
+
+    const mensagemErro = validarFormularioRecuperacao();
+    if (mensagemErro) {
+      setErro(mensagemErro);
+      return;
+    }
+
+    setCarregando(true);
+    try {
+      const resultado = await recuperarSenha(email.trim(), novaSenha, codigoRecuperacao.trim());
+      setSenha("");
+      setNovaSenha("");
+      setConfirmarNovaSenha("");
+      setCodigoRecuperacao("");
+      setModoRecuperacao(false);
+      setMensagem(resultado.mensagem || "Senha atualizada. Entre com a nova senha.");
+    } catch (err) {
+      setErro(err.message || "Nao foi possivel recuperar a senha.");
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  function abrirRecuperacao() {
+    setErro("");
+    setMensagem("");
+    setModoRecuperacao(true);
+  }
+
+  function voltarAoLogin() {
+    setErro("");
+    setMensagem("");
+    setNovaSenha("");
+    setConfirmarNovaSenha("");
+    setCodigoRecuperacao("");
+    setModoRecuperacao(false);
+  }
+
+  const aviso = (
+    <>
+      {erro && (
+        <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+          <p className="text-sm text-red-600">{erro}</p>
+        </div>
+      )}
+
+      {mensagem && (
+        <div className="mb-5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+          <p className="text-sm text-emerald-700">{mensagem}</p>
+        </div>
+      )}
+    </>
+  );
+
+  const formularioLogin = (
     <form onSubmit={aoEnviar} noValidate>
       <div className="mb-5">
         <label className="mb-2 block text-sm font-semibold text-gray-700">
@@ -71,7 +151,7 @@ function Login() {
         />
       </div>
 
-      <div className="mb-6">
+      <div className="mb-3">
         <label className="mb-2 block text-sm font-semibold text-gray-700">
           Senha
         </label>
@@ -95,11 +175,15 @@ function Login() {
         </div>
       </div>
 
-      {erro && (
-        <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
-          <p className="text-sm text-red-600">{erro}</p>
-        </div>
-      )}
+      <button
+        type="button"
+        onClick={abrirRecuperacao}
+        className="mb-5 text-sm font-semibold text-blue-500 hover:text-blue-600 hover:underline"
+      >
+        Esqueceu a senha?
+      </button>
+
+      {aviso}
 
       <button
         type="submit"
@@ -115,17 +199,92 @@ function Login() {
       >
         {dispositivo.celular ? "Criar cadastro de paciente" : "Cadastre-se"}
       </Link>
-
-      {dispositivo.celular && (
-        <p className="mt-4 text-center text-sm text-gray-500">
-          Esqueceu a senha?{" "}
-          <a href="/recuperar-senha" className="font-medium text-blue-400 hover:underline">
-            Clique aqui
-          </a>
-        </p>
-      )}
     </form>
   );
+
+  const formularioRecuperacao = (
+    <form onSubmit={aoRecuperarSenha} noValidate>
+      <div className="mb-5">
+        <label className="mb-2 block text-sm font-semibold text-gray-700">
+          E-mail cadastrado
+        </label>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="seu@email.com"
+          autoComplete="email"
+          className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-800 shadow-sm transition focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+      </div>
+
+      <div className="mb-5">
+        <label className="mb-2 block text-sm font-semibold text-gray-700">
+          Nova senha
+        </label>
+        <input
+          type="password"
+          value={novaSenha}
+          onChange={(e) => setNovaSenha(e.target.value)}
+          placeholder="Minimo de 8 caracteres"
+          autoComplete="new-password"
+          className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-800 shadow-sm transition focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+      </div>
+
+      <div className="mb-6">
+        <label className="mb-2 block text-sm font-semibold text-gray-700">
+          Confirmar nova senha
+        </label>
+        <input
+          type="password"
+          value={confirmarNovaSenha}
+          onChange={(e) => setConfirmarNovaSenha(e.target.value)}
+          placeholder="Repita a nova senha"
+          autoComplete="new-password"
+          className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-800 shadow-sm transition focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+      </div>
+
+      <div className="mb-6">
+        <label className="mb-2 block text-sm font-semibold text-gray-700">
+          Codigo de recuperacao
+        </label>
+        <input
+          type="password"
+          value={codigoRecuperacao}
+          onChange={(e) => setCodigoRecuperacao(e.target.value)}
+          placeholder="Codigo temporario enviado pela unidade"
+          autoComplete="one-time-code"
+          className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-800 shadow-sm transition focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+      </div>
+
+      {aviso}
+
+      <button
+        type="submit"
+        disabled={carregando}
+        className="w-full rounded-xl bg-blue-400 py-3.5 text-base font-bold text-white shadow-md transition-all duration-200 hover:bg-blue-500 hover:shadow-lg active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {carregando ? "Atualizando..." : "Atualizar senha"}
+      </button>
+
+      <button
+        type="button"
+        onClick={voltarAoLogin}
+        className="mt-4 w-full rounded-xl border border-blue-200 py-3 text-center font-bold text-blue-500 transition hover:bg-blue-50"
+      >
+        Voltar ao login
+      </button>
+    </form>
+  );
+
+  const formulario = modoRecuperacao ? formularioRecuperacao : formularioLogin;
+  const tituloFormulario = modoRecuperacao ? "Recuperar senha" : "Bem-vindo!";
+  const descricaoFormulario = modoRecuperacao
+    ? "Informe seu e-mail e defina uma nova senha."
+    : "Faca login para agendar sua consulta.";
 
   if (dispositivo.celular) {
     return (
@@ -140,10 +299,10 @@ function Login() {
           </div>
 
           <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl">
-            <h2 className="mb-1 text-xl font-bold text-gray-800">Bem-vindo!</h2>
-            <p className="mb-6 text-sm text-gray-500">
-              Faca login para agendar sua consulta.
-            </p>
+            <h2 className="mb-1 text-xl font-bold text-gray-800">
+              {tituloFormulario}
+            </h2>
+            <p className="mb-6 text-sm text-gray-500">{descricaoFormulario}</p>
             {formulario}
           </div>
         </div>
@@ -170,10 +329,12 @@ function Login() {
           <section className="flex items-center justify-center p-10">
             <div className="w-full max-w-md">
               <h2 className="mb-2 text-3xl font-bold text-gray-800">
-                Acesso ao Sistema
+                {modoRecuperacao ? "Recuperar senha" : "Acesso ao Sistema"}
               </h2>
               <p className="mb-8 text-gray-500">
-                Area administrativa - Prefeitura de Saquarema
+                {modoRecuperacao
+                  ? "Defina uma nova senha para voltar ao sistema."
+                  : "Area administrativa - Prefeitura de Saquarema"}
               </p>
               {formulario}
             </div>
@@ -211,10 +372,12 @@ function Login() {
       <section className="flex flex-1 items-center justify-center bg-gray-50 p-8">
         <div className="w-full max-w-md">
           <h2 className="mb-2 text-3xl font-bold text-gray-800">
-            Acesso ao Sistema
+            {modoRecuperacao ? "Recuperar senha" : "Acesso ao Sistema"}
           </h2>
           <p className="mb-8 text-gray-500">
-            Area administrativa - Prefeitura de Saquarema
+            {modoRecuperacao
+              ? "Informe seus dados para definir uma nova senha."
+              : "Area administrativa - Prefeitura de Saquarema"}
           </p>
           {formulario}
           <p className="mt-8 text-center text-xs text-gray-400">

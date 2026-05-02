@@ -9,28 +9,12 @@ async function registrarServiceWorker() {
     return null;
   }
 
-  if (process.env.NODE_ENV !== "production") {
-    const registros = await navigator.serviceWorker.getRegistrations();
-    await Promise.all(registros.map((registro) => registro.unregister()));
-
-    if ("caches" in window) {
-      const chaves = await caches.keys();
-      await Promise.all(
-        chaves
-          .filter((chave) => chave.startsWith("saude-plus-"))
-          .map((chave) => caches.delete(chave))
-      );
-    }
-
-    return null;
-  }
-
   if (registroServiceWorker) {
     return registroServiceWorker;
   }
 
   registroServiceWorker = await navigator.serviceWorker.register("/sw.js");
-  return registroServiceWorker;
+  return navigator.serviceWorker.ready;
 }
 
 function registrarServiceWorkerAoCarregar() {

@@ -29,6 +29,23 @@ npm run frontend
 
 O frontend fica em `http://localhost:3000` e encaminha `/api` para o backend em `http://localhost:3333`.
 
+## Workflow Do Sistema
+
+O fluxo operacional esperado e:
+
+1. Usuario interage com o frontend.
+2. Frontend faz requisicao para a API HTTP em `/api/*`.
+3. A API valida entrada, sessao e permissao.
+4. A API aciona o backend da aplicacao, composto por casos de uso e regras de dominio.
+5. O backend requisita dados aos repositories.
+6. Os repositories consultam o banco de dados.
+7. O banco de dados responde ao backend.
+8. O backend devolve o resultado para a API.
+9. A API retorna a resposta ao frontend.
+10. O frontend atualiza a tela e a acao acontece para o usuario.
+
+Em desenvolvimento, os repositories podem usar memoria/JSON local. Em ambiente real, defina `REPOSITORY_DRIVER=postgres` e execute as migrations do backend.
+
 ## Scripts Da Raiz
 
 - `npm run iniciar`: inicia backend e frontend juntos.
@@ -63,23 +80,28 @@ Sem essa variavel, o sistema usa um iframe/link do Google Maps como fallback par
 
 ## Usuarios De Teste
 
-```text
-Paciente:
-email: paciente@teste.com
-senha: 123456
+Emails demonstrativos disponiveis no seed local:
 
-Admin Clinica:
-email: admin@teste.com
-senha: 123456
+- paciente@teste.com
+- admin@teste.com
+- master@teste.com
+- medico@teste.com
 
-Admin Master:
-email: master@teste.com
-senha: 123456
+As senhas dos seeds ficam armazenadas somente como hash. Para ambientes reais,
+crie usuarios novos pela API/admin e defina credenciais fora do repositorio.
 
-Medico:
-email: medico@teste.com
-senha: 123456
+Para definir uma senha local de desenvolvimento para qualquer usuario seed:
+
+```bash
+npm --prefix backend run user:password -- paciente@teste.com MinhaSenhaLocalForte
 ```
+
+## Seguranca
+
+- Copie `.env.example` para `.env` e defina um `JWT_SECRET` forte antes de rodar fora do desenvolvimento.
+- Em producao, defina tambem `RECOVERY_SECRET`, `CORS_ORIGINS` e use cookie HttpOnly para sessao.
+- Arquivos em `backend/data/*.json`, logs e builds sao artefatos locais e nao devem ser versionados.
+- Consulte [SECURITY.md](./SECURITY.md) para relatar vulnerabilidades e ver as regras minimas de operacao segura.
 
 ## Estrutura
 

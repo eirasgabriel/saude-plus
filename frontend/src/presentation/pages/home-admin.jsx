@@ -16,7 +16,7 @@ import { buscarClinicaPorId } from "../../application/clinicas/clinicas-use-case
 import { ouvirUsuariosAtualizados } from "../../application/usuarios/usuarios-eventos";
 import {
   RELATORIO_VAZIO,
-  obterRelatoriosSistema,
+  obterRelatorioClinica,
 } from "../../application/sistema/relatorios-use-cases";
 import CabecalhoApp from "../components/cabecalho-app";
 import MenuInferiorAdmin from "../components/menu-inferior-admin";
@@ -32,15 +32,12 @@ function HomeAdmin() {
   const nomeClinica = clinicaVinculada?.nome || "Clinica nao identificada";
 
   async function carregarDados() {
-    if (!usuario?.clinica_id) return;
-
     setCarregandoRelatorio(true);
     setErro("");
     try {
-      const [clinica, relatorioSistema] = await Promise.all([
-        buscarClinicaPorId(usuario.clinica_id),
-        obterRelatoriosSistema(),
-      ]);
+      const relatorioSistema = await obterRelatorioClinica(usuario?.clinica_id);
+      const clinica = relatorioSistema.clinica ||
+        (usuario?.clinica_id ? await buscarClinicaPorId(usuario.clinica_id) : null);
       setClinicaVinculada(clinica);
       setRelatorio(relatorioSistema);
     } catch (falha) {
@@ -67,22 +64,24 @@ function HomeAdmin() {
   }, []);
 
   const relatorioClinica = useMemo(() => {
-    const itemRelatorio = relatorio.porClinica.find(
-      (item) => Number(item.id) === Number(clinicaVinculada?.id)
-    );
+    const indicadores = relatorio.indicadores || {};
 
     return {
-      consultas: itemRelatorio?.consultas ?? 0,
-      realizadas: itemRelatorio?.realizadas ?? 0,
-      canceladas: itemRelatorio?.canceladas ?? 0,
-      ocupacao: itemRelatorio?.ocupacao ?? 0,
+      consultas: indicadores.consultas ?? 0,
+      exames: indicadores.exames ?? 0,
+      agendamentos: indicadores.agendamentos ?? indicadores.consultas ?? 0,
+      realizadas: indicadores.realizadas ?? 0,
+      canceladas: indicadores.canceladas ?? 0,
+      examesPendentes: indicadores.examesPendentes ?? 0,
+      examesRealizados: indicadores.examesRealizados ?? 0,
+      ocupacao: indicadores.ocupacao ?? 0,
       atendimentosMes:
-        itemRelatorio?.atendimentosMes ?? Number(clinicaVinculada?.atendimentosMes || 0),
-      satisfacao: itemRelatorio?.satisfacao ?? Number(clinicaVinculada?.satisfacao || 0),
-      capacidadeDiaria: Number(clinicaVinculada?.capacidadeDiaria || 0),
-      status: clinicaVinculada?.status || "nao informado",
+        indicadores.atendimentosMes ?? Number(clinicaVinculada?.atendimentosMes || 0),
+      satisfacao: indicadores.satisfacao ?? Number(clinicaVinculada?.satisfacao || 0),
+      capacidadeDiaria: indicadores.capacidadeDiaria ?? Number(clinicaVinculada?.capacidadeDiaria || 0),
+      status: indicadores.status || clinicaVinculada?.status || "nao informado",
     };
-  }, [clinicaVinculada, relatorio.porClinica]);
+  }, [clinicaVinculada, relatorio.indicadores]);
 
   function sairDaConta() {
     cancelarFechamentoDoMenu();
@@ -181,10 +180,10 @@ function HomeAdmin() {
                 <CalendarDays className="h-5 w-5 text-blue-400" aria-hidden="true" />
               </div>
               <strong className="text-3xl text-gray-800">
-                {relatorioClinica.consultas}
+                {relatorioClinica.agendamentos}
               </strong>
               <p className="mt-1 text-xs text-gray-400">
-                {relatorioClinica.realizadas} realizadas
+                {relatorioClinica.consultas} consultas e {relatorioClinica.exames} exames
               </p>
             </div>
 
@@ -199,10 +198,10 @@ function HomeAdmin() {
                     relatorioClinica.realizadas -
                     relatorioClinica.canceladas,
                   0
-                )}
+                ) + relatorioClinica.examesPendentes}
               </strong>
               <p className="mt-1 text-xs text-gray-400">
-                {relatorioClinica.canceladas} canceladas
+                {relatorioClinica.canceladas} consultas canceladas
               </p>
             </div>
 

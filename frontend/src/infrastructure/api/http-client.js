@@ -35,9 +35,22 @@ async function parseJsonResposta(resposta) {
 
 async function requisitarJson(url, opcoes = {}) {
   let resposta;
+  const token = obterTokenSessao();
+  const headers = {
+    ...(opcoes.headers || {}),
+  };
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
 
   try {
-    resposta = await fetch(url, opcoes);
+    resposta = await fetch(url, {
+      cache: "no-store",
+      ...opcoes,
+      credentials: "include",
+      headers,
+    });
   } catch {
     throw new Error(
       "Nao foi possivel conectar ao backend. Use npm run iniciar para subir frontend e backend juntos."
@@ -47,6 +60,9 @@ async function requisitarJson(url, opcoes = {}) {
   const dados = await parseJsonResposta(resposta);
 
   if (!resposta.ok) {
+    if (resposta.status === 401) {
+      removerUsuarioSessao();
+    }
     throw new Error(dados.mensagem || "Erro ao processar requisicao.");
   }
 
@@ -54,3 +70,4 @@ async function requisitarJson(url, opcoes = {}) {
 }
 
 export { parseJsonResposta, requisitarJson };
+import { obterTokenSessao, removerUsuarioSessao } from "../storage/sessao-usuario";

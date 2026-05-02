@@ -1,4 +1,13 @@
 node_modules
 
-.env.example
 .env
+.env.*
+!.env.example
+
+backend/data/*.json
+*.log
+backend-*.log
+
+frontend/build
+coverage
+.tmp-*

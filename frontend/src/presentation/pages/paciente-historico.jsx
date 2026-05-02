@@ -3,19 +3,13 @@ import { buscarHistoricoPaciente } from "../../application/agenda/agendamento-us
 import { obterUsuarioAtual } from "../../application/auth/auth-service";
 import { ouvirClinicasAtualizadas } from "../../application/clinicas/clinicas-eventos";
 import { listarClinicas } from "../../application/clinicas/clinicas-use-cases";
-import {
-  excluirExamePaciente,
-  listarExamesPaciente,
-} from "../../application/exames/exames-use-cases";
+import { listarExamesPaciente } from "../../application/exames/exames-use-cases";
 import CabecalhoApp from "../components/cabecalho-app";
 import MenuInferiorPaciente from "../components/menu-inferior-paciente";
 import MenuUsuarioPaciente from "../components/menu-usuario-paciente";
 
 const CHAVE_CONSULTAS_OCULTAS = "saude_plus_consultas_historico_ocultas";
 const CHAVE_EXAMES_OCULTOS = "saude_plus_exames_historico_ocultos";
-const EMAIL_USUARIO_TESTE = "eirasbiel@gmail.com";
-const ID_CONSULTA_TESTE_EIRASBIEL = "teste-eirasbiel-consulta";
-const ID_EXAME_TESTE_EIRASBIEL = "teste-eirasbiel-exame";
 
 function parseAgendaId(agendaId) {
   const parsed = /^ag-(\d+)-(\d{4}-\d{2}-\d{2})-t(\d{2})(\d{2})$/.exec(
@@ -93,44 +87,6 @@ function salvarExamesOcultos(ids) {
   localStorage.setItem(CHAVE_EXAMES_OCULTOS, JSON.stringify(ids));
 }
 
-function ehUsuarioTeste(usuario) {
-  return String(usuario?.email || "").toLowerCase() === EMAIL_USUARIO_TESTE;
-}
-
-function montarConsultaTeste(usuario) {
-  const pacienteId = usuario?.id != null ? Number(usuario.id) : 1;
-
-  return {
-    id: ID_CONSULTA_TESTE_EIRASBIEL,
-    paciente_id: pacienteId,
-    medico_id: 110,
-    agenda_id: "ag-1-2026-04-10-t0830",
-    clinica_id: 1,
-    especialidade: "Clinica Geral",
-    observacoes: "Consulta simulada para teste de historico",
-    status: "realizada",
-    criado_em: "2026-04-10T08:30:00.000Z",
-  };
-}
-
-function montarExameTeste(usuario) {
-  const pacienteId = usuario?.id != null ? Number(usuario.id) : 1;
-
-  return {
-    id: ID_EXAME_TESTE_EIRASBIEL,
-    paciente_id: pacienteId,
-    clinica_id: 1,
-    clinica_nome: "UBS Bacaxa",
-    clinica_bairro: "Bacaxa",
-    tipo: "Hemograma completo",
-    data: "2026-04-11",
-    horario: "08:00",
-    observacoes: "Exame simulado para teste de historico",
-    status: "realizado",
-    criado_em: "2026-04-11T08:00:00.000Z",
-  };
-}
-
 function PacienteHistorico() {
   const [consultas, setConsultas] = useState([]);
   const [exames, setExames] = useState([]);
@@ -155,23 +111,8 @@ function PacienteHistorico() {
       const consultasCarregadas = Array.isArray(listaConsultas) ? listaConsultas : [];
       const examesCarregados = Array.isArray(listaExames) ? listaExames : [];
 
-      if (ehUsuarioTeste(usuario)) {
-        setConsultas([
-          ...consultasCarregadas.filter(
-            (consulta) => String(consulta.id) !== ID_CONSULTA_TESTE_EIRASBIEL
-          ),
-          montarConsultaTeste(usuario),
-        ]);
-        setExames([
-          ...examesCarregados.filter(
-            (exame) => String(exame.id) !== ID_EXAME_TESTE_EIRASBIEL
-          ),
-          montarExameTeste(usuario),
-        ]);
-      } else {
-        setConsultas(consultasCarregadas);
-        setExames(examesCarregados);
-      }
+      setConsultas(consultasCarregadas);
+      setExames(examesCarregados);
       setClinicas(Array.isArray(listaClinicas) ? listaClinicas : []);
     } catch (e) {
       setErro(e.message || "Nao foi possivel carregar seu historico.");
@@ -241,8 +182,7 @@ function PacienteHistorico() {
     salvarConsultasOcultas(proximasConsultasOcultas);
   }
 
-  async function excluirExameDoHistorico(exameId) {
-    await excluirExamePaciente(exameId);
+  function excluirExameDoHistorico(exameId) {
     const proximosExamesOcultos = [...new Set([...examesOcultos, String(exameId)])];
     setExamesOcultos(proximosExamesOcultos);
     salvarExamesOcultos(proximosExamesOcultos);

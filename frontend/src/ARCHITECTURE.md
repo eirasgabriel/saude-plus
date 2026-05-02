@@ -18,6 +18,12 @@ Esta reorganizacao separa o app em camadas para deixar dependencias e responsabi
 
 Na pratica, as telas chamam casos de uso. Os casos de uso aplicam regras e usam adaptadores de infraestrutura quando precisam falar com API ou storage.
 
+## Fluxo de execucao
+
+`Usuario -> frontend -> API HTTP -> backend/application -> repositories -> banco de dados`
+
+A resposta volta no caminho inverso: banco de dados, repositories, backend/application, API HTTP, frontend. So entao a tela atualiza a acao do usuario.
+
 ## Proximos passos naturais
 
 - Evoluir os repositories do backend para PostgreSQL sem alterar as telas.

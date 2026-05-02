@@ -1,8 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { ClipboardList, FileText, Stethoscope, TestTube2 } from "lucide-react";
-import { buscarHistoricoPaciente } from "../../application/agenda/agendamento-use-cases";
+import { useLocation } from "react-router-dom";
+import {
+  buscarHistoricoPaciente,
+} from "../../application/agenda/agendamento-use-cases";
+import { ouvirConsultasAtualizadas } from "../../application/agenda/consultas-eventos";
 import { obterUsuarioAtual } from "../../application/auth/auth-service";
 import { listarClinicas } from "../../application/clinicas/clinicas-use-cases";
+import { ouvirExamesAtualizados } from "../../application/exames/exames-eventos";
 import { listarExamesPaciente } from "../../application/exames/exames-use-cases";
 import CabecalhoApp from "../components/cabecalho-app";
 import MenuInferiorPaciente from "../components/menu-inferior-paciente";
@@ -77,6 +82,16 @@ function baixarArquivo(nomeArquivo, conteudo) {
   URL.revokeObjectURL(url);
 }
 
+function baixarDataUrl(nomeArquivo, dataUrl) {
+  const link = document.createElement("a");
+
+  link.href = dataUrl;
+  link.download = nomeArquivo || "resultado-exame";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}
+
 function montarConteudoDocumento(documento, usuario) {
   return [
     `Saude+ - ${documento.categoria}`,
@@ -85,6 +100,7 @@ function montarConteudoDocumento(documento, usuario) {
     `Documento: ${documento.titulo}`,
     `Data: ${formatarData(documento.data)}`,
     `Unidade: ${documento.clinica}`,
+    documento.responsavel ? `Anexado por: ${documento.responsavel}` : null,
     documento.medico ? `Medico: ${documento.medico}` : null,
     documento.especialidade ? `Especialidade: ${documento.especialidade}` : null,
     documento.horario ? `Horario: ${documento.horario}` : null,
@@ -122,7 +138,7 @@ function montarDownloadsConsultas(consultas, clinicas) {
         data: agenda.data,
         horario: agenda.hora,
         clinica: clinica?.nome || "Clinica nao identificada",
-        medico: consulta.medico || `Medico ${consulta.medico_id || ""}`.trim(),
+        medico: consulta.medico || "",
         especialidade: consulta.especialidade || "Atendimento",
         status,
       };
@@ -132,15 +148,31 @@ function montarDownloadsConsultas(consultas, clinicas) {
 }
 
 function criarDocumentoExame(exame) {
+  const categorias = {
+    exame: "Exame",
+    prontuario: "Prontuario",
+    atestado: "Atestado",
+  };
+  const categoria = categorias[exame.resultado_categoria] || "Exame";
+
   return {
     id: `exame-${exame.id}`,
-    categoria: "Exame",
+    categoria,
     titulo: exame.tipo || "Resultado de exame",
     data: exame.data,
     horario: exame.horario,
     clinica: exame.clinica_nome || "Unidade nao informada",
     status: exame.status || "liberado",
-    descricao: `Resultado anexado para ${exame.tipo || "exame"}.`,
+    responsavel:
+      exame.resultado_anexado_por_nome ||
+      (exame.resultado_anexado_por === "medico" ? "Medico" : "Admin da clinica"),
+    nomeArquivo:
+      exame.resultado_nome_arquivo ||
+      `${normalizarNomeArquivo(exame.tipo || "resultado-exame")}.txt`,
+    arquivoDataUrl: exame.resultado_arquivo_data_url || "",
+    tipoArquivo: exame.resultado_arquivo_tipo || "",
+    descricao:
+      exame.resultado_descricao || `Resultado anexado para ${exame.tipo || "exame"}.`,
   };
 }
 
@@ -177,6 +209,7 @@ function criarDocumentoAtestado(consulta) {
 }
 
 function PacienteDownloads() {
+  const location = useLocation();
   const usuario = obterUsuarioAtual();
   const [consultas, setConsultas] = useState([]);
   const [exames, setExames] = useState([]);
@@ -184,8 +217,7 @@ function PacienteDownloads() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
 
-  useEffect(() => {
-    async function carregarDownloads() {
+  async function carregarDownloads() {
       const pacienteId = usuario?.id != null ? Number(usuario.id) : 1;
       setCarregando(true);
       setErro("");
@@ -207,18 +239,54 @@ function PacienteDownloads() {
       }
     }
 
+  useEffect(() => {
     carregarDownloads();
   }, [usuario?.id]);
 
+  useEffect(() => ouvirExamesAtualizados(carregarDownloads), [usuario?.id]);
+  useEffect(() => ouvirConsultasAtualizadas(carregarDownloads), [usuario?.id]);
+
+  useEffect(() => {
+    function recarregarAoVoltar() {
+      if (document.visibilityState === "visible") {
+        carregarDownloads();
+      }
+    }
+
+    document.addEventListener("visibilitychange", recarregarAoVoltar);
+    window.addEventListener("focus", carregarDownloads);
+
+    return () => {
+      document.removeEventListener("visibilitychange", recarregarAoVoltar);
+      window.removeEventListener("focus", carregarDownloads);
+    };
+  }, [usuario?.id]);
+
+  useEffect(() => {
+    if (carregando) return;
+
+    const categoria = new URLSearchParams(location.search).get("categoria");
+    if (!categoria) return;
+
+    const alvo = document.getElementById(`downloads-${categoria}`);
+    if (alvo) {
+      alvo.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [carregando, location.search]);
+
   const gruposDownloads = useMemo(() => {
     const consultasComAnexos = montarDownloadsConsultas(consultas, clinicas);
-    const examesDisponiveis = exames
-      .filter((exame) => String(exame.status || "").toLowerCase() !== "cancelado")
+    const documentosAnexados = exames
+      .filter((exame) => {
+        const status = String(exame.status || "").toLowerCase();
+        return exame.resultado_disponivel === true || status === "liberado";
+      })
       .sort((a, b) =>
         `${b.data || ""} ${b.horario || ""}`.localeCompare(
           `${a.data || ""} ${a.horario || ""}`
         )
-      );
+      )
+      .map(criarDocumentoExame);
 
     return [
       {
@@ -226,26 +294,43 @@ function PacienteDownloads() {
         titulo: "Exames",
         descricao: "Resultados e laudos anexados pelas unidades.",
         Icone: TestTube2,
-        documentos: examesDisponiveis.map(criarDocumentoExame),
+        documentos: documentosAnexados.filter(
+          (documento) => documento.categoria === "Exame"
+        ),
       },
       {
         chave: "prontuarios",
         titulo: "Prontuarios",
         descricao: "Registros clinicos anexados pelos medicos.",
         Icone: ClipboardList,
-        documentos: consultasComAnexos.map(criarDocumentoProntuario),
+        documentos: [
+          ...consultasComAnexos.map(criarDocumentoProntuario),
+          ...documentosAnexados.filter(
+            (documento) => documento.categoria === "Prontuario"
+          ),
+        ],
       },
       {
         chave: "atestados",
         titulo: "Atestados",
         descricao: "Atestados e comprovantes emitidos pelos medicos.",
         Icone: Stethoscope,
-        documentos: consultasComAnexos.map(criarDocumentoAtestado),
+        documentos: [
+          ...consultasComAnexos.map(criarDocumentoAtestado),
+          ...documentosAnexados.filter(
+            (documento) => documento.categoria === "Atestado"
+          ),
+        ],
       },
     ];
   }, [clinicas, consultas, exames]);
 
   function baixarDocumento(documento) {
+    if (documento.arquivoDataUrl) {
+      baixarDataUrl(documento.nomeArquivo, documento.arquivoDataUrl);
+      return;
+    }
+
     const nomeArquivo = `${normalizarNomeArquivo(documento.categoria)}-${normalizarNomeArquivo(
       documento.titulo
     )}-${documento.data || "sem-data"}.txt`;
@@ -292,6 +377,7 @@ function PacienteDownloads() {
             return (
               <section
                 key={grupo.chave}
+                id={`downloads-${grupo.chave}`}
                 className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
               >
                 <div className="flex items-start gap-3">

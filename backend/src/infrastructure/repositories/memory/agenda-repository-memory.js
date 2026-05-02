@@ -29,31 +29,18 @@ function extrairDadosAgendaId(agendaId) {
   };
 }
 
-function calcularSeed(texto) {
-  let total = 0;
-
-  for (let i = 0; i < texto.length; i += 1) {
-    total = (total + texto.charCodeAt(i) * (i + 1)) % 997;
-  }
-
-  return total;
-}
-
 function criarAgendaRepositoryMemory() {
   const agendasReservadas = new Set();
 
-  function montarSlots(clinicaId, data, especialidade = "") {
-    const seed = calcularSeed(`${data}-${clinicaId}-${especialidade}`);
-
+  function montarSlots(clinicaId, data) {
     return HORAS_ATENDIMENTO.map((hora, index) => {
       const id = criarIdAgenda(clinicaId, data, hora);
-      const simuladoOcupado = (seed + index) % 5 === 0;
       const reservado = agendasReservadas.has(id);
 
       return {
         id,
         hora,
-        disponivel: !simuladoOcupado && !reservado,
+        disponivel: !reservado,
         medico_id: 100 + (Number(clinicaId) % 4) * 10 + (index % 3),
       };
     });
@@ -70,22 +57,22 @@ function criarAgendaRepositoryMemory() {
       return slots;
     },
 
-    async verificarDisponibilidade({ agendaId, medicoId, especialidade = "" }) {
+    async verificarDisponibilidade({ agendaId, especialidade = "" }) {
       const agenda = extrairDadosAgendaId(agendaId);
       if (!agenda) return { disponivel: false };
 
       const slots = montarSlots(agenda.clinicaId, agenda.data, especialidade);
-      const slot = slots.find(
-        (item) =>
-          item.id === agendaId &&
-          (medicoId == null || Number(item.medico_id) === Number(medicoId))
-      );
+      const slot = slots.find((item) => item.id === agendaId);
 
       return { disponivel: !!slot?.disponivel };
     },
 
     async reservar(agendaId) {
       agendasReservadas.add(String(agendaId));
+    },
+
+    async liberar(agendaId) {
+      agendasReservadas.delete(String(agendaId));
     },
   };
 }

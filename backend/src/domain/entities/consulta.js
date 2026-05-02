@@ -1,4 +1,5 @@
 const { AppError } = require("../errors/app-error");
+const validar = require("../../infrastructure/security/validacao");
 
 function criarConsulta(dados) {
   const obrigatorios = ["paciente_id", "medico_id", "agenda_id", "clinica_id"];
@@ -12,12 +13,12 @@ function criarConsulta(dados) {
 
   return {
     id: dados.id,
-    paciente_id: Number(dados.paciente_id),
-    medico_id: Number(dados.medico_id),
+    paciente_id: validar.inteiroPositivo(dados.paciente_id, "Paciente"),
+    medico_id: validar.inteiroPositivo(dados.medico_id, "Medico"),
     agenda_id: String(dados.agenda_id),
-    clinica_id: Number(dados.clinica_id),
-    especialidade: dados.especialidade || "",
-    observacoes: dados.observacoes || "",
+    clinica_id: validar.inteiroPositivo(dados.clinica_id, "Clinica"),
+    especialidade: dados.especialidade ? validar.texto(dados.especialidade, "Especialidade", { max: 120 }) : "",
+    observacoes: dados.observacoes ? validar.texto(dados.observacoes, "Observacoes", { max: 500 }) : "",
     status: dados.status || "agendada",
     data: dados.data || agendaMatch?.[1],
     horario: dados.horario || (agendaMatch ? `${agendaMatch[2]}:${agendaMatch[3]}` : undefined),

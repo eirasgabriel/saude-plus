@@ -9,6 +9,18 @@ Base preparada para evoluir o backend do Saude+ com Clean Architecture.
 - `src/infrastructure`: detalhes tecnicos, como HTTP, config e repositories.
 - `src/main`: composicao da aplicacao e inicializacao do servidor.
 
+## Workflow
+
+O fluxo do sistema fica separado em camadas:
+
+1. Usuario interage com o frontend React.
+2. Frontend chama a API HTTP em `/api/*`.
+3. A API valida entrada, sessao e permissao.
+4. A API aciona o backend da aplicacao, composto por casos de uso e regras de dominio.
+5. O backend acessa os repositories.
+6. Os repositories gravam/leem do banco PostgreSQL quando `REPOSITORY_DRIVER=postgres`.
+7. O banco responde aos repositories e o resultado volta por backend, API e frontend.
+
 ## Rodando
 
 ```bash
@@ -17,6 +29,17 @@ npm start
 ```
 
 O servidor usa apenas modulos nativos do Node nesta primeira etapa. Isso deixa a arquitetura pronta sem bloquear em instalacao de dependencias.
+
+Para usar PostgreSQL real:
+
+```bash
+cd backend
+npm install
+npm run db:migrate
+REPOSITORY_DRIVER=postgres npm start
+```
+
+Em producao, defina `NODE_ENV=production`, `JWT_SECRET`, `RECOVERY_SECRET` e `CORS_ORIGINS`. O token de sessao passa a ser enviado em cookie HttpOnly.
 
 ## Endpoints iniciais
 

@@ -46,10 +46,29 @@ async function persistirRegistros(caminhoDados, registros) {
 
 function criarConsultaRepositoryMemory(consultas = consultasSeed, opcoes = {}) {
   const caminhoDados = opcoes.caminhoDados || CAMINHO_PADRAO_DADOS;
-  const registros = carregarRegistros(consultas, caminhoDados);
+  let registros = carregarRegistros(consultas, caminhoDados);
+
+  async function recarregarRegistrosPersistidos() {
+    if (!fs.existsSync(caminhoDados)) {
+      return;
+    }
+
+    try {
+      const conteudo = await fs.promises.readFile(caminhoDados, "utf8");
+      const dados = JSON.parse(conteudo);
+
+      if (Array.isArray(dados)) {
+        registros = dados.map(copiarConsulta);
+      }
+    } catch (erro) {
+      console.warn(`Nao foi possivel recarregar consultas persistidas em ${caminhoDados}:`, erro.message);
+    }
+  }
 
   return {
     async criar(consulta) {
+      await recarregarRegistrosPersistidos();
+
       const consultaCriada = {
         ...consulta,
         id: consulta.id || Date.now(),
@@ -62,22 +81,49 @@ function criarConsultaRepositoryMemory(consultas = consultasSeed, opcoes = {}) {
     },
 
     async listarPorPaciente(pacienteId) {
+      await recarregarRegistrosPersistidos();
+
       return registros
         .filter((consulta) => Number(consulta.paciente_id) === Number(pacienteId))
         .map(copiarConsulta);
     },
 
     async listarPorClinica(clinicaId) {
+      await recarregarRegistrosPersistidos();
+
       return registros
         .filter((consulta) => Number(consulta.clinica_id) === Number(clinicaId))
         .map(copiarConsulta);
     },
 
+    async listarPorClinicaEMedico(clinicaId, medicoId) {
+      await recarregarRegistrosPersistidos();
+
+      return registros
+        .filter(
+          (consulta) =>
+            Number(consulta.clinica_id) === Number(clinicaId) &&
+            Number(consulta.medico_id) === Number(medicoId)
+        )
+        .map(copiarConsulta);
+    },
+
     async listarTodos() {
+      await recarregarRegistrosPersistidos();
+
       return registros.map(copiarConsulta);
     },
 
+    async buscarPorId(consultaId) {
+      await recarregarRegistrosPersistidos();
+
+      const consulta = registros.find((item) => mesmoId(item.id, consultaId));
+      return consulta ? copiarConsulta(consulta) : null;
+    },
+
     async cancelar(consultaId, motivo) {
+      await recarregarRegistrosPersistidos();
+
       const consulta = registros.find((item) => mesmoId(item.id, consultaId));
 
       if (consulta) {

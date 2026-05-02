@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1777694421111,
+    "paciente_id": 1,
+    "medico_id": 4,
+    "agenda_id": "ag-1-2026-05-02-t0730",
+    "clinica_id": 1,
+    "especialidade": "Clinico geral",
+    "observacoes": "",
+    "status": "agendada",
+    "data": "2026-05-02",
+    "horario": "07:30",
+    "criado_em": "2026-05-02T04:00:21.111Z",
+    "paciente": "Paciente Teste",
+    "medico": "Dra. Teste"
+  }
+]

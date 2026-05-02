@@ -6,7 +6,6 @@ import {
 import { salvarUsuario } from "../../application/usuarios/usuarios-use-cases";
 import { buscarEnderecoPorCep } from "../../infrastructure/api/cep-api";
 import CabecalhoApp from "../components/cabecalho-app";
-import ControleNotificacoesPush from "../components/controle-notificacoes-push";
 import MenuInferiorPaciente from "../components/menu-inferior-paciente";
 import MenuUsuarioPaciente from "../components/menu-usuario-paciente";
 
@@ -288,7 +287,6 @@ function PacientePerfil() {
           )}
         </form>
 
-        <ControleNotificacoesPush />
       </main>
 
       <MenuInferiorPaciente abaAtiva="perfil" />

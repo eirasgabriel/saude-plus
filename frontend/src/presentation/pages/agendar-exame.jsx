@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { listarHorariosAgenda } from "../../application/agenda/agendamento-use-cases";
 import { obterUsuarioAtual } from "../../application/auth/auth-service";
 import { criarAgendamentoExame } from "../../application/exames/exames-use-cases";
 import { ouvirClinicasAtualizadas } from "../../application/clinicas/clinicas-eventos";
@@ -7,8 +8,6 @@ import { buscarClinicaPorId } from "../../application/clinicas/clinicas-use-case
 import CabecalhoApp from "../components/cabecalho-app";
 import FotoClinica from "../components/foto-clinica";
 import MenuUsuarioPaciente from "../components/menu-usuario-paciente";
-
-const HORARIOS_EXAMES = ["07:30", "08:00", "08:30", "09:00", "09:30", "10:00"];
 
 function obterEspecialidadesExames(clinica) {
   return (clinica?.especialidadesExames || [])
@@ -43,7 +42,9 @@ function AgendarExame() {
   const [carregandoClinica, setCarregandoClinica] = useState(false);
   const [tipoExame, setTipoExame] = useState("");
   const [data, setData] = useState(dataMinimaHoje());
-  const [horario, setHorario] = useState("");
+  const [horarioId, setHorarioId] = useState(null);
+  const [horarios, setHorarios] = useState([]);
+  const [carregandoHorarios, setCarregandoHorarios] = useState(false);
   const [observacoes, setObservacoes] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [erroAcao, setErroAcao] = useState("");
@@ -74,6 +75,30 @@ function AgendarExame() {
 
   useEffect(() => ouvirClinicasAtualizadas(carregarClinica), [carregarClinica]);
 
+  const carregarHorarios = useCallback(async () => {
+    if (!clinica || !tipoExame || !data) return;
+
+    setCarregandoHorarios(true);
+    setErroAcao("");
+    try {
+      const lista = await listarHorariosAgenda(clinica.id, data, null, tipoExame);
+      setHorarios(Array.isArray(lista) ? lista : []);
+    } catch (erro) {
+      setHorarios([]);
+      setErroAcao(erro.message || "Nao foi possivel carregar os horarios.");
+    } finally {
+      setCarregandoHorarios(false);
+    }
+  }, [clinica, data, tipoExame]);
+
+  useEffect(() => {
+    carregarHorarios();
+  }, [carregarHorarios]);
+
+  useEffect(() => {
+    setHorarioId(null);
+  }, [data, tipoExame]);
+
   useEffect(() => {
     if (tiposExames.length === 0) {
       setTipoExame("");
@@ -91,8 +116,14 @@ function AgendarExame() {
 
   async function aoConfirmar(evento) {
     evento.preventDefault();
-    if (!clinica || !tipoExame || !data || !horario) {
+    if (!clinica || !tipoExame || !data || !horarioId) {
       setErroAcao("Escolha exame, data e horario para confirmar.");
+      return;
+    }
+
+    const slot = horarios.find((item) => item.id === horarioId);
+    if (!slot?.disponivel) {
+      setErroAcao("Escolha um horario disponivel para confirmar.");
       return;
     }
 
@@ -104,17 +135,20 @@ function AgendarExame() {
     try {
       const exame = await criarAgendamentoExame({
         pacienteId,
+        medicoId: slot.medico_id,
+        agendaId: slot.id,
         clinicaId: clinica.id,
         clinicaNome: clinica.nome,
         clinicaBairro: clinica.bairro,
         tipo: tipoExame,
         data,
-        horario,
+        horario: slot.hora,
         observacoes,
       });
       setSucesso(exame);
-      setHorario("");
+      setHorarioId(null);
       setObservacoes("");
+      await carregarHorarios();
     } catch (erro) {
       setErroAcao(erro.message || "Falha ao agendar exame.");
     } finally {
@@ -169,6 +203,8 @@ function AgendarExame() {
       </div>
     );
   }
+
+  const horarioSelecionado = horarios.find((item) => item.id === horarioId);
 
   return (
     <div className="min-h-screen bg-gray-50 pb-28">
@@ -248,22 +284,32 @@ function AgendarExame() {
           <p className="mb-3 text-xs font-medium uppercase text-gray-500">
             Horarios disponiveis
           </p>
-          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-            {HORARIOS_EXAMES.map((hora) => (
-              <button
-                key={hora}
-                type="button"
-                onClick={() => setHorario(hora)}
-                className={`rounded-xl py-3 text-sm font-semibold transition ${
-                  horario === hora
-                    ? "bg-blue-400 text-white shadow-md ring-2 ring-blue-200"
-                    : "border border-gray-200 bg-white text-gray-700 hover:border-blue-300"
-                }`}
-              >
-                {hora}
-              </button>
-            ))}
-          </div>
+          {carregandoHorarios ? (
+            <p className="py-6 text-center text-sm text-gray-500">Carregando...</p>
+          ) : (
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+              {horarios.map((slot) => (
+                <button
+                  key={slot.id}
+                  type="button"
+                  disabled={!slot.disponivel}
+                  onClick={() => slot.disponivel && setHorarioId(slot.id)}
+                  className={`rounded-xl py-3 text-sm font-semibold transition ${
+                    !slot.disponivel
+                      ? "cursor-not-allowed bg-gray-100 text-gray-400 line-through"
+                      : horarioId === slot.id
+                        ? "bg-blue-400 text-white shadow-md ring-2 ring-blue-200"
+                        : "border border-gray-200 bg-white text-gray-700 hover:border-blue-300 active:scale-95"
+                  }`}
+                >
+                  {slot.hora}
+                </button>
+              ))}
+            </div>
+          )}
+          <p className="mt-3 text-xs text-gray-400">
+            Horarios riscados ja estao ocupados ou indisponiveis.
+          </p>
         </section>
 
         <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
@@ -290,7 +336,7 @@ function AgendarExame() {
         <div className="mx-auto w-full max-w-3xl">
           <button
             type="button"
-            disabled={!tipoExame || !horario || enviando}
+            disabled={!tipoExame || !horarioSelecionado?.disponivel || enviando || carregandoHorarios}
             onClick={aoConfirmar}
             className="w-full rounded-xl bg-blue-400 py-4 text-base font-bold text-white transition hover:bg-blue-500 active:scale-[0.98] disabled:bg-gray-200 disabled:text-gray-400 sm:text-lg"
           >

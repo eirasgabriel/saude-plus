@@ -53,8 +53,14 @@ async function buscarConsultasPacienteApi(pacienteId) {
   return requisitarJson(`/api/consultas?paciente=${encodeURIComponent(String(pacienteId))}`);
 }
 
-async function buscarConsultasClinicaApi(clinicaId) {
-  return requisitarJson(`/api/consultas?clinica=${encodeURIComponent(String(clinicaId))}`);
+async function buscarConsultasClinicaApi(clinicaId, medicoId = null) {
+  const params = new URLSearchParams({ clinica: String(clinicaId) });
+
+  if (medicoId != null && medicoId !== "") {
+    params.set("medico", String(medicoId));
+  }
+
+  return requisitarJson(`/api/consultas?${params.toString()}`);
 }
 
 export {

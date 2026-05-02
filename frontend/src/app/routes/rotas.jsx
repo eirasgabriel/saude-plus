@@ -4,7 +4,7 @@
 // Inclui proteção por nível de acesso
 
 
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 // --- Importação das Telas ---
@@ -14,6 +14,8 @@ import HomePaciente from "../../presentation/pages/home-paciente";
 import HomeMaster from "../../presentation/pages/home-master";
 import HomeAdmin from "../../presentation/pages/home-admin";
 import HomeMedico from "../../presentation/pages/home-medico";
+import MedicoConsultasClinica from "../../presentation/pages/medico-consultas-clinica";
+import MedicoExamesClinica from "../../presentation/pages/medico-exames-clinica";
 import AgendarConsulta from "../../presentation/pages/agendar-consulta";
 import AgendarExame from "../../presentation/pages/agendar-exame";
 import AdminConsultasClinica from "../../presentation/pages/admin-consultas-clinica";
@@ -30,6 +32,7 @@ import AdminRelatoriosSistema from "../../presentation/pages/admin-relatorios-si
 
 // --- Importação da lógica de autenticação ---
 import { estaAutenticado, temPermissao } from "../../application/auth/auth-service";
+import { solicitarPermissaoNotificacoesUmaVez } from "../../infrastructure/pwa/push-notifications";
 
 /**
  * Componente de Rota Protegida
@@ -38,6 +41,14 @@ import { estaAutenticado, temPermissao } from "../../application/auth/auth-servi
  */
 function RotaProtegida({ children, nivelNecessario }) {
   const autenticado = estaAutenticado();
+
+  useEffect(() => {
+    if (!autenticado) return;
+
+    solicitarPermissaoNotificacoesUmaVez().catch((erro) => {
+      console.warn("Nao foi possivel solicitar permissao de notificacoes:", erro.message);
+    });
+  }, [autenticado]);
 
   // Se não estiver logado, vai para o login
   if (!autenticado) {
@@ -146,11 +157,31 @@ function RotasPrincipais() {
         {/* ROTAS DO MÉDICO (RN2: apenas sua clínica)  */}
 
         <Route
+          path="/medico/inicio"
+          element={<Navigate to="/medico/agenda" replace />}
+        />
+        <Route
           path="/medico/agenda"
           element={
             <RotaProtegida nivelNecessario="medico">
               {/* TODO: <HomeMedico /> */}
               <HomeMedico />
+            </RotaProtegida>
+          }
+        />
+        <Route
+          path="/medico/consultas"
+          element={
+            <RotaProtegida nivelNecessario="medico">
+              <MedicoConsultasClinica />
+            </RotaProtegida>
+          }
+        />
+        <Route
+          path="/medico/exames"
+          element={
+            <RotaProtegida nivelNecessario="medico">
+              <MedicoExamesClinica />
             </RotaProtegida>
           }
         />

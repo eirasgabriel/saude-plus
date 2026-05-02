@@ -16,7 +16,7 @@ function MapaGoogleClinica({ clinica }) {
   const mapaRef = useRef(null);
   const marcadorRef = useRef(null);
   const temChaveGoogleMaps = Boolean(obterGoogleMapsApiKey());
-  const [coordenadas, setCoordenadas] = useState(() =>
+  const [, setCoordenadas] = useState(() =>
     obterCoordenadasDaClinica(clinica)
   );
   const [queryLocalizacao, setQueryLocalizacao] = useState(() =>

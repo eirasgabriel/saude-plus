@@ -1,19 +1,34 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { LogOut, UserCircle } from "lucide-react";
+import { LogOut, Upload, UserCircle } from "lucide-react";
 import { obterUsuarioAtual, realizarLogout } from "../../application/auth/auth-service";
-import { buscarConsultasClinica } from "../../application/agenda/agendamento-use-cases";
+import {
+  anexarArquivoConsulta,
+  buscarConsultasClinica,
+} from "../../application/agenda/agendamento-use-cases";
 import { ouvirClinicasAtualizadas } from "../../application/clinicas/clinicas-eventos";
 import { buscarClinicaPorId } from "../../application/clinicas/clinicas-use-cases";
 import { listarUsuarios } from "../../application/usuarios/usuarios-use-cases";
 import CabecalhoApp from "../components/cabecalho-app";
 import MenuInferiorAdmin from "../components/menu-inferior-admin";
 
-function obterDataHojeIso() {
-  const hoje = new Date();
-  const y = hoje.getFullYear();
-  const m = String(hoje.getMonth() + 1).padStart(2, "0");
-  const d = String(hoje.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
+const TAMANHO_MAXIMO_ANEXO_CONSULTA = 2 * 1024 * 1024;
+const TIPOS_DOCUMENTO_CONSULTA = [
+  { valor: "prontuario", rotulo: "Prontuario" },
+  { valor: "atestado", rotulo: "Atestado" },
+];
+
+function arquivoParaDataUrl(arquivo) {
+  return new Promise((resolve, reject) => {
+    const leitor = new FileReader();
+
+    leitor.onload = () => resolve(leitor.result);
+    leitor.onerror = () => reject(new Error("Nao foi possivel ler o arquivo selecionado."));
+    leitor.readAsDataURL(arquivo);
+  });
+}
+
+function arquivosParaLista(fileList) {
+  return Array.from(fileList || []);
 }
 
 function extrairIntervaloFuncionamento(horarioTexto) {
@@ -43,6 +58,14 @@ function AdminConsultasClinica() {
   const [consultasDoDia, setConsultasDoDia] = useState([]);
   const [carregandoConsultas, setCarregandoConsultas] = useState(false);
   const [erroConsultas, setErroConsultas] = useState("");
+  const [mensagemConsultas, setMensagemConsultas] = useState("");
+  const [consultaUploadSelecionada, setConsultaUploadSelecionada] = useState(null);
+  const [arquivosUploadConsulta, setArquivosUploadConsulta] = useState([]);
+  const [formularioUploadConsulta, setFormularioUploadConsulta] = useState({
+    categoriaDocumento: "prontuario",
+    observacoes: "",
+  });
+  const [uploadConsultaEmAndamento, setUploadConsultaEmAndamento] = useState("");
   const [modoEdicaoTabela, setModoEdicaoTabela] = useState(false);
   const [consultasEmEdicao, setConsultasEmEdicao] = useState([]);
   const [menuUsuarioAberto, setMenuUsuarioAberto] = useState(false);
@@ -92,7 +115,6 @@ function AdminConsultasClinica() {
     setCarregandoConsultas(true);
     setErroConsultas("");
     try {
-      const dataHoje = obterDataHojeIso();
       const consultas = await buscarConsultasClinica(clinicaVinculada.id);
       const consultasFormatadas = consultas
         .map((consulta) => {
@@ -102,7 +124,7 @@ function AdminConsultasClinica() {
           const paciente =
             consulta.paciente ||
             usuarios.find((item) => Number(item.id) === Number(consulta.paciente_id))?.nome ||
-            `Paciente ${consulta.paciente_id}`;
+            "";
 
           return {
             ...consulta,
@@ -110,12 +132,16 @@ function AdminConsultasClinica() {
             horario,
             paciente,
             especialidade: consulta.especialidade || "Nao informada",
-            medico: consulta.medico || `Medico ${consulta.medico_id}`,
+            medico: consulta.medico || "",
             status: consulta.status || "agendada",
           };
         })
-        .filter((consulta) => consulta.data === dataHoje)
-        .sort((a, b) => String(a.horario).localeCompare(String(b.horario)));
+        .filter((consulta) => consulta.paciente)
+        .sort((a, b) =>
+          `${a.data || ""} ${a.horario || ""}`.localeCompare(
+            `${b.data || ""} ${b.horario || ""}`
+          )
+        );
 
       setConsultasDoDia(consultasFormatadas);
     } catch (e) {
@@ -155,6 +181,90 @@ function AdminConsultasClinica() {
 
   function deletarConsulta(indice) {
     setConsultasEmEdicao((listaAtual) => listaAtual.filter((_, i) => i !== indice));
+  }
+
+  function alterarCampoUploadConsulta(campo, valor) {
+    setFormularioUploadConsulta((atual) => ({
+      ...atual,
+      [campo]: valor,
+    }));
+  }
+
+  function abrirUploadConsulta(consulta) {
+    setErroConsultas("");
+    setMensagemConsultas("");
+    setConsultaUploadSelecionada(consulta);
+    setArquivosUploadConsulta([]);
+    setFormularioUploadConsulta({
+      categoriaDocumento: "prontuario",
+      observacoes: "",
+    });
+  }
+
+  function fecharUploadConsulta() {
+    setConsultaUploadSelecionada(null);
+    setArquivosUploadConsulta([]);
+    setFormularioUploadConsulta({
+      categoriaDocumento: "prontuario",
+      observacoes: "",
+    });
+  }
+
+  async function enviarUploadConsulta(evento) {
+    evento.preventDefault();
+    setErroConsultas("");
+    setMensagemConsultas("");
+
+    if (!consultaUploadSelecionada) {
+      setErroConsultas("Selecione uma consulta para anexar o arquivo.");
+      return;
+    }
+
+    if (arquivosUploadConsulta.length === 0) {
+      setErroConsultas("Selecione pelo menos um arquivo para upload.");
+      return;
+    }
+
+    const arquivoMuitoGrande = arquivosUploadConsulta.find(
+      (arquivo) => arquivo.size > TAMANHO_MAXIMO_ANEXO_CONSULTA
+    );
+    if (arquivoMuitoGrande) {
+      setErroConsultas(`O arquivo ${arquivoMuitoGrande.name} deve ter no maximo 2 MB.`);
+      return;
+    }
+
+    setUploadConsultaEmAndamento(String(consultaUploadSelecionada.id));
+
+    try {
+      const arquivos = await Promise.all(
+        arquivosUploadConsulta.map(async (arquivo) => ({
+          nomeArquivo: arquivo.name,
+          arquivoDataUrl: await arquivoParaDataUrl(arquivo),
+          tipoArquivo: arquivo.type || "application/octet-stream",
+          tamanhoArquivo: arquivo.size,
+        }))
+      );
+      const documentos = await anexarArquivoConsulta(consultaUploadSelecionada, {
+        categoriaDocumento: formularioUploadConsulta.categoriaDocumento,
+        arquivos,
+        descricao:
+          formularioUploadConsulta.observacoes ||
+          `Arquivo anexado pela ${nomeClinica}.`,
+        anexadoPorNome: usuario?.nome || "Admin da clinica",
+      });
+      const totalDocumentos = Array.isArray(documentos) ? documentos.length : 1;
+
+      fecharUploadConsulta();
+      setMensagemConsultas(
+        totalDocumentos > 1
+          ? `${totalDocumentos} arquivos anexados e liberados nos downloads do paciente.`
+          : "Arquivo anexado e liberado nos downloads do paciente."
+      );
+    } catch (falha) {
+      setErroConsultas(falha.message || "Nao foi possivel anexar o arquivo.");
+    } finally {
+      setUploadConsultaEmAndamento("");
+    }
   }
 
   const resumoConsultas = useMemo(() => {
@@ -238,11 +348,17 @@ function AdminConsultasClinica() {
       />
 
       <main className="app-content space-y-4">
+        {mensagemConsultas && (
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+            <p className="text-sm text-emerald-700">{mensagemConsultas}</p>
+          </div>
+        )}
+
         <section className="grid grid-cols-1 gap-3 sm:grid-cols-4">
           <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-            <p className="text-sm text-gray-500">Consultas hoje</p>
+            <p className="text-sm text-gray-500">Consultas cadastradas</p>
             <strong className="text-3xl text-gray-800">{resumoConsultas.total}</strong>
-            <p className="mt-1 text-xs text-gray-400">Agendamentos reais</p>
+            <p className="mt-1 text-xs text-gray-400">Agenda da unidade</p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
             <p className="text-sm text-gray-500">Pendentes</p>
@@ -261,14 +377,15 @@ function AdminConsultasClinica() {
           </div>
         </section>
 
-        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-          <div className="flex items-start justify-between gap-3">
-            <h2 className="text-xl font-semibold">Consultas do dia</h2>
+        <section className="clinic-record-panel">
+          <div className="clinic-record-header">
+            <h2 className="clinic-record-title">Consultas da unidade</h2>
             {!modoEdicaoTabela ? (
               <button
                 type="button"
                 onClick={iniciarEdicaoEmMassa}
-                className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-600 transition hover:bg-blue-100"
+                disabled={consultasDoDia.length === 0}
+                className="clinic-record-action"
               >
                 Editar todas
               </button>
@@ -277,14 +394,14 @@ function AdminConsultasClinica() {
                 <button
                   type="button"
                   onClick={salvarEdicaoEmMassa}
-                  className="rounded-lg bg-blue-400 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-blue-500"
+                  className="clinic-record-primary-action"
                 >
                   Salvar tudo
                 </button>
                 <button
                   type="button"
                   onClick={cancelarEdicaoEmMassa}
-                  className="rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-200"
+                  className="clinic-record-secondary-action"
                 >
                   Cancelar
                 </button>
@@ -293,42 +410,58 @@ function AdminConsultasClinica() {
           </div>
 
           {horarioFuncionamento && (
-            <p className="mt-1 text-xs text-gray-400">
+            <p className="clinic-record-schedule">
               Funcionamento: {horarioFuncionamento.inicio} as {horarioFuncionamento.fim}
             </p>
           )}
 
           {carregandoConsultas && (
-            <p className="mt-4 text-sm text-gray-500">Carregando consultas...</p>
+            <p className="clinic-record-empty">Carregando consultas...</p>
           )}
 
           {!carregandoConsultas && erroConsultas && (
-            <p className="mt-4 text-sm text-red-500">{erroConsultas}</p>
+            <p className="clinic-record-empty text-red-500">{erroConsultas}</p>
           )}
 
           {!carregandoConsultas && !erroConsultas && consultasDoDia.length === 0 && (
-            <p className="mt-4 text-sm text-gray-500">
-              Nao ha consultas agendadas para hoje no horario de funcionamento.
+            <p className="clinic-record-empty">
+              Nenhuma consulta cadastrada para esta clinica.
             </p>
           )}
 
           {!carregandoConsultas && !erroConsultas && consultasDoDia.length > 0 && (
-            <div className="mt-4 overflow-x-auto">
-              <table className="w-full min-w-[720px] overflow-hidden rounded-xl border border-gray-100 text-sm">
-                <thead className="bg-gray-50 text-gray-600">
+            <div className="clinic-record-table-wrap">
+              <table className="clinic-record-table min-w-[760px]">
+                <thead>
                   <tr>
-                    <th className="px-3 py-2 text-left font-semibold">Horario</th>
-                    <th className="px-3 py-2 text-left font-semibold">Paciente</th>
-                    <th className="px-3 py-2 text-left font-semibold">Especialidade</th>
-                    <th className="px-3 py-2 text-left font-semibold">Medico</th>
-                    <th className="px-3 py-2 text-left font-semibold">Status</th>
+                    <th>Data</th>
+                    <th>Horario</th>
+                    <th>Paciente</th>
+                    <th>Especialidade</th>
+                    <th>Medico</th>
+                    <th>Status</th>
+                    <th>Arquivo</th>
                   </tr>
                 </thead>
                 <tbody>
                   {(modoEdicaoTabela ? consultasEmEdicao : consultasDoDia).map(
                     (consulta, indice) => (
-                      <tr key={consulta.id} className="border-t border-gray-100">
-                        <td className="px-3 py-2 font-semibold text-gray-700">
+                      <tr key={consulta.id}>
+                        <td>
+                          {modoEdicaoTabela ? (
+                            <input
+                              type="date"
+                              value={consulta.data || ""}
+                              onChange={(e) =>
+                                alterarCampoConsulta(indice, "data", e.target.value)
+                              }
+                              className="w-full rounded-lg border border-blue-200 px-2 py-1"
+                            />
+                          ) : (
+                            consulta.data || "-"
+                          )}
+                        </td>
+                        <td className="clinic-record-time">
                           {modoEdicaoTabela ? (
                             <input
                               type="time"
@@ -342,7 +475,7 @@ function AdminConsultasClinica() {
                             consulta.horario
                           )}
                         </td>
-                        <td className="px-3 py-2 text-gray-600">
+                        <td>
                           {modoEdicaoTabela ? (
                             <input
                               type="text"
@@ -356,7 +489,7 @@ function AdminConsultasClinica() {
                             consulta.paciente
                           )}
                         </td>
-                        <td className="px-3 py-2 text-gray-600">
+                        <td>
                           {modoEdicaoTabela ? (
                             <input
                               type="text"
@@ -370,7 +503,7 @@ function AdminConsultasClinica() {
                             consulta.especialidade
                           )}
                         </td>
-                        <td className="px-3 py-2 text-gray-500">
+                        <td>
                           {modoEdicaoTabela ? (
                             <div className="flex items-center gap-2">
                               <input
@@ -393,7 +526,7 @@ function AdminConsultasClinica() {
                             consulta.medico
                           )}
                         </td>
-                        <td className="px-3 py-2">
+                        <td>
                           {modoEdicaoTabela ? (
                             <select
                               value={consulta.status}
@@ -408,9 +541,23 @@ function AdminConsultasClinica() {
                               <option value="cancelada">Cancelada</option>
                             </select>
                           ) : (
-                            <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
+                            <span className="clinic-record-status">
                               {consulta.status}
                             </span>
+                          )}
+                        </td>
+                        <td>
+                          {modoEdicaoTabela ? (
+                            <span className="text-xs text-gray-400">-</span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => abrirUploadConsulta(consulta)}
+                              className="clinic-record-upload-button"
+                            >
+                              <Upload className="h-4 w-4" aria-hidden="true" />
+                              Upload
+                            </button>
                           )}
                         </td>
                       </tr>
@@ -420,8 +567,111 @@ function AdminConsultasClinica() {
               </table>
             </div>
           )}
-        </div>
+        </section>
       </main>
+
+      {consultaUploadSelecionada && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6">
+          <form
+            onSubmit={enviarUploadConsulta}
+            className="w-full max-w-lg rounded-2xl bg-white p-5 shadow-2xl"
+          >
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-bold text-gray-800">
+                  Upload de arquivo
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  {consultaUploadSelecionada.paciente} -{" "}
+                  {consultaUploadSelecionada.especialidade || "Atendimento"}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={fecharUploadConsulta}
+                className="rounded-lg bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-200"
+              >
+                Fechar
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <label className="block">
+                <span className="text-xs font-bold uppercase tracking-wide text-gray-500">
+                  Tipo de arquivo
+                </span>
+                <select
+                  value={formularioUploadConsulta.categoriaDocumento}
+                  onChange={(evento) =>
+                    alterarCampoUploadConsulta("categoriaDocumento", evento.target.value)
+                  }
+                  className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                >
+                  {TIPOS_DOCUMENTO_CONSULTA.map((tipo) => (
+                    <option key={tipo.valor} value={tipo.valor}>
+                      {tipo.rotulo}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="block">
+                <span className="text-xs font-bold uppercase tracking-wide text-gray-500">
+                  Arquivos
+                </span>
+                <input
+                  type="file"
+                  multiple
+                  accept=".pdf,image/*,.txt,.doc,.docx"
+                  onChange={(evento) =>
+                    setArquivosUploadConsulta(arquivosParaLista(evento.target.files))
+                  }
+                  className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                />
+                {arquivosUploadConsulta.length > 0 && (
+                  <p className="mt-1 text-xs text-gray-500">
+                    {arquivosUploadConsulta.length} arquivo(s) selecionado(s).
+                  </p>
+                )}
+              </label>
+
+              <label className="block">
+                <span className="text-xs font-bold uppercase tracking-wide text-gray-500">
+                  Observacoes
+                </span>
+                <input
+                  value={formularioUploadConsulta.observacoes}
+                  onChange={(evento) =>
+                    alterarCampoUploadConsulta("observacoes", evento.target.value)
+                  }
+                  placeholder="Ex.: documento anexado pela unidade"
+                  className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                />
+              </label>
+            </div>
+
+            <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={fecharUploadConsulta}
+                className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-200"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={uploadConsultaEmAndamento === String(consultaUploadSelecionada.id)}
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-400 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <Upload className="h-4 w-4" aria-hidden="true" />
+                {uploadConsultaEmAndamento === String(consultaUploadSelecionada.id)
+                  ? "Enviando..."
+                  : "Enviar arquivos"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       <MenuInferiorAdmin abaAtiva="consultas" />
       <div className="h-24" />

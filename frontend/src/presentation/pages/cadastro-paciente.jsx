@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { registrarUsuarioAutenticado } from "../../application/auth/auth-service";
+import { realizarLogin } from "../../application/auth/auth-service";
 import { salvarUsuario } from "../../application/usuarios/usuarios-use-cases";
 import { buscarEnderecoPorCep } from "../../infrastructure/api/cep-api";
 import LogoSaudePlus from "../components/logo-saude-plus";
@@ -67,8 +67,8 @@ function validarFormulario(formulario) {
   if (cpfNumeros.length !== 11) return "Informe um CPF com 11 digitos.";
   if (telefoneNumeros.length < 10) return "Informe um telefone com DDD.";
   if (cepNumeros.length !== 8) return "Informe um CEP com 8 digitos.";
-  if (formulario.senha.length < 6) {
-    return "A senha deve ter pelo menos 6 caracteres.";
+  if (formulario.senha.length < 8) {
+    return "A senha deve ter pelo menos 8 caracteres.";
   }
   if (formulario.senha !== formulario.confirmarSenha) {
     return "A confirmacao de senha precisa ser igual a senha.";
@@ -139,7 +139,7 @@ function CadastroPaciente() {
     setCarregando(true);
 
     try {
-      const usuarioCriado = await salvarUsuario({
+      await salvarUsuario({
         nome: formulario.nome.trim(),
         email: formulario.email.trim(),
         cpf: somenteNumeros(formulario.cpf),
@@ -155,7 +155,7 @@ function CadastroPaciente() {
         status: "ativo",
       });
 
-      registrarUsuarioAutenticado(usuarioCriado);
+      await realizarLogin(formulario.email.trim(), formulario.senha);
       setMensagem("Cadastro criado com sucesso. Abrindo sua area de paciente...");
       setTimeout(() => navigate("/paciente/inicio"), 700);
     } catch (erroSalvar) {
@@ -338,7 +338,7 @@ function CadastroPaciente() {
                     type="password"
                     value={formulario.senha}
                     onChange={(evento) => alterarCampo("senha", evento.target.value)}
-                    placeholder="Minimo de 6 caracteres"
+                    placeholder="Minimo de 8 caracteres"
                     autoComplete="new-password"
                     className={estiloInput}
                   />
