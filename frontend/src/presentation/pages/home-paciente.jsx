@@ -3,7 +3,6 @@ import { ArrowRight, CalendarDays, TestTube2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { buscarHistoricoPaciente } from "../../application/agenda/agendamento-use-cases";
 import { obterUsuarioAtual } from "../../application/auth/auth-service";
-import { ouvirExamesAtualizados } from "../../application/exames/exames-eventos";
 import { listarExamesPaciente } from "../../application/exames/exames-use-cases";
 import { ouvirClinicasAtualizadas } from "../../application/clinicas/clinicas-eventos";
 import { listarClinicas } from "../../application/clinicas/clinicas-use-cases";
@@ -90,7 +89,6 @@ function HomePaciente() {
   }, [usuario?.id]);
 
   useEffect(() => ouvirClinicasAtualizadas(carregarDashboard), [usuario?.id]);
-  useEffect(() => ouvirExamesAtualizados(carregarDashboard), [usuario?.id]);
 
   const consultasFuturas = useMemo(() => {
     const hoje = paraInicioDoDia(new Date());
@@ -143,7 +141,7 @@ function HomePaciente() {
   return (
     <div className="min-h-screen bg-gray-50">
       <CabecalhoApp
-        titulo={`Olá, ${nomeUsuario}`}
+        titulo={`OláN, ${nomeUsuario}`}
         descricao="Acompanhe seus proximos atendimentos"
         acao={<MenuUsuarioPaciente />}
       />
