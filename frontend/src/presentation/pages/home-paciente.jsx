@@ -141,7 +141,7 @@ function HomePaciente() {
   return (
     <div className="min-h-screen bg-gray-50">
       <CabecalhoApp
-        titulo={`OláN, ${nomeUsuario}`}
+        titulo={`Olá, ${nomeUsuario}`}
         descricao="Acompanhe seus proximos atendimentos"
         acao={<MenuUsuarioPaciente />}
       />

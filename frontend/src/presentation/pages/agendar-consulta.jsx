@@ -179,6 +179,7 @@ function AgendarConsulta() {
           fixo={false}
           aoVoltar={aoVoltar}
           textoVoltar="Voltar"
+          voltarSomenteIcone
           titulo="Agendar consulta"
           acao={<MenuUsuarioPaciente />}
         />
@@ -196,8 +197,10 @@ function AgendarConsulta() {
   return (
     <div className="min-h-screen bg-gray-50 pb-28">
       <CabecalhoApp
+        compacto
         aoVoltar={aoVoltar}
         textoVoltar="Voltar as clinicas"
+        voltarSomenteIcone
         titulo="Agendar consulta"
         descricao="Escolha data e horario"
         acao={<MenuUsuarioPaciente />}

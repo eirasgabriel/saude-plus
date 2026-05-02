@@ -192,6 +192,7 @@ function AgendarExame() {
           fixo={false}
           aoVoltar={aoVoltar}
           textoVoltar="Voltar"
+          voltarSomenteIcone
           titulo="Agendar exame"
           acao={<MenuUsuarioPaciente />}
         />
@@ -209,8 +210,10 @@ function AgendarExame() {
   return (
     <div className="min-h-screen bg-gray-50 pb-28">
       <CabecalhoApp
+        compacto
         aoVoltar={aoVoltar}
         textoVoltar="Voltar as unidades"
+        voltarSomenteIcone
         titulo="Agendar exame"
         descricao="Escolha exame, data e horario"
         acao={<MenuUsuarioPaciente />}
