@@ -217,10 +217,13 @@ function criarObterRelatoriosSistema({
         ocupacao: clinica.capacidadeDiaria
           ? Math.min(100, Math.round((agendamentosClinica / clinica.capacidadeDiaria) * 100))
           : 0,
-        atendimentosMes: clinica.atendimentosMes || 0,
-        satisfacao: clinica.satisfacao || 0,
+        atendimentosMes: agendamentosClinica,
       };
     });
+
+    const clinicasSemMetricasEstaticas = clinicas.map(
+      ({ atendimentosMes: _atendimentosMes, satisfacao: _satisfacao, ...clinica }) => clinica
+    );
 
     const porEspecialidade = Object.entries(contarPorCampo(consultasDoPeriodo, "especialidade"))
       .map(([especialidade, total]) => ({ especialidade, total }))
@@ -248,7 +251,7 @@ function criarObterRelatoriosSistema({
     return {
       atualizadoEm: new Date().toISOString(),
       periodo,
-      clinicas,
+      clinicas: clinicasSemMetricasEstaticas,
       resumo,
       porClinica,
       porEspecialidade,

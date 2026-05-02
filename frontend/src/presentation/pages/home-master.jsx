@@ -17,6 +17,7 @@ import {
 import { realizarLogout } from "../../application/auth/auth-service";
 import { ouvirConsultasAtualizadas } from "../../application/agenda/consultas-eventos";
 import { ouvirClinicasAtualizadas } from "../../application/clinicas/clinicas-eventos";
+import { ouvirExamesAtualizados } from "../../application/exames/exames-eventos";
 import { ouvirUsuariosAtualizados } from "../../application/usuarios/usuarios-eventos";
 import CabecalhoApp from "../components/cabecalho-app";
 
@@ -65,6 +66,7 @@ function HomeMaster() {
 
   useEffect(() => ouvirClinicasAtualizadas(carregarResumo), []);
   useEffect(() => ouvirConsultasAtualizadas(carregarResumo), []);
+  useEffect(() => ouvirExamesAtualizados(carregarResumo), []);
   useEffect(() => ouvirUsuariosAtualizados(carregarResumo), []);
 
   useEffect(() => {

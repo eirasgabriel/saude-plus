@@ -144,9 +144,9 @@ function PacienteClinicaDetalhes() {
 
             <div className="flex flex-col items-center gap-3 text-center lg:items-end">
               <div className="flex min-h-20 w-full max-w-44 flex-col items-center justify-center rounded-xl bg-gray-50 px-4 py-3 text-center">
-                <p className="text-xs font-medium text-gray-500">Satisfacao</p>
+                <p className="text-xs font-medium text-gray-500">Atendimentos/dia</p>
                 <strong className="text-xl text-gray-800">
-                  {clinica.satisfacao || 0}%
+                  {clinica.capacidadeDiaria || 0}
                 </strong>
               </div>
             </div>

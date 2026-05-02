@@ -150,10 +150,16 @@ function criarObterRelatorioClinica({
       examesDoPeriodo: examesDoPeriodo.length,
     });
 
+    const {
+      atendimentosMes: _atendimentosMes,
+      satisfacao: _satisfacao,
+      ...clinicaSemMetricasEstaticas
+    } = clinica;
+
     return {
       atualizadoEm: new Date().toISOString(),
       periodo,
-      clinica,
+      clinica: clinicaSemMetricasEstaticas,
       indicadores: {
         consultas: consultasDoPeriodo.length,
         exames: examesDoPeriodo.length,
@@ -167,8 +173,7 @@ function criarObterRelatorioClinica({
         ocupacao: clinica.capacidadeDiaria
           ? Math.min(100, Math.round((agendamentos / clinica.capacidadeDiaria) * 100))
           : 0,
-        atendimentosMes: Number(clinica.atendimentosMes || 0),
-        satisfacao: Number(clinica.satisfacao || 0),
+        atendimentosMes: agendamentos,
         capacidadeDiaria: Number(clinica.capacidadeDiaria || 0),
         status: clinica.status || "nao informado",
       },

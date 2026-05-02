@@ -14,8 +14,6 @@ create table if not exists clinicas (
   horario varchar(120) not null default '',
   responsavel varchar(160) not null default '',
   capacidade_diaria integer not null default 0,
-  atendimentos_mes integer not null default 0,
-  satisfacao integer not null default 0,
   latitude numeric(10, 7),
   longitude numeric(10, 7),
   especialidades jsonb not null default '[]'::jsonb,

@@ -6,6 +6,7 @@ import {
 } from "../../application/sistema/relatorios-use-cases";
 import { ouvirClinicasAtualizadas } from "../../application/clinicas/clinicas-eventos";
 import { ouvirConsultasAtualizadas } from "../../application/agenda/consultas-eventos";
+import { ouvirExamesAtualizados } from "../../application/exames/exames-eventos";
 import { ouvirUsuariosAtualizados } from "../../application/usuarios/usuarios-eventos";
 import CabecalhoApp from "../components/cabecalho-app";
 
@@ -65,6 +66,7 @@ function AdminRelatoriosSistema() {
 
   useEffect(() => ouvirClinicasAtualizadas(carregarRelatorios), []);
   useEffect(() => ouvirConsultasAtualizadas(carregarRelatorios), []);
+  useEffect(() => ouvirExamesAtualizados(carregarRelatorios), []);
   useEffect(() => ouvirUsuariosAtualizados(carregarRelatorios), []);
 
   const {
@@ -171,7 +173,7 @@ function AdminRelatoriosSistema() {
                   Desempenho por clinica
                 </h2>
                 <p className="text-gray-500 text-sm">
-                  Compara volume, ocupacao e satisfacao das unidades.
+                  Compara volume, ocupacao e atendimentos reais das unidades.
                 </p>
               </div>
               <span className="bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-full font-semibold">
@@ -189,7 +191,7 @@ function AdminRelatoriosSistema() {
                     <th className="text-left px-3 py-3 font-semibold">Realizadas</th>
                     <th className="text-left px-3 py-3 font-semibold">Canceladas</th>
                     <th className="text-left px-3 py-3 font-semibold">Ocupacao</th>
-                    <th className="text-left px-3 py-3 font-semibold rounded-r-xl">Satisfacao</th>
+                    <th className="text-left px-3 py-3 font-semibold rounded-r-xl">Atendimentos</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -211,11 +213,11 @@ function AdminRelatoriosSistema() {
                           />
                         </div>
                         <p className="text-xs text-gray-500 mt-1">
-                          {limitarPercentual(item.ocupacao)}% hoje
+                          {limitarPercentual(item.ocupacao)}% no mes
                         </p>
                       </td>
                       <td className="px-3 py-3 text-gray-700">
-                        {limitarPercentual(item.satisfacao)}%
+                        {item.atendimentosMes || item.agendamentos || 0}
                       </td>
                     </tr>
                   ))}

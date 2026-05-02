@@ -38,6 +38,17 @@ const RELATORIO_VAZIO = {
 
 async function obterRelatoriosSistema() {
   const dados = await obterRelatoriosSistemaApi();
+  const porClinica = Array.isArray(dados?.porClinica)
+    ? dados.porClinica.map(({ satisfacao: _satisfacao, ...clinica }) => ({
+        ...clinica,
+        atendimentosMes:
+          clinica.agendamentos != null ? Number(clinica.agendamentos || 0) : Number(clinica.atendimentosMes || 0),
+      }))
+    : [];
+  const clinicas = Array.isArray(dados?.clinicas)
+    ? dados.clinicas.map(({ atendimentosMes: _atendimentosMes, satisfacao: _satisfacao, ...clinica }) => clinica)
+    : [];
+
   return {
     ...RELATORIO_VAZIO,
     ...dados,
@@ -49,8 +60,8 @@ async function obterRelatoriosSistema() {
       ...RELATORIO_VAZIO.resumo,
       ...(dados?.resumo || {}),
     },
-    clinicas: Array.isArray(dados?.clinicas) ? dados.clinicas : [],
-    porClinica: Array.isArray(dados?.porClinica) ? dados.porClinica : [],
+    clinicas,
+    porClinica,
     porEspecialidade: Array.isArray(dados?.porEspecialidade) ? dados.porEspecialidade : [],
     porTipoExame: Array.isArray(dados?.porTipoExame) ? dados.porTipoExame : [],
     consultasRecentes: Array.isArray(dados?.consultasRecentes) ? dados.consultasRecentes : [],
@@ -62,13 +73,28 @@ async function obterRelatoriosSistema() {
 
 async function obterRelatorioClinica(clinicaId) {
   const dados = await obterRelatorioClinicaApi(clinicaId);
+  const {
+    atendimentosMes: _clinicaAtendimentosMes,
+    satisfacao: _clinicaSatisfacao,
+    ...clinica
+  } = dados?.clinica || {};
+  const indicadoresOriginais = dados?.indicadores || {};
+  const {
+    satisfacao: _indicadoresSatisfacao,
+    ...indicadores
+  } = indicadoresOriginais;
+  const atendimentosMes =
+    indicadores.agendamentos != null
+      ? Number(indicadores.agendamentos || 0)
+      : Number(indicadores.atendimentosMes || 0);
+
   return {
     atualizadoEm: dados?.atualizadoEm || null,
     periodo: {
       ...RELATORIO_VAZIO.periodo,
       ...(dados?.periodo || {}),
     },
-    clinica: dados?.clinica || null,
+    clinica: dados?.clinica ? clinica : null,
     indicadores: {
       consultas: 0,
       exames: 0,
@@ -81,10 +107,10 @@ async function obterRelatorioClinica(clinicaId) {
       examesPendentes: 0,
       ocupacao: 0,
       atendimentosMes: 0,
-      satisfacao: 0,
       capacidadeDiaria: 0,
       status: "nao informado",
-      ...(dados?.indicadores || {}),
+      ...indicadores,
+      atendimentosMes,
     },
   };
 }

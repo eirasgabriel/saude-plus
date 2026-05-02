@@ -63,7 +63,7 @@ function usuarioFromRow(row) {
 
 function clinicaFromRow(row) {
   if (!row) return null;
-  return {
+  const clinica = {
     ...(row.dados_extra || {}),
     id: Number(row.id),
     nome: row.nome,
@@ -75,14 +75,16 @@ function clinicaFromRow(row) {
     horario: row.horario,
     responsavel: row.responsavel,
     capacidadeDiaria: Number(row.capacidade_diaria || 0),
-    atendimentosMes: Number(row.atendimentos_mes || 0),
-    satisfacao: Number(row.satisfacao || 0),
     latitude: row.latitude == null ? null : Number(row.latitude),
     longitude: row.longitude == null ? null : Number(row.longitude),
     especialidades: row.especialidades || [],
     especialidadesExames: row.especialidades_exames || [],
     fotoPerfil: row.foto_perfil || "",
   };
+  delete clinica.atendimentosMes;
+  delete clinica.atendimentos_mes;
+  delete clinica.satisfacao;
+  return clinica;
 }
 
 function consultaFromRow(row) {
@@ -210,6 +212,30 @@ function criarUsuarioRepositoryPostgres(pool) {
 }
 
 function criarClinicaRepositoryPostgres(pool) {
+  const camposClinica = [
+    "id",
+    "nome",
+    "bairro",
+    "endereco",
+    "telefone",
+    "aberta",
+    "status",
+    "horario",
+    "responsavel",
+    "capacidadeDiaria",
+    "capacidade_diaria",
+    "atendimentosMes",
+    "atendimentos_mes",
+    "satisfacao",
+    "latitude",
+    "longitude",
+    "especialidades",
+    "especialidadesExames",
+    "especialidades_exames",
+    "fotoPerfil",
+    "foto_perfil",
+  ];
+
   async function gravar(dados, id = null) {
     const valores = [
       dados.nome,
@@ -221,28 +247,26 @@ function criarClinicaRepositoryPostgres(pool) {
       dados.horario || "",
       dados.responsavel || "",
       dados.capacidadeDiaria || dados.capacidade_diaria || 0,
-      dados.atendimentosMes || dados.atendimentos_mes || 0,
-      dados.satisfacao || 0,
       dados.latitude,
       dados.longitude,
       JSON.stringify(dados.especialidades || []),
       JSON.stringify(dados.especialidadesExames || dados.especialidades_exames || []),
       dados.fotoPerfil || dados.foto_perfil || "",
-      JSON.stringify(separarExtras(dados, [])),
+      JSON.stringify(separarExtras(dados, camposClinica)),
     ];
 
     const sql = id
       ? `update clinicas
             set nome=$1, bairro=$2, endereco=$3, telefone=$4, aberta=$5, status=$6,
-                horario=$7, responsavel=$8, capacidade_diaria=$9, atendimentos_mes=$10,
-                satisfacao=$11, latitude=$12, longitude=$13, especialidades=$14::jsonb,
-                especialidades_exames=$15::jsonb, foto_perfil=$16, dados_extra=$17::jsonb
-          where id=$18 returning *`
+                horario=$7, responsavel=$8, capacidade_diaria=$9,
+                latitude=$10, longitude=$11, especialidades=$12::jsonb,
+                especialidades_exames=$13::jsonb, foto_perfil=$14, dados_extra=$15::jsonb
+          where id=$16 returning *`
       : `insert into clinicas
           (nome, bairro, endereco, telefone, aberta, status, horario, responsavel,
-           capacidade_diaria, atendimentos_mes, satisfacao, latitude, longitude,
+           capacidade_diaria, latitude, longitude,
            especialidades, especialidades_exames, foto_perfil, dados_extra)
-         values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14::jsonb,$15::jsonb,$16,$17::jsonb)
+         values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12::jsonb,$13::jsonb,$14,$15::jsonb)
          returning *`;
 
     const { rows } = await pool.query(sql, id ? [...valores, id] : valores);

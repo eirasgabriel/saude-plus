@@ -1,4 +1,4 @@
-const CACHE_NAME = "saude-plus-v4";
+const CACHE_NAME = "saude-plus-v5";
 const APP_SHELL = ["/", "/index.html", "/manifest.json"];
 
 self.addEventListener("install", (event) => {

@@ -18,8 +18,6 @@ const clinicaHospital = {
   status: "ativa",
   aberta: true,
   capacidadeDiaria: 20,
-  atendimentosMes: 0,
-  satisfacao: 95,
 };
 
 const usuarios = [
@@ -111,6 +109,7 @@ async function testeRelatorioSistemaContaConsultaAgendada() {
   assert.equal(relatorio.resumo.consultasRealizadas, 0);
   assert.equal(relatorio.porClinica[0].consultas, 1);
   assert.equal(relatorio.porClinica[0].exames, 1);
+  assert.equal(relatorio.porClinica[0].atendimentosMes, 2);
   assert.equal(relatorio.porTipoExame[0].tipo, "Ressonancia Magnetica");
   assert.equal(relatorio.porStatusExames.agendado, 1);
   assert.equal(relatorio.porStatus.agendada, 1);
@@ -124,6 +123,7 @@ async function testeRelatorioClinicaContaConsultaAgendada() {
   assert.equal(relatorio.indicadores.consultas, 1);
   assert.equal(relatorio.indicadores.exames, 1);
   assert.equal(relatorio.indicadores.agendamentos, 2);
+  assert.equal(relatorio.indicadores.atendimentosMes, 2);
   assert.equal(relatorio.indicadores.pendentes, 1);
   assert.equal(relatorio.indicadores.examesPendentes, 1);
   assert.equal(relatorio.indicadores.realizadas, 0);

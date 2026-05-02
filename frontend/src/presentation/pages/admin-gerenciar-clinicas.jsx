@@ -1,11 +1,15 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ImagePlus, MapPin, Trash2, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ouvirConsultasAtualizadas } from "../../application/agenda/consultas-eventos";
 import {
   alternarStatusClinica,
   listarClinicas,
   salvarClinica as salvarClinicaApi,
 } from "../../application/clinicas/clinicas-use-cases";
+import { ouvirClinicasAtualizadas } from "../../application/clinicas/clinicas-eventos";
+import { ouvirExamesAtualizados } from "../../application/exames/exames-eventos";
+import { obterRelatoriosSistema } from "../../application/sistema/relatorios-use-cases";
 import {
   criarEnderecoClinica,
   geocodificarEndereco,
@@ -48,8 +52,6 @@ function normalizarClinica(formulario, id = null) {
       .filter(Boolean),
     horario: formulario.horario.trim(),
     capacidadeDiaria: Number(formulario.capacidadeDiaria) || 0,
-    atendimentosMes: 0,
-    satisfacao: 0,
     status: formulario.status,
     aberta: formulario.status === "ativa",
     emoji: "+",
@@ -90,36 +92,95 @@ function AdminGerenciarClinicas() {
   const [mensagem, setMensagem] = useState("");
   const [carregando, setCarregando] = useState(false);
   const [geocodificando, setGeocodificando] = useState(false);
+  const [relatorio, setRelatorio] = useState(null);
+  const ultimaCargaRef = useRef(0);
 
-  async function carregarClinicas() {
-    setCarregando(true);
-    setMensagem("");
-    try {
-      setClinicas(await listarClinicas());
-    } catch (erro) {
-      setMensagem(erro.message || "Nao foi possivel carregar as clinicas.");
-    } finally {
-      setCarregando(false);
+  const carregarClinicas = useCallback(async ({ silencioso = false } = {}) => {
+    const cargaAtual = ultimaCargaRef.current + 1;
+    ultimaCargaRef.current = cargaAtual;
+
+    if (!silencioso) {
+      setCarregando(true);
+      setMensagem("");
     }
-  }
+
+    try {
+      const [listaClinicas, relatorioSistema] = await Promise.all([
+        listarClinicas(),
+        obterRelatoriosSistema(),
+      ]);
+
+      if (ultimaCargaRef.current !== cargaAtual) return;
+
+      setClinicas(listaClinicas);
+      setRelatorio(relatorioSistema);
+    } catch (erro) {
+      if (!silencioso) {
+        setMensagem(erro.message || "Nao foi possivel carregar as clinicas.");
+      }
+    } finally {
+      if (ultimaCargaRef.current === cargaAtual) {
+        setCarregando(false);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     carregarClinicas();
-  }, []);
+  }, [carregarClinicas]);
+
+  useEffect(() => ouvirClinicasAtualizadas(() => carregarClinicas({ silencioso: true })), [
+    carregarClinicas,
+  ]);
+  useEffect(() => ouvirConsultasAtualizadas(() => carregarClinicas({ silencioso: true })), [
+    carregarClinicas,
+  ]);
+  useEffect(() => ouvirExamesAtualizados(() => carregarClinicas({ silencioso: true })), [
+    carregarClinicas,
+  ]);
+
+  useEffect(() => {
+    function recarregarAoVoltar() {
+      if (document.visibilityState === "visible") {
+        carregarClinicas({ silencioso: true });
+      }
+    }
+
+    document.addEventListener("visibilitychange", recarregarAoVoltar);
+    window.addEventListener("focus", recarregarAoVoltar);
+
+    return () => {
+      document.removeEventListener("visibilitychange", recarregarAoVoltar);
+      window.removeEventListener("focus", recarregarAoVoltar);
+    };
+  }, [carregarClinicas]);
+
+  const clinicasComIndicadores = useMemo(() => {
+    const indicadoresPorClinica = new Map(
+      (relatorio?.porClinica || []).map((item) => [Number(item.id), item])
+    );
+
+    return clinicas.map((clinica) => {
+      const indicadores = indicadoresPorClinica.get(Number(clinica.id)) || {};
+
+      return {
+        ...clinica,
+        atendimentosMes: Number(indicadores.atendimentosMes || 0),
+        ocupacao: Number(indicadores.ocupacao || 0),
+      };
+    });
+  }, [clinicas, relatorio]);
 
   const resumo = useMemo(() => {
-    const ativas = clinicas.filter((clinica) => clinica.status === "ativa").length;
-    const capacidade = clinicas.reduce(
+    const ativas = clinicasComIndicadores.filter((clinica) => clinica.status === "ativa").length;
+    const atendimentosPorDia = clinicasComIndicadores.reduce(
       (total, clinica) => total + Number(clinica.capacidadeDiaria || 0),
       0
     );
-    const atendimentos = clinicas.reduce(
-      (total, clinica) => total + Number(clinica.atendimentosMes || 0),
-      0
-    );
+    const atendimentos = Number(relatorio?.resumo?.agendamentosMes || 0);
 
-    return { ativas, capacidade, atendimentos };
-  }, [clinicas]);
+    return { ativas, atendimentosPorDia, atendimentos };
+  }, [clinicasComIndicadores, relatorio]);
 
   function alterarCampo(campo, valor) {
     setFormulario((atual) => {
@@ -283,8 +344,8 @@ function AdminGerenciarClinicas() {
             <strong className="text-3xl text-gray-800">{resumo.ativas}</strong>
           </div>
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <p className="text-gray-500 text-sm">Capacidade diaria</p>
-            <strong className="text-3xl text-gray-800">{resumo.capacidade}</strong>
+            <p className="text-gray-500 text-sm">Atendimentos medicos/dia</p>
+            <strong className="text-3xl text-gray-800">{resumo.atendimentosPorDia}</strong>
           </div>
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
             <p className="text-gray-500 text-sm">Atendimentos no mes</p>
@@ -436,7 +497,7 @@ function AdminGerenciarClinicas() {
                 min="0"
                 value={formulario.capacidadeDiaria}
                 onChange={(evento) => alterarCampo("capacidadeDiaria", evento.target.value)}
-                placeholder="Capacidade diaria"
+                placeholder="Atendimentos medicos por dia"
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-300"
               />
               <select
@@ -491,7 +552,7 @@ function AdminGerenciarClinicas() {
                 Carregando clinicas...
               </p>
             )}
-            {clinicas.map((clinica) => (
+            {clinicasComIndicadores.map((clinica) => (
               <article
                 key={clinica.id}
                 className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100"
@@ -552,7 +613,7 @@ function AdminGerenciarClinicas() {
 
                 <div className="grid grid-cols-3 gap-3 mt-4 text-center">
                   <div className="bg-gray-50 rounded-xl p-3">
-                    <p className="text-gray-500 text-xs">Capacidade</p>
+                    <p className="text-gray-500 text-xs">Atendimentos/dia</p>
                     <strong>{clinica.capacidadeDiaria}/dia</strong>
                   </div>
                   <div className="bg-gray-50 rounded-xl p-3">
@@ -560,8 +621,8 @@ function AdminGerenciarClinicas() {
                     <strong>{clinica.atendimentosMes}</strong>
                   </div>
                   <div className="bg-gray-50 rounded-xl p-3">
-                    <p className="text-gray-500 text-xs">Satisfacao</p>
-                    <strong>{clinica.satisfacao}%</strong>
+                    <p className="text-gray-500 text-xs">Ocupacao</p>
+                    <strong>{clinica.ocupacao}%</strong>
                   </div>
                 </div>
               </article>

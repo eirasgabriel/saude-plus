@@ -12,6 +12,7 @@ import {
 import { obterUsuarioAtual, realizarLogout } from "../../application/auth/auth-service";
 import { ouvirConsultasAtualizadas } from "../../application/agenda/consultas-eventos";
 import { ouvirClinicasAtualizadas } from "../../application/clinicas/clinicas-eventos";
+import { ouvirExamesAtualizados } from "../../application/exames/exames-eventos";
 import { buscarClinicaPorId } from "../../application/clinicas/clinicas-use-cases";
 import { ouvirUsuariosAtualizados } from "../../application/usuarios/usuarios-eventos";
 import {
@@ -53,6 +54,7 @@ function HomeAdmin() {
 
   useEffect(() => ouvirClinicasAtualizadas(carregarDados), [usuario?.clinica_id]);
   useEffect(() => ouvirConsultasAtualizadas(carregarDados), [usuario?.clinica_id]);
+  useEffect(() => ouvirExamesAtualizados(carregarDados), [usuario?.clinica_id]);
   useEffect(() => ouvirUsuariosAtualizados(carregarDados), [usuario?.clinica_id]);
 
   useEffect(() => {
@@ -75,9 +77,7 @@ function HomeAdmin() {
       examesPendentes: indicadores.examesPendentes ?? 0,
       examesRealizados: indicadores.examesRealizados ?? 0,
       ocupacao: indicadores.ocupacao ?? 0,
-      atendimentosMes:
-        indicadores.atendimentosMes ?? Number(clinicaVinculada?.atendimentosMes || 0),
-      satisfacao: indicadores.satisfacao ?? Number(clinicaVinculada?.satisfacao || 0),
+      atendimentosMes: indicadores.atendimentosMes ?? 0,
       capacidadeDiaria: indicadores.capacidadeDiaria ?? Number(clinicaVinculada?.capacidadeDiaria || 0),
       status: indicadores.status || clinicaVinculada?.status || "nao informado",
     };
@@ -176,7 +176,7 @@ function HomeAdmin() {
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <div className="dashboard-metric">
               <div className="mb-3 flex items-center justify-between gap-3">
-                <p className="text-sm text-gray-500">Consultas no mes</p>
+                <p className="text-sm text-gray-500">Atendimentos no mes</p>
                 <CalendarDays className="h-5 w-5 text-blue-400" aria-hidden="true" />
               </div>
               <strong className="text-3xl text-gray-800">
@@ -230,7 +230,7 @@ function HomeAdmin() {
                 {relatorioClinica.atendimentosMes}
               </strong>
               <p className="mt-1 text-xs text-gray-400">
-                Satisfacao {relatorioClinica.satisfacao}%
+                Registros reais do periodo atual
               </p>
             </div>
           </div>
@@ -238,13 +238,13 @@ function HomeAdmin() {
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
             <div className="dashboard-metric">
               <div className="mb-3 flex items-center justify-between gap-3">
-                <p className="text-sm text-gray-500">Capacidade diaria</p>
+                <p className="text-sm text-gray-500">Atendimentos medicos/dia</p>
                 <Building2 className="h-5 w-5 text-blue-400" aria-hidden="true" />
               </div>
               <strong className="text-2xl text-gray-800">
                 {relatorioClinica.capacidadeDiaria}
               </strong>
-              <p className="mt-1 text-xs text-gray-400">atendimentos por dia</p>
+              <p className="mt-1 text-xs text-gray-400">quantidade configurada por dia</p>
             </div>
             <div className="dashboard-metric">
               <div className="mb-3 flex items-center justify-between gap-3">

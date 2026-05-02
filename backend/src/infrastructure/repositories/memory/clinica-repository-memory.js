@@ -5,7 +5,10 @@ const { clinicasSeed } = require("./seeds");
 const CAMINHO_PADRAO_DADOS = path.resolve(__dirname, "../../../../data/clinicas.json");
 
 function copiarClinica(clinica) {
-  return JSON.parse(JSON.stringify(clinica));
+  const copia = JSON.parse(JSON.stringify(clinica));
+  delete copia.atendimentosMes;
+  delete copia.satisfacao;
+  return copia;
 }
 
 function carregarRegistros(clinicas, caminhoDados) {
@@ -57,8 +60,6 @@ function criarClinicaRepositoryMemory(clinicas = clinicasSeed, opcoes = {}) {
     async salvar(dados) {
       const clinica = {
         id: Math.max(...registros.map((item) => Number(item.id)), 0) + 1,
-        atendimentosMes: 0,
-        satisfacao: 0,
         emoji: "+",
         ...dados,
         aberta: dados.status ? dados.status === "ativa" : dados.aberta !== false,
