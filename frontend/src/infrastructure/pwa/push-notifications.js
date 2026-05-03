@@ -5,6 +5,8 @@ const CHAVE_SUBSCRIPTION = "saude_push_subscription";
 const CHAVE_PUSH_LOCAL_ATIVO = "saude_push_local_ativo";
 const CHAVE_PERMISSAO_PUSH = "saude_push_permission";
 const CHAVE_PUSH_SOLICITADO = "saude_push_permission_solicitada";
+const CHAVE_VAPID_PUBLIC_KEY = "saude_push_vapid_public_key";
+const PERMISSAO_ADIADA = "adiada";
 const VAPID_PUBLIC_KEY = process.env.REACT_APP_VAPID_PUBLIC_KEY || "";
 
 function suportaNotificacoesPush() {
@@ -79,8 +81,32 @@ function armazenarPermissaoNotificacoes(permission) {
   localStorage.setItem(CHAVE_PUSH_SOLICITADO, "true");
 }
 
+function dispensarPermissaoNotificacoes() {
+  armazenarPermissaoNotificacoes(PERMISSAO_ADIADA);
+}
+
+function deveExibirModalNotificacoes() {
+  if (!("Notification" in window) || !suportaNotificacoesPush()) {
+    return false;
+  }
+
+  const permissaoArmazenada = localStorage.getItem(CHAVE_PERMISSAO_PUSH);
+  const usuarioJaDecidiuNoApp = [
+    PERMISSAO_ADIADA,
+    "denied",
+    "granted",
+    "indisponivel",
+  ].includes(permissaoArmazenada);
+
+  return !usuarioJaDecidiuNoApp && Notification.permission === "default";
+}
+
 function notificacoesJaInicializadas() {
-  return localStorage.getItem(CHAVE_PUSH_LOCAL_ATIVO) === "true";
+  const chaveAtual = VAPID_PUBLIC_KEY || "local";
+  return (
+    localStorage.getItem(CHAVE_PUSH_LOCAL_ATIVO) === "true" &&
+    localStorage.getItem(CHAVE_VAPID_PUBLIC_KEY) === chaveAtual
+  );
 }
 
 async function ativarNotificacoesPush({ exibirConfirmacao = true } = {}) {
@@ -99,6 +125,7 @@ async function ativarNotificacoesPush({ exibirConfirmacao = true } = {}) {
 
   if (!VAPID_PUBLIC_KEY) {
     localStorage.setItem(CHAVE_PUSH_LOCAL_ATIVO, "true");
+    localStorage.setItem(CHAVE_VAPID_PUBLIC_KEY, "local");
     if (exibirConfirmacao) {
       await exibirNotificacaoSaudePlus({
         titulo: "Notificacoes ativadas",
@@ -116,8 +143,16 @@ async function ativarNotificacoesPush({ exibirConfirmacao = true } = {}) {
     throw new Error("Nao foi possivel registrar o dispositivo para push.");
   }
 
-  const subscription =
-    (await registration.pushManager.getSubscription()) ||
+  let subscription = await registration.pushManager.getSubscription();
+  const chaveAnterior = localStorage.getItem(CHAVE_VAPID_PUBLIC_KEY);
+
+  if (subscription && chaveAnterior && chaveAnterior !== VAPID_PUBLIC_KEY) {
+    await subscription.unsubscribe();
+    subscription = null;
+  }
+
+  subscription =
+    subscription ||
     (await registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
@@ -125,6 +160,7 @@ async function ativarNotificacoesPush({ exibirConfirmacao = true } = {}) {
 
   await enviarSubscriptionParaBackend(subscription);
   localStorage.setItem(CHAVE_PUSH_LOCAL_ATIVO, "true");
+  localStorage.setItem(CHAVE_VAPID_PUBLIC_KEY, VAPID_PUBLIC_KEY);
   if (exibirConfirmacao) {
     await exibirNotificacaoSaudePlus({
       titulo: "Notificacoes ativadas",
@@ -153,40 +189,31 @@ async function testarNotificacaoPush() {
 }
 
 async function solicitarPermissaoNotificacoesUmaVez() {
+  return inicializarNotificacoesPermitidas();
+}
+
+async function inicializarNotificacoesPermitidas() {
   if (!("Notification" in window)) {
     armazenarPermissaoNotificacoes("indisponivel");
     return "indisponivel";
   }
 
   const permissaoAtual = Notification.permission;
-  const jaSolicitado = localStorage.getItem(CHAVE_PUSH_SOLICITADO) === "true";
 
   if (!suportaNotificacoesPush()) {
     armazenarPermissaoNotificacoes(permissaoAtual || "indisponivel");
     return permissaoAtual || "indisponivel";
   }
 
-  if (jaSolicitado || permissaoAtual !== "default") {
+  if (permissaoAtual !== "default") {
     armazenarPermissaoNotificacoes(permissaoAtual);
-
-    if (permissaoAtual === "granted" && !notificacoesJaInicializadas()) {
-      ativarNotificacoesPush({ exibirConfirmacao: false }).catch((erro) => {
-        console.warn("Nao foi possivel inicializar notificacoes push:", erro.message);
-      });
-    }
-
-    return permissaoAtual;
   }
 
-  try {
-    const resultado = await ativarNotificacoesPush({ exibirConfirmacao: false });
-    return resultado.status;
-  } catch (erro) {
-    const permissaoFinal = obterStatusNotificacoes();
-    armazenarPermissaoNotificacoes(permissaoFinal);
-    console.warn("Permissao de notificacao nao ativada:", erro.message);
-    return permissaoFinal;
+  if (permissaoAtual === "granted" && !notificacoesJaInicializadas()) {
+    await ativarNotificacoesPush({ exibirConfirmacao: false });
   }
+
+  return permissaoAtual;
 }
 
 function obterStatusNotificacoes() {
@@ -199,7 +226,10 @@ function obterStatusNotificacoes() {
 
 export {
   ativarNotificacoesPush,
+  dispensarPermissaoNotificacoes,
+  deveExibirModalNotificacoes,
   exibirNotificacaoSaudePlus,
+  inicializarNotificacoesPermitidas,
   obterStatusNotificacoes,
   solicitarPermissaoNotificacoesUmaVez,
   suportaNotificacoesPush,

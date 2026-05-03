@@ -141,7 +141,7 @@ function criarServidorHttp(useCases, env = {}, opcoes = {}) {
       const url = new URL(req.url, "http://localhost");
       const pathname = normalizarPath(url.pathname);
 
-      if (req.method === "GET" && pathname === "/health") {
+      if (req.method === "GET" && (pathname === "/health" || pathname === "/api/health")) {
         enviarJson(res, 200, { status: "ok", service: "saude-plus-backend" }, req, env);
         return;
       }
@@ -227,9 +227,9 @@ function criarServidorHttp(useCases, env = {}, opcoes = {}) {
       }
 
       if (req.method === "POST" && pathname === "/api/notificacoes/subscriptions") {
-        exigirUsuario(req, env);
+        const usuario = exigirUsuario(req, env);
         const body = await lerJson(req, env);
-        const resultado = await useCases.salvarPushSubscription(body);
+        const resultado = await useCases.salvarPushSubscription(body, usuario);
         enviarJson(res, 201, resultado, req, env);
         return;
       }

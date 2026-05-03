@@ -2,7 +2,28 @@ const { criarExame } = require("../../domain/entities/exame");
 const { AppError } = require("../../domain/errors/app-error");
 const { verificarConflitoAgenda } = require("../agenda/conflitos-agenda");
 
-function criarCriarExame({ agendaRepository, consultaRepository, exameRepository, usuarioRepository }) {
+function notificarExameAgendado(pushNotifications, exame) {
+  if (!pushNotifications?.enviarParaUsuario) return;
+
+  pushNotifications
+    .enviarParaUsuario(exame.paciente_id, {
+      title: "Exame agendado",
+      body: `Seu exame ${exame.tipo} foi marcado para ${exame.data} as ${exame.horario}.`,
+      url: "/paciente/exames",
+      tag: `exame-${exame.id || exame.agenda_id || exame.tipo}`,
+    })
+    .catch((erro) => {
+      console.warn("Nao foi possivel enviar push de exame:", erro.message);
+    });
+}
+
+function criarCriarExame({
+  agendaRepository,
+  consultaRepository,
+  exameRepository,
+  usuarioRepository,
+  pushNotifications,
+}) {
   return async function criarNovoExame(dados) {
     const exame = criarExame(dados);
     const paciente = await usuarioRepository.buscarPorId(exame.paciente_id);
@@ -63,7 +84,10 @@ function criarCriarExame({ agendaRepository, consultaRepository, exameRepository
     exame.paciente = paciente.nome;
     exame.medico = medico?.nome || exame.medico || "";
 
-    return exameRepository.criar(exame);
+    const exameCriado = await exameRepository.criar(exame);
+    notificarExameAgendado(pushNotifications, exameCriado);
+
+    return exameCriado;
   };
 }
 

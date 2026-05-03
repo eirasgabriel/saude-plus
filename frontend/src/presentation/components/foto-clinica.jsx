@@ -2,7 +2,7 @@ import React from "react";
 
 function obterInicial(nome) {
   const texto = String(nome || "").trim();
-  return texto ? texto.charAt(0).toUpperCase() : "+";
+  return texto ? texto.charAt(0).toUpperCase() : "";
 }
 
 function FotoClinica({
@@ -19,7 +19,19 @@ function FotoClinica({
     );
   }
 
-  return <div className={className}>{obterInicial(nome)}</div>;
+  const inicial = obterInicial(nome);
+
+  return (
+    <div className={className}>
+      {inicial || (
+        <img
+          src="/icons/logo-saude-plus.png"
+          alt="Saude+"
+          className="h-4/5 w-4/5 object-contain"
+        />
+      )}
+    </div>
+  );
 }
 
 export default FotoClinica;

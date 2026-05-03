@@ -351,7 +351,13 @@ function AgendarExame() {
       {sucesso && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-6">
           <div className="w-full max-w-sm rounded-3xl bg-white p-8 text-center shadow-xl">
-            <div className="mb-4 text-5xl">+</div>
+            <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-white p-1 shadow-sm ring-1 ring-blue-100">
+              <img
+                src="/icons/logo-saude-plus.png"
+                alt="Saude+"
+                className="h-full w-full object-contain"
+              />
+            </div>
             <h3 className="mb-2 text-xl font-bold text-gray-800">
               Exame agendado
             </h3>

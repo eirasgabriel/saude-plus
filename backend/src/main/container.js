@@ -24,6 +24,7 @@ const { criarClinicaRepositoryMemory } = require("../infrastructure/repositories
 const { criarConsultaRepositoryMemory } = require("../infrastructure/repositories/memory/consulta-repository-memory");
 const { criarExameRepositoryMemory } = require("../infrastructure/repositories/memory/exame-repository-memory");
 const { criarUsuarioRepositoryMemory } = require("../infrastructure/repositories/memory/usuario-repository-memory");
+const { criarPushNotifications } = require("../infrastructure/notifications/push-notifications");
 
 function criarContainer(env = {}) {
   let pool = null;
@@ -54,24 +55,11 @@ function criarContainer(env = {}) {
     auditRepository,
   } = repositories;
   const pushSubscriptions = [];
-
-  async function salvarPushSubscription(subscription) {
-    if (!subscription || !subscription.endpoint) {
-      return { salvo: false, total: pushSubscriptions.length };
-    }
-
-    const existente = pushSubscriptions.findIndex(
-      (item) => item.endpoint === subscription.endpoint
-    );
-
-    if (existente >= 0) {
-      pushSubscriptions[existente] = subscription;
-    } else {
-      pushSubscriptions.push(subscription);
-    }
-
-    return { salvo: true, total: pushSubscriptions.length };
-  }
+  const pushNotifications = criarPushNotifications({
+    env,
+    subscriptions: pushSubscriptions,
+    pool,
+  });
 
   return {
     repositories: {
@@ -108,6 +96,7 @@ function criarContainer(env = {}) {
         consultaRepository,
         exameRepository,
         usuarioRepository,
+        pushNotifications,
       }),
       listarConsultasClinica: criarListarConsultasClinica({ consultaRepository, usuarioRepository }),
       listarConsultasPaciente: criarListarConsultasPaciente({ consultaRepository, usuarioRepository }),
@@ -117,6 +106,7 @@ function criarContainer(env = {}) {
         consultaRepository,
         exameRepository,
         usuarioRepository,
+        pushNotifications,
       }),
       listarExamesClinica: criarListarExamesClinica({ exameRepository, usuarioRepository }),
       listarExamesPaciente: criarListarExamesPaciente({ exameRepository, usuarioRepository }),
@@ -137,7 +127,7 @@ function criarContainer(env = {}) {
         exameRepository,
         debug: env.relatoriosDebug,
       }),
-      salvarPushSubscription,
+      salvarPushSubscription: pushNotifications.salvarSubscription,
     },
   };
 }

@@ -64,6 +64,9 @@ function carregarEnv() {
         ? nodeEnv === "production"
         : process.env.COOKIE_SECURE === "true",
     repositoryDriver: process.env.REPOSITORY_DRIVER || (databaseUrl ? "postgres" : "memory"),
+    vapidPublicKey: process.env.VAPID_PUBLIC_KEY || process.env.REACT_APP_VAPID_PUBLIC_KEY || "",
+    vapidPrivateKey: process.env.VAPID_PRIVATE_KEY || "",
+    vapidSubject: process.env.VAPID_SUBJECT || "mailto:admin@saude-plus.local",
     databaseUrl,
     database: {
       host: process.env.DB_HOST || "localhost",

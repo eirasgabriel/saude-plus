@@ -2,7 +2,28 @@ const { criarConsulta } = require("../../domain/entities/consulta");
 const { AppError } = require("../../domain/errors/app-error");
 const { verificarConflitoAgenda } = require("../agenda/conflitos-agenda");
 
-function criarCriarConsulta({ agendaRepository, consultaRepository, exameRepository, usuarioRepository }) {
+function notificarConsultaAgendada(pushNotifications, consulta) {
+  if (!pushNotifications?.enviarParaUsuario) return;
+
+  pushNotifications
+    .enviarParaUsuario(consulta.paciente_id, {
+      title: "Consulta agendada",
+      body: `Sua consulta de ${consulta.especialidade || "saude"} foi marcada para ${consulta.data} as ${consulta.horario}.`,
+      url: "/paciente/consultas",
+      tag: `consulta-${consulta.id || consulta.agenda_id}`,
+    })
+    .catch((erro) => {
+      console.warn("Nao foi possivel enviar push de consulta:", erro.message);
+    });
+}
+
+function criarCriarConsulta({
+  agendaRepository,
+  consultaRepository,
+  exameRepository,
+  usuarioRepository,
+  pushNotifications,
+}) {
   return async function criarNovaConsulta(dados) {
     const consulta = criarConsulta(dados);
     const paciente = await usuarioRepository.buscarPorId(consulta.paciente_id);
@@ -57,6 +78,7 @@ function criarCriarConsulta({ agendaRepository, consultaRepository, exameReposit
     consulta.paciente = paciente.nome;
     consulta.medico = medico.nome;
     const consultaCriada = await consultaRepository.criar(consulta);
+    notificarConsultaAgendada(pushNotifications, consultaCriada);
 
     return { consulta: consultaCriada };
   };

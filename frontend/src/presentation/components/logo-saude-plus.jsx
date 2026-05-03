@@ -12,10 +12,10 @@ function LogoSaudePlus({ size = "md", className = "" }) {
 
   return (
     <div
-      className={`flex shrink-0 items-center justify-center overflow-hidden rounded-[22%] shadow-lg ring-1 ring-sky-200/70 ${tamanho} ${className}`}
+      className={`flex shrink-0 items-center justify-center overflow-hidden rounded-[22%] bg-white p-1 shadow-lg ring-1 ring-sky-200/70 ${tamanho} ${className}`}
     >
       <img
-        src="/icons/icon-512.png"
+        src="/icons/logo-saude-plus.png"
         alt="Saude+"
         className="h-full w-full object-contain"
       />

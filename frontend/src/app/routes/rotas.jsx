@@ -4,7 +4,7 @@
 // Inclui proteção por nível de acesso
 
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 // --- Importação das Telas ---
@@ -29,10 +29,14 @@ import PacienteClinicaDetalhes from "../../presentation/pages/paciente-clinica-d
 import AdminGerenciarClinicas from "../../presentation/pages/admin-gerenciar-clinicas";
 import AdminGerenciarUsuarios from "../../presentation/pages/admin-gerenciar-usuarios";
 import AdminRelatoriosSistema from "../../presentation/pages/admin-relatorios-sistema";
+import ModalNotificacoes from "../../presentation/components/modal-notificacoes";
 
 // --- Importação da lógica de autenticação ---
 import { estaAutenticado, temPermissao } from "../../application/auth/auth-service";
-import { solicitarPermissaoNotificacoesUmaVez } from "../../infrastructure/pwa/push-notifications";
+import {
+  deveExibirModalNotificacoes,
+  inicializarNotificacoesPermitidas,
+} from "../../infrastructure/pwa/push-notifications";
 
 /**
  * Componente de Rota Protegida
@@ -41,13 +45,26 @@ import { solicitarPermissaoNotificacoesUmaVez } from "../../infrastructure/pwa/p
  */
 function RotaProtegida({ children, nivelNecessario }) {
   const autenticado = estaAutenticado();
+  const [exibirModalNotificacoes, setExibirModalNotificacoes] = useState(false);
 
   useEffect(() => {
     if (!autenticado) return;
 
-    solicitarPermissaoNotificacoesUmaVez().catch((erro) => {
-      console.warn("Nao foi possivel solicitar permissao de notificacoes:", erro.message);
-    });
+    let ativo = true;
+
+    inicializarNotificacoesPermitidas()
+      .catch((erro) => {
+        console.warn("Nao foi possivel inicializar notificacoes:", erro.message);
+      })
+      .finally(() => {
+        if (ativo) {
+          setExibirModalNotificacoes(deveExibirModalNotificacoes());
+        }
+      });
+
+    return () => {
+      ativo = false;
+    };
   }, [autenticado]);
 
   // Se não estiver logado, vai para o login
@@ -60,7 +77,15 @@ function RotaProtegida({ children, nivelNecessario }) {
     return <Navigate to="/sem-permissao" replace />;
   }
 
-  return children;
+  return (
+    <>
+      {children}
+      <ModalNotificacoes
+        aberto={exibirModalNotificacoes}
+        aoFechar={() => setExibirModalNotificacoes(false)}
+      />
+    </>
+  );
 }
 
 /**
