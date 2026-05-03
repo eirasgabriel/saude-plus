@@ -56,7 +56,7 @@ function formatarConsulta(consulta) {
     horario: consulta.horario || consulta.hora || agenda?.horario || "-",
     paciente: consulta.paciente || "",
     medico: consulta.medico || "",
-    especialidade: consulta.especialidade || "Nao informada",
+    especialidade: consulta.especialidade || "Não informada",
     status: consulta.status || "agendada",
   };
 }
@@ -107,7 +107,7 @@ function MedicoConsultasClinica() {
           )
       );
     } catch (falha) {
-      setErro(falha.message || "Nao foi possivel carregar as consultas da clinica.");
+      setErro(falha.message || "Não foi possível carregar as consultas da clínica.");
     } finally {
       setCarregando(false);
     }
@@ -193,7 +193,7 @@ function MedicoConsultasClinica() {
           : "Arquivo anexado e liberado nos downloads do paciente."
       );
     } catch (falha) {
-      setErro(falha.message || "Nao foi possivel anexar o arquivo.");
+      setErro(falha.message || "Não foi possível anexar o arquivo.");
     } finally {
       setUploadEmAndamento("");
     }
@@ -223,12 +223,12 @@ function MedicoConsultasClinica() {
           <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
             <p className="text-sm text-gray-500">Realizadas</p>
             <strong className="text-3xl text-gray-800">{resumo.realizadas}</strong>
-            <p className="mt-1 text-xs text-gray-400">Atendimentos concluidos</p>
+            <p className="mt-1 text-xs text-gray-400">Atendimentos concluídos</p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
             <p className="text-sm text-gray-500">Canceladas</p>
             <strong className="text-3xl text-gray-800">{resumo.canceladas}</strong>
-            <p className="mt-1 text-xs text-gray-400">Remarcacao necessaria</p>
+            <p className="mt-1 text-xs text-gray-400">Remarcação necessária</p>
           </div>
         </section>
 
@@ -286,7 +286,7 @@ function MedicoConsultasClinica() {
                       </td>
                       <td>{consulta.paciente}</td>
                       <td>{consulta.especialidade}</td>
-                      <td>{consulta.medico || "Nao informado"}</td>
+                      <td>{consulta.medico || "Não informado"}</td>
                       <td>
                         <span className="clinic-record-status">
                           {consulta.status}
@@ -362,7 +362,7 @@ function MedicoConsultasClinica() {
               </label>
 
               <label className="block">
-                <span className="text-xs font-bold uppercase tracking-wide text-gray-500">Observacoes</span>
+                <span className="text-xs font-bold uppercase tracking-wide text-gray-500">Observações</span>
                 <input
                   value={formularioUpload.observacoes}
                   onChange={(evento) =>

@@ -25,7 +25,7 @@ function Login() {
   function validarFormularioLogin() {
     if (!email.trim()) return "Por favor, informe seu e-mail.";
     if (!emailValido(email)) {
-      return "E-mail invalido. Verifique e tente novamente.";
+      return "E-mail inválido. Verifique e tente novamente.";
     }
     if (!senha) return "Por favor, informe sua senha.";
     if (senha.length < 8) return "A senha deve ter pelo menos 8 caracteres.";
@@ -34,12 +34,12 @@ function Login() {
 
   function validarFormularioRecuperacao() {
     if (!email.trim()) return "Informe o e-mail cadastrado.";
-    if (!emailValido(email)) return "Informe um e-mail valido.";
+    if (!emailValido(email)) return "Informe um e-mail válido.";
     if (novaSenha.length < 8) {
       return "A nova senha deve ter pelo menos 8 caracteres.";
     }
     if (novaSenha !== confirmarNovaSenha) {
-      return "A confirmacao precisa ser igual a nova senha.";
+      return "As senhas nao coincidem.";
     }
     return "";
   }
@@ -248,13 +248,13 @@ function Login() {
 
       <div className="mb-6">
         <label className="mb-2 block text-sm font-semibold text-gray-700">
-          Codigo de recuperacao
+          Código de recuperacao
         </label>
         <input
           type="password"
           value={codigoRecuperacao}
           onChange={(e) => setCodigoRecuperacao(e.target.value)}
-          placeholder="Codigo temporario enviado pela unidade"
+          placeholder="Código temporario enviado pela unidade"
           autoComplete="one-time-code"
           className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-800 shadow-sm transition focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
@@ -292,9 +292,9 @@ function Login() {
         <div className="flex flex-1 flex-col items-center justify-center px-4 pb-8 pt-12">
           <div className="mb-10 text-center">
             <LogoSaudePlus className="mx-auto mb-4" size="lg" />
-            <h1 className="text-3xl font-bold tracking-tight text-white">Saude+</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-white">Saúde+</h1>
             <p className="mt-1 text-sm text-blue-100">
-              Saquarema - Secretaria de Saude
+              Saquarema - Secretaria de Saúde
             </p>
           </div>
 
@@ -320,7 +320,7 @@ function Login() {
         <div className="grid w-full max-w-5xl grid-cols-[0.9fr_1.1fr] overflow-hidden rounded-3xl bg-white shadow-2xl">
           <section className="flex flex-col justify-center bg-blue-500 p-10 text-white">
             <LogoSaudePlus className="mb-6" size="lg" />
-            <h1 className="text-4xl font-bold">Saude+</h1>
+            <h1 className="text-4xl font-bold">Saúde+</h1>
             <p className="mt-3 max-w-sm text-blue-100">
               Interface otimizada para tablets, com leitura ampla e toque confortavel.
             </p>
@@ -349,15 +349,15 @@ function Login() {
       <section className="flex w-1/2 flex-col items-center justify-center bg-gradient-to-br from-blue-400 to-blue-600 p-12">
         <div className="text-center">
           <LogoSaudePlus className="mx-auto mb-6 shadow-xl" size="xl" />
-          <h1 className="mb-3 text-5xl font-bold text-white">Saude+</h1>
-          <p className="mb-10 text-lg text-blue-100">Saude na palma da mao</p>
+          <h1 className="mb-3 text-5xl font-bold text-white">Saúde+</h1>
+          <p className="mb-10 text-lg text-blue-100">Saúde na palma da mão</p>
           <p className="mx-auto max-w-xs text-sm leading-relaxed text-blue-200">
-            Gerenciamento de consultas para as unidades de saude do municipio de
+            Gerenciamento de consultas para as unidades de saúde do município de
             Saquarema.
           </p>
 
           <div className="mx-auto mt-10 grid max-w-xs grid-cols-2 gap-3">
-            {["Bacaxa", "Itauna", "Vilatur", "Sampaio Correa"].map((bairro) => (
+            {["Bacaxá", "Itaúna", "Vilatur", "Sampaio Correa"].map((bairro) => (
               <div
                 key={bairro}
                 className="rounded-xl bg-white bg-opacity-20 px-4 py-2 text-sm font-medium text-white"

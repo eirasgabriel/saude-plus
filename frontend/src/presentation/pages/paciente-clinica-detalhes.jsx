@@ -25,7 +25,7 @@ function PacienteClinicaDetalhes() {
       setClinica(await buscarClinicaPorId(id));
     } catch (erroCarregar) {
       setClinica(null);
-      setErro(erroCarregar.message || "Nao foi possivel carregar a clinica.");
+      setErro(erroCarregar.message || "Não foi possível carregar a clínica.");
     } finally {
       setCarregando(false);
     }
@@ -60,7 +60,7 @@ function PacienteClinicaDetalhes() {
   if (carregando) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50 px-6">
-        <p className="text-sm text-gray-500">Carregando informacoes...</p>
+        <p className="text-sm text-gray-500">Carregando informações...</p>
       </div>
     );
   }
@@ -69,7 +69,7 @@ function PacienteClinicaDetalhes() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-6 text-center">
         <p className="mb-5 text-sm text-red-600">
-          {erro || "Clinica nao encontrada."}
+          {erro || "Clínica não encontrada."}
         </p>
         <button
           type="button"

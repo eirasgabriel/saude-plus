@@ -54,7 +54,7 @@ function AdminRelatoriosSistema() {
     try {
       setRelatorio(await obterRelatoriosSistema());
     } catch (falha) {
-      setErro(falha.message || "Nao foi possivel carregar os relatorios.");
+      setErro(falha.message || "Não foi possível carregar os relatórios.");
     } finally {
       setCarregando(false);
     }
@@ -104,7 +104,7 @@ function AdminRelatoriosSistema() {
         aoVoltar={() => navigate("/admin/master")}
         textoVoltar="Voltar ao painel"
         voltarSomenteIcone
-        titulo="Relatorios do sistema"
+        titulo="Relatórios do sistema"
         descricao={
           <>
             Indicadores calculados a partir das clinicas, usuarios e consultas cadastradas.
@@ -117,7 +117,7 @@ function AdminRelatoriosSistema() {
 
       <main className="app-content space-y-5">
         {carregando && (
-          <p className="text-center text-sm text-gray-500">Carregando relatorios...</p>
+          <p className="text-center text-sm text-gray-500">Carregando relatórios...</p>
         )}
 
         {!carregando && erro && (
@@ -128,7 +128,7 @@ function AdminRelatoriosSistema() {
 
         <section className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <p className="text-gray-500 text-sm">Agendamentos no mes</p>
+            <p className="text-gray-500 text-sm">Agendamentos no mês</p>
             <strong className="text-3xl text-gray-800">
               {resumo.agendamentosMes || resumo.consultasMes}
             </strong>
@@ -151,7 +151,7 @@ function AdminRelatoriosSistema() {
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
             <p className="text-gray-500 text-sm">Realizadas</p>
             <strong className="text-3xl text-gray-800">{resumo.consultasRealizadas}</strong>
-            <p className="text-xs text-gray-400 mt-1">Atendimentos concluidos</p>
+            <p className="text-xs text-gray-400 mt-1">Atendimentos concluídos</p>
           </div>
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
             <p className="text-gray-500 text-sm">Usuarios ativos</p>
@@ -185,12 +185,12 @@ function AdminRelatoriosSistema() {
               <table className="w-full min-w-[720px] text-sm">
                 <thead className="bg-gray-50 text-gray-600">
                   <tr>
-                    <th className="text-left px-3 py-3 font-semibold rounded-l-xl">Clinica</th>
+                    <th className="text-left px-3 py-3 font-semibold rounded-l-xl">Clínica</th>
                     <th className="text-left px-3 py-3 font-semibold">Consultas</th>
                     <th className="text-left px-3 py-3 font-semibold">Exames</th>
                     <th className="text-left px-3 py-3 font-semibold">Realizadas</th>
                     <th className="text-left px-3 py-3 font-semibold">Canceladas</th>
-                    <th className="text-left px-3 py-3 font-semibold">Ocupacao</th>
+                    <th className="text-left px-3 py-3 font-semibold">Ocupação</th>
                     <th className="text-left px-3 py-3 font-semibold rounded-r-xl">Atendimentos</th>
                   </tr>
                 </thead>
@@ -232,11 +232,11 @@ function AdminRelatoriosSistema() {
                 Especialidades mais buscadas
               </h2>
               <p className="text-gray-500 text-sm mb-4">
-                Volume de consultas por area de atendimento.
+                Volume de consultas por área de atendimento.
               </p>
               {porEspecialidade.length === 0 ? (
                 <p className="rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-500">
-                  Nenhuma consulta registrada no periodo atual.
+                  Nenhuma consulta registrada no período atual.
                 </p>
               ) : (
                 <div className="space-y-3">
@@ -269,7 +269,7 @@ function AdminRelatoriosSistema() {
               </p>
               {porTipoExame.length === 0 ? (
                 <p className="rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-500">
-                  Nenhum exame registrado no periodo atual.
+                  Nenhum exame registrado no período atual.
                 </p>
               ) : (
                 <div className="space-y-3">
@@ -292,7 +292,7 @@ function AdminRelatoriosSistema() {
               </p>
               {statusConsultas.length === 0 ? (
                 <p className="rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-500">
-                  Nenhum status de consulta para exibir neste periodo.
+                  Nenhum status de consulta para exibir neste período.
                 </p>
               ) : (
                 <div className="grid grid-cols-2 gap-3">
@@ -428,7 +428,7 @@ function AdminRelatoriosSistema() {
             </table>
             {consultasRecentesFiltradas.length === 0 && (
               <p className="px-3 py-4 text-sm text-gray-500">
-                Nenhuma consulta recente encontrada para a clinica selecionada.
+                Nenhuma consulta recente encontrada para a clínica selecionada.
               </p>
             )}
           </div>

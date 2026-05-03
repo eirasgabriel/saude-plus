@@ -99,7 +99,7 @@ function MedicoExamesClinica() {
           )
       );
     } catch (falha) {
-      setErro(falha.message || "Nao foi possivel carregar os exames da clinica.");
+      setErro(falha.message || "Não foi possível carregar os exames da clínica.");
     } finally {
       setCarregando(false);
     }
@@ -189,7 +189,7 @@ function MedicoExamesClinica() {
           : "Arquivo anexado e liberado nos downloads."
       );
     } catch (falha) {
-      setErro(falha.message || "Nao foi possivel anexar o resultado.");
+      setErro(falha.message || "Não foi possível anexar o resultado.");
     } finally {
       setUploadEmAndamento("");
     }
@@ -250,7 +250,7 @@ function MedicoExamesClinica() {
             <p className="clinic-record-empty">Carregando exames...</p>
           ) : exames.length === 0 ? (
             <p className="clinic-record-empty">
-              Nenhum exame marcado para este medico.
+              Nenhum exame marcado para este médico.
             </p>
           ) : (
             <div className="clinic-record-table-wrap">
@@ -281,7 +281,7 @@ function MedicoExamesClinica() {
                         </td>
                         <td>{exame.paciente}</td>
                         <td>{exame.tipo}</td>
-                        <td>{exame.medico || "Nao informado"}</td>
+                        <td>{exame.medico || "Não informado"}</td>
                         <td>
                           <span className="clinic-record-status">
                             {exame.status}

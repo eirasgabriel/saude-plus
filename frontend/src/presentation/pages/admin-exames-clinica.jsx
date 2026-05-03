@@ -91,7 +91,7 @@ function AdminExamesClinica() {
       setExamesClinica(examesFormatados);
       setUsuarios(listaUsuarios);
     } catch (falha) {
-      setErro(falha.message || "Nao foi possivel carregar a clinica vinculada.");
+      setErro(falha.message || "Não foi possível carregar a clínica vinculada.");
     }
   }
 
@@ -184,7 +184,7 @@ function AdminExamesClinica() {
       setExamesEmEdicao([]);
       setMensagem("Exames atualizados com sucesso.");
     } catch (falha) {
-      setErro(falha.message || "Nao foi possivel salvar os exames.");
+      setErro(falha.message || "Não foi possível salvar os exames.");
     }
   }
 
@@ -250,7 +250,7 @@ function AdminExamesClinica() {
           : "Arquivo anexado e liberado na categoria correta de downloads."
       );
     } catch (falha) {
-      setErro(falha.message || "Nao foi possivel anexar o arquivo.");
+      setErro(falha.message || "Não foi possível anexar o arquivo.");
     } finally {
       setUploadEmAndamento("");
     }
@@ -397,10 +397,10 @@ function AdminExamesClinica() {
               <thead>
                 <tr>
                   <th>Data</th>
-                  <th>Horario</th>
+                  <th>Horário</th>
                   <th>Paciente</th>
                   <th>Exame</th>
-                  <th>Medico</th>
+                  <th>Médico</th>
                   <th>Status</th>
                   <th>Arquivo</th>
                 </tr>

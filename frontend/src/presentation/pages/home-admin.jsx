@@ -106,9 +106,9 @@ function HomeAdmin() {
   return (
     <div className="min-h-screen bg-gray-50">
       <CabecalhoApp
-        contexto="Admin da Clinica"
-        titulo="Painel da Clinica"
-        descricao={`Seja bem-vindo ao sistema de gerenciamento da clinica ${nomeClinica}`}
+        contexto="Admin da Clínica"
+        titulo="Painel da Clínica"
+        descricao={`Seja bem-vindo ao sistema de gerenciamento da clínica ${nomeClinica}`}
         acao={
           <div
             className="relative z-30"
@@ -119,7 +119,7 @@ function HomeAdmin() {
               type="button"
               onClick={() => setMenuUsuarioAberto((v) => !v)}
               className="flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white transition hover:bg-white/30"
-              aria-label="Perfil do usuario"
+              aria-label="Perfil do usuário"
             >
               <UserCircle className="h-6 w-6" aria-hidden="true" />
             </button>
@@ -130,7 +130,7 @@ function HomeAdmin() {
                     Conta
                   </p>
                   <p className="mt-0.5 text-sm font-semibold text-gray-800">
-                    Opcoes do usuario
+                    Opções do usuário
                   </p>
                 </div>
                 <button
@@ -154,7 +154,7 @@ function HomeAdmin() {
           <div className="dashboard-section-header mb-0">
             <div>
               <h2 className="dashboard-section-title sm:text-xl">
-                Relatorio geral da clinica
+                Relatório geral da clínica
               </h2>
               <p className="dashboard-section-description">
                 Indicadores da unidade vinculada: {nomeClinica}
@@ -230,7 +230,7 @@ function HomeAdmin() {
                 {relatorioClinica.atendimentosMes}
               </strong>
               <p className="mt-1 text-xs text-gray-400">
-                Registros reais do periodo atual
+                Registros reais do período atual
               </p>
             </div>
           </div>
@@ -244,7 +244,7 @@ function HomeAdmin() {
               <strong className="text-2xl text-gray-800">
                 {relatorioClinica.capacidadeDiaria}
               </strong>
-              <p className="mt-1 text-xs text-gray-400">quantidade configurada por dia</p>
+              <p className="mt-1 text-xs text-gray-400">quantidade diária</p>
             </div>
             <div className="dashboard-metric">
               <div className="mb-3 flex items-center justify-between gap-3">

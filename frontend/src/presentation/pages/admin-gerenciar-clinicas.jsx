@@ -237,7 +237,7 @@ function AdminGerenciarClinicas() {
       setFormulario(formularioComCoordenadas);
       setMensagem("Coordenadas preenchidas pelo Google Maps.");
     } catch (erro) {
-      setMensagem(erro.message || "Nao foi possivel buscar as coordenadas.");
+      setMensagem(erro.message || "Não foi possível buscar as coordenadas.");
     } finally {
       setGeocodificando(false);
     }
@@ -250,7 +250,7 @@ function AdminGerenciarClinicas() {
     if (!arquivo) return;
 
     if (!arquivo.type.startsWith("image/")) {
-      setMensagem("Selecione um arquivo de imagem para a foto da clinica.");
+      setMensagem("Selecione um arquivo de imagem para a foto da clínica.");
       return;
     }
 
@@ -264,7 +264,7 @@ function AdminGerenciarClinicas() {
       alterarCampo("fotoPerfil", fotoPerfil);
       setMensagem("");
     } catch {
-      setMensagem("Nao foi possivel carregar a imagem selecionada.");
+      setMensagem("Não foi possível carregar a imagem selecionada.");
     }
   }
 
@@ -273,13 +273,13 @@ function AdminGerenciarClinicas() {
     setMensagem("");
 
     if (!formulario.nome.trim() || !formulario.bairro.trim()) {
-      setMensagem("Informe pelo menos o nome e o bairro da clinica.");
+      setMensagem("Informe pelo menos o nome e o bairro da clínica.");
       return;
     }
 
     try {
       setGeocodificando(true);
-      setMensagem("Conferindo coordenadas da clinica...");
+      setMensagem("Conferindo coordenadas da clínica...");
       const formularioParaSalvar = await obterFormularioComCoordenadas(formulario);
 
       setFormulario(formularioParaSalvar);
@@ -288,7 +288,7 @@ function AdminGerenciarClinicas() {
       limparFormulario();
       await carregarClinicas();
     } catch (erro) {
-      setMensagem(erro.message || "Nao foi possivel salvar a clinica.");
+      setMensagem(erro.message || "Não foi possível salvar a clínica.");
     } finally {
       setGeocodificando(false);
     }
@@ -340,15 +340,15 @@ function AdminGerenciarClinicas() {
       <main className="app-content space-y-5">
         <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <p className="text-gray-500 text-sm">Clinicas ativas</p>
+            <p className="text-gray-500 text-sm">Clínicas ativas</p>
             <strong className="text-3xl text-gray-800">{resumo.ativas}</strong>
           </div>
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <p className="text-gray-500 text-sm">Atendimentos medicos/dia</p>
+            <p className="text-gray-500 text-sm">Atendimentos médicos/dia</p>
             <strong className="text-3xl text-gray-800">{resumo.atendimentosPorDia}</strong>
           </div>
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <p className="text-gray-500 text-sm">Atendimentos no mes</p>
+            <p className="text-gray-500 text-sm">Atendimentos no mês</p>
             <strong className="text-3xl text-gray-800">{resumo.atendimentos}</strong>
           </div>
         </section>
@@ -363,7 +363,7 @@ function AdminGerenciarClinicas() {
                 {clinicaEditandoId ? "Editar unidade" : "Nova unidade"}
               </h2>
               <p className="text-gray-500 text-sm">
-                Os dados ficam disponiveis no painel master.
+                Os dados ficam disponíveis no painel master.
               </p>
             </div>
 

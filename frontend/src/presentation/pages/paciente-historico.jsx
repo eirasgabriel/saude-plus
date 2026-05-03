@@ -203,7 +203,7 @@ function PacienteHistorico() {
         <section className="space-y-3">
           <div>
             <h2 className="text-lg font-bold text-gray-800">Consultas</h2>
-            <p className="text-sm text-gray-500">Atendimentos ja encerrados</p>
+            <p className="text-sm text-gray-500">Atendimentos já encerrados</p>
           </div>
 
           {carregando && (
@@ -220,9 +220,9 @@ function PacienteHistorico() {
 
           {!carregando && !erro && consultasHistorico.length === 0 && (
             <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-              <p className="font-semibold text-gray-700">Nenhuma consulta no historico</p>
+              <p className="font-semibold text-gray-700">Nenhuma consulta no histórico</p>
               <p className="mt-1 text-sm text-gray-500">
-                Consultas realizadas ou canceladas aparecerao aqui.
+                Consultas realizadas ou canceladas aparecerão aqui.
               </p>
             </div>
           )}
@@ -267,9 +267,9 @@ function PacienteHistorico() {
 
           {examesHistorico.length === 0 && (
             <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-              <p className="font-semibold text-gray-700">Nenhum exame no historico</p>
+              <p className="font-semibold text-gray-700">Nenhum exame no histórico</p>
               <p className="mt-1 text-sm text-gray-500">
-                Quando houver exames agendados ou finalizados, eles aparecerao nesta coluna.
+                Quando houver exames agendados ou finalizados, eles aparecerão nesta coluna.
               </p>
             </div>
           )}

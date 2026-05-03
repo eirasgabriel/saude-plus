@@ -63,7 +63,7 @@ function AgendarExame() {
       setClinica(await buscarClinicaPorId(clinicaIdParam));
     } catch (erro) {
       setClinica(null);
-      setErroAcao(erro.message || "Nao foi possivel carregar a unidade.");
+      setErroAcao(erro.message || "Não foi possível carregar a unidade.");
     } finally {
       setCarregandoClinica(false);
     }
@@ -85,7 +85,7 @@ function AgendarExame() {
       setHorarios(Array.isArray(lista) ? lista : []);
     } catch (erro) {
       setHorarios([]);
-      setErroAcao(erro.message || "Nao foi possivel carregar os horarios.");
+      setErroAcao(erro.message || "Não foi possível carregar os horários.");
     } finally {
       setCarregandoHorarios(false);
     }
@@ -123,7 +123,7 @@ function AgendarExame() {
 
     const slot = horarios.find((item) => item.id === horarioId);
     if (!slot?.disponivel) {
-      setErroAcao("Escolha um horario disponivel para confirmar.");
+      setErroAcao("Escolha um horário disponível para confirmar.");
       return;
     }
 
@@ -198,7 +198,7 @@ function AgendarExame() {
         />
         <div className="p-6 text-center">
           <p className="text-gray-600">
-            Esta unidade nao esta recebendo agendamentos no momento.
+            Esta unidade não está recebendo agendamentos no momento.
           </p>
         </div>
       </div>
@@ -215,7 +215,7 @@ function AgendarExame() {
         textoVoltar="Voltar as unidades"
         voltarSomenteIcone
         titulo="Agendar exame"
-        descricao="Escolha exame, data e horario"
+        descricao="Escolha exame, data e horário"
         acao={<MenuUsuarioPaciente />}
       />
 
@@ -260,7 +260,7 @@ function AgendarExame() {
           </div>
           {tiposExames.length === 0 && (
             <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-              Esta unidade ainda nao possui exames cadastrados.
+              Esta unidade ainda não possui exames cadastrados.
             </p>
           )}
         </section>
@@ -285,7 +285,7 @@ function AgendarExame() {
 
         <section>
           <p className="mb-3 text-xs font-medium uppercase text-gray-500">
-            Horarios disponiveis
+            Horários disponíveis
           </p>
           {carregandoHorarios ? (
             <p className="py-6 text-center text-sm text-gray-500">Carregando...</p>
@@ -311,13 +311,13 @@ function AgendarExame() {
             </div>
           )}
           <p className="mt-3 text-xs text-gray-400">
-            Horarios riscados ja estao ocupados ou indisponiveis.
+            Horários riscados já estão ocupados ou indisponíveis.
           </p>
         </section>
 
         <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
           <label className="mb-2 block text-sm font-semibold text-gray-700">
-            Observacoes (opcional)
+            Observações (opcional)
           </label>
           <textarea
             value={observacoes}

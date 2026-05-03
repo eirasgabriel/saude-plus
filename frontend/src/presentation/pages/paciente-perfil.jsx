@@ -15,7 +15,7 @@ const CAMPOS_PERFIL = [
   { chave: "cpf", rotulo: "CPF", inputMode: "numeric" },
   { chave: "telefone", rotulo: "Telefone", inputMode: "tel", autoComplete: "tel" },
   { chave: "cep", rotulo: "CEP", inputMode: "numeric", autoComplete: "postal-code" },
-  { chave: "endereco", rotulo: "Endereco", autoComplete: "street-address" },
+  { chave: "endereco", rotulo: "Endereço", autoComplete: "street-address" },
   { chave: "bairro", rotulo: "Bairro", autoComplete: "address-level3" },
   { chave: "cidade", rotulo: "Cidade", autoComplete: "address-level2" },
   { chave: "estado", rotulo: "UF", autoComplete: "address-level1" },
@@ -211,7 +211,7 @@ function PacientePerfil() {
             <div>
               <h2 className="text-lg font-bold text-gray-800">Dados pessoais</h2>
               <p className="text-sm text-gray-500">
-                Informacoes usadas no seu cadastro de paciente.
+                Informações usadas no seu cadastro de paciente.
               </p>
             </div>
             {!editando && (
@@ -250,7 +250,7 @@ function PacientePerfil() {
 
           {buscandoCep && (
             <p className="rounded-xl bg-blue-50 px-4 py-3 text-sm font-medium text-blue-600">
-              Buscando endereco...
+              Buscando endereço...
             </p>
           )}
 
@@ -273,7 +273,7 @@ function PacientePerfil() {
                 disabled={carregando}
                 className="flex-1 rounded-xl bg-blue-400 py-3 font-bold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {carregando ? "Salvando..." : "Salvar alteracoes"}
+                {carregando ? "Salvando..." : "Salvar alterações"}
               </button>
               <button
                 type="button"

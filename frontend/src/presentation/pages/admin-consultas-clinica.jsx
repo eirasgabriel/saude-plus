@@ -261,7 +261,7 @@ function AdminConsultasClinica() {
           : "Arquivo anexado e liberado nos downloads do paciente."
       );
     } catch (falha) {
-      setErroConsultas(falha.message || "Nao foi possivel anexar o arquivo.");
+      setErroConsultas(falha.message || "Não foi possível anexar o arquivo.");
     } finally {
       setUploadConsultaEmAndamento("");
     }
@@ -368,12 +368,12 @@ function AdminConsultasClinica() {
           <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
             <p className="text-sm text-gray-500">Realizadas</p>
             <strong className="text-3xl text-gray-800">{resumoConsultas.realizadas}</strong>
-            <p className="mt-1 text-xs text-gray-400">Atendimentos concluidos</p>
+            <p className="mt-1 text-xs text-gray-400">Atendimentos concluídos</p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
             <p className="text-sm text-gray-500">Canceladas</p>
             <strong className="text-3xl text-gray-800">{resumoConsultas.canceladas}</strong>
-            <p className="mt-1 text-xs text-gray-400">Remarcacao necessaria</p>
+            <p className="mt-1 text-xs text-gray-400">Remarcação necessária</p>
           </div>
         </section>
 
@@ -435,10 +435,10 @@ function AdminConsultasClinica() {
                 <thead>
                   <tr>
                     <th>Data</th>
-                    <th>Horario</th>
+                    <th>Horário</th>
                     <th>Paciente</th>
                     <th>Especialidade</th>
-                    <th>Medico</th>
+                    <th>Médico</th>
                     <th>Status</th>
                     <th>Arquivo</th>
                   </tr>

@@ -188,7 +188,7 @@ function criarDocumentoProntuario(consulta) {
     especialidade: consulta.especialidade,
     status: consulta.status,
     descricao:
-      "Registro clinico anexado pelo medico com resumo do atendimento, conduta e orientacoes.",
+      "Registro clinico anexado pelo médico com resumo do atendimento, conduta e orientações.",
   };
 }
 
@@ -204,7 +204,7 @@ function criarDocumentoAtestado(consulta) {
     especialidade: consulta.especialidade,
     status: consulta.status,
     descricao:
-      "Atestado anexado pelo medico para comprovacao de comparecimento ao atendimento.",
+      "Atestado anexado pelo médico para comprovação de comparecimento ao atendimento.",
   };
 }
 
@@ -233,7 +233,7 @@ function PacienteDownloads() {
         setExames(Array.isArray(listaExames) ? listaExames : []);
         setClinicas(Array.isArray(listaClinicas) ? listaClinicas : []);
       } catch (falha) {
-        setErro(falha.message || "Nao foi possivel carregar os downloads.");
+        setErro(falha.message || "Não foi possível carregar os downloads.");
       } finally {
         setCarregando(false);
       }
@@ -301,7 +301,7 @@ function PacienteDownloads() {
       {
         chave: "prontuarios",
         titulo: "Prontuarios",
-        descricao: "Registros clinicos anexados pelos medicos.",
+        descricao: "Registros clínicos anexados pelos médicos.",
         Icone: ClipboardList,
         documentos: [
           ...consultasComAnexos.map(criarDocumentoProntuario),
@@ -313,7 +313,7 @@ function PacienteDownloads() {
       {
         chave: "atestados",
         titulo: "Atestados",
-        descricao: "Atestados e comprovantes emitidos pelos medicos.",
+        descricao: "Atestados e comprovantes emitidos pelos médicos.",
         Icone: Stethoscope,
         documentos: [
           ...consultasComAnexos.map(criarDocumentoAtestado),

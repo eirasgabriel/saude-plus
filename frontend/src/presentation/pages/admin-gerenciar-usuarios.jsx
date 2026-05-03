@@ -187,7 +187,7 @@ function AdminGerenciarUsuarios() {
       <main className="app-content space-y-5">
         <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <p className="text-gray-500 text-sm">Usuarios</p>
+            <p className="text-gray-500 text-sm">Usuários</p>
             <strong className="text-3xl text-gray-800">{resumo.total}</strong>
           </div>
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
@@ -195,7 +195,7 @@ function AdminGerenciarUsuarios() {
             <strong className="text-3xl text-gray-800">{resumo.ativos}</strong>
           </div>
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <p className="text-gray-500 text-sm">Medicos</p>
+            <p className="text-gray-500 text-sm">Médicos</p>
             <strong className="text-3xl text-gray-800">{resumo.porNivel.medico || 0}</strong>
           </div>
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
@@ -216,7 +216,7 @@ function AdminGerenciarUsuarios() {
                 {usuarioEditandoId ? "Editar acesso" : "Novo usuario"}
               </h2>
               <p className="text-gray-500 text-sm">
-                Defina o nivel de permissao e o vinculo com a clinica.
+                Defina o nível de permissão e o vínculo com a clínica.
               </p>
             </div>
 
@@ -288,7 +288,7 @@ function AdminGerenciarUsuarios() {
                 type="submit"
                 className="flex-1 bg-blue-400 text-white rounded-xl py-3 font-semibold hover:bg-blue-500 transition"
               >
-                {usuarioEditandoId ? "Salvar edicao" : "Criar usuario"}
+                {usuarioEditandoId ? "Salvar edição" : "Criar usuário"}
               </button>
               {usuarioEditandoId && (
                 <button
@@ -307,7 +307,7 @@ function AdminGerenciarUsuarios() {
               <div>
                 <h2 className="text-xl font-semibold text-gray-800">Acessos cadastrados</h2>
                 <p className="text-gray-500 text-sm">
-                  {usuariosFiltrados.length} usuario(s) encontrado(s).
+                  {usuariosFiltrados.length} usuário(s) encontrado(s).
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
@@ -336,12 +336,12 @@ function AdminGerenciarUsuarios() {
               <table className="w-full min-w-[760px] text-sm">
                 <thead className="bg-gray-50 text-gray-600">
                   <tr>
-                    <th className="text-left px-3 py-3 font-semibold rounded-l-xl">Usuario</th>
-                    <th className="text-left px-3 py-3 font-semibold">Nivel</th>
-                    <th className="text-left px-3 py-3 font-semibold">Clinica</th>
-                    <th className="text-left px-3 py-3 font-semibold">Ultimo acesso</th>
+                    <th className="text-left px-3 py-3 font-semibold rounded-l-xl">Usuário</th>
+                    <th className="text-left px-3 py-3 font-semibold">Nível</th>
+                    <th className="text-left px-3 py-3 font-semibold">Clínica</th>
+                    <th className="text-left px-3 py-3 font-semibold">Último acesso</th>
                     <th className="text-left px-3 py-3 font-semibold">Status</th>
-                    <th className="text-right px-3 py-3 font-semibold rounded-r-xl">Acoes</th>
+                    <th className="text-right px-3 py-3 font-semibold rounded-r-xl">Ações</th>
                   </tr>
                 </thead>
                 <tbody>

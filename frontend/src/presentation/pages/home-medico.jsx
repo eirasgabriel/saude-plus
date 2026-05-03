@@ -350,7 +350,7 @@ function HomeMedico() {
               type="button"
               onClick={() => setMenuUsuarioAberto((v) => !v)}
               className="flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white transition hover:bg-white/30"
-              aria-label="Perfil do usuario"
+              aria-label="Perfil do usuário"
             >
               <UserCircle className="h-6 w-6" aria-hidden="true" />
             </button>
@@ -361,7 +361,7 @@ function HomeMedico() {
                     Conta
                   </p>
                   <p className="mt-0.5 text-sm font-semibold text-gray-800">
-                    Opcoes do usuario
+                    Opções do usuário
                   </p>
                 </div>
                 <button
@@ -411,7 +411,7 @@ function HomeMedico() {
 
           <div className="dashboard-metric">
             <div className="mb-3 flex items-center justify-between gap-3">
-              <p className="text-sm text-gray-500">Proximos 7 dias</p>
+              <p className="text-sm text-gray-500">Próximos 7 dias</p>
               <Activity className="h-5 w-5 text-blue-400" aria-hidden="true" />
             </div>
             <strong className="text-3xl text-gray-800">{resumo.proximosSeteDias}</strong>
@@ -440,7 +440,7 @@ function HomeMedico() {
                   <div>
                     <h2 className="dashboard-section-title">Agenda de hoje</h2>
                     <p className="dashboard-section-description">
-                      Consultas e exames organizados por horario
+                      Consultas e exames organizados por horário
                     </p>
                   </div>
                 </div>
@@ -455,7 +455,7 @@ function HomeMedico() {
                     Nenhum item na agenda de hoje
                   </p>
                   <p className="mt-1 text-sm text-gray-500">
-                    Quando houver consultas ou exames para sua agenda, eles aparecerao aqui.
+                    Quando houver consultas ou exames para sua agenda, eles aparecerão aqui.
                   </p>
                 </div>
               ) : (
@@ -505,16 +505,16 @@ function HomeMedico() {
 
                 <div className="space-y-3">
                   <div className="dashboard-card-muted">
-                    <p className="text-sm text-gray-500">Especialidades da clinica</p>
+                    <p className="text-sm text-gray-500">Especialidades da clínica</p>
                     <p className="mt-1 font-semibold text-gray-800">
                       {(clinicaVinculada?.especialidades || []).slice(0, 3).join(", ") ||
                         "Sem dados cadastrados"}
                     </p>
                   </div>
                   <div className="dashboard-card-muted">
-                    <p className="text-sm text-gray-500">Horario de funcionamento</p>
+                    <p className="text-sm text-gray-500">Horário de funcionamento</p>
                     <p className="mt-1 font-semibold text-gray-800">
-                      {clinicaVinculada?.horario || "Nao informado"}
+                      {clinicaVinculada?.horario || "Não informado"}
                     </p>
                   </div>
                 </div>
