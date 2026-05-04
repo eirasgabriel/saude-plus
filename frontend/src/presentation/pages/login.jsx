@@ -23,23 +23,23 @@ function Login() {
   const [modoRecuperacao, setModoRecuperacao] = useState(false);
 
   function validarFormularioLogin() {
-    if (!email.trim()) return "Digite seu e-mail para continuar.";
+    if (!email.trim()) return "Por favor, informe seu e-mail.";
     if (!emailValido(email)) {
-      return "Revise o e-mail informado e tente novamente.";
+      return "E-mail invalido. Verifique e tente novamente.";
     }
-    if (!senha) return "Digite sua senha para continuar.";
-    if (senha.length < 8) return "Use uma senha com pelo menos 8 caracteres.";
+    if (!senha) return "Por favor, informe sua senha.";
+    if (senha.length < 8) return "A senha deve ter pelo menos 8 caracteres.";
     return "";
   }
 
   function validarFormularioRecuperacao() {
-    if (!email.trim()) return "Digite o e-mail cadastrado.";
-    if (!emailValido(email)) return "Digite um e-mail válido.";
+    if (!email.trim()) return "Informe o e-mail cadastrado.";
+    if (!emailValido(email)) return "Informe um e-mail valido.";
     if (novaSenha.length < 8) {
-      return "Use uma nova senha com pelo menos 8 caracteres.";
+      return "A nova senha deve ter pelo menos 8 caracteres.";
     }
     if (novaSenha !== confirmarNovaSenha) {
-      return "A confirmação precisa ser igual à nova senha.";
+      return "A confirmacão de senha precisa ser igual a senha.";
     }
     return "";
   }
@@ -69,7 +69,7 @@ function Login() {
 
       navigate(rotasPorNivel[nivelAcesso] || "/login");
     } catch (err) {
-      setErro(err.message || "Não conseguimos entrar. Confira seus dados e tente novamente.");
+      setErro(err.message || "Erro ao fazer login");
     } finally {
       setCarregando(false);
     }
@@ -94,9 +94,9 @@ function Login() {
       setConfirmarNovaSenha("");
       setCodigoRecuperacao("");
       setModoRecuperacao(false);
-      setMensagem(resultado.mensagem || "Senha atualizada. Agora você já pode entrar com a nova senha.");
+      setMensagem(resultado.mensagem || "Senha atualizada. Entre com a nova senha.");
     } catch (err) {
-      setErro(err.message || "Não conseguimos atualizar sua senha agora. Tente novamente em instantes.");
+      setErro(err.message || "Nao foi possivel recuperar a senha.");
     } finally {
       setCarregando(false);
     }
@@ -180,7 +180,7 @@ function Login() {
         onClick={abrirRecuperacao}
         className="mb-5 text-sm font-semibold text-blue-500 hover:text-blue-600 hover:underline"
       >
-        Esqueceu sua senha?
+        Esqueceu a senha?
       </button>
 
       {aviso}
@@ -226,7 +226,7 @@ function Login() {
           type="password"
           value={novaSenha}
           onChange={(e) => setNovaSenha(e.target.value)}
-          placeholder="Mínimo de 8 caracteres"
+          placeholder="Minimo de 8 caracteres"
           autoComplete="new-password"
           className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-800 shadow-sm transition focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
@@ -248,13 +248,13 @@ function Login() {
 
       <div className="mb-6">
         <label className="mb-2 block text-sm font-semibold text-gray-700">
-          Código de recuperação
+          Codigo de recuperacao
         </label>
         <input
           type="password"
           value={codigoRecuperacao}
           onChange={(e) => setCodigoRecuperacao(e.target.value)}
-          placeholder="Código temporário enviado pela unidade"
+          placeholder="Codigo temporario enviado pela unidade"
           autoComplete="one-time-code"
           className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-800 shadow-sm transition focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
@@ -275,7 +275,7 @@ function Login() {
         onClick={voltarAoLogin}
         className="mt-4 w-full rounded-xl border border-blue-200 py-3 text-center font-bold text-blue-500 transition hover:bg-blue-50"
       >
-        Voltar para o login
+        Voltar ao login
       </button>
     </form>
   );
@@ -283,8 +283,8 @@ function Login() {
   const formulario = modoRecuperacao ? formularioRecuperacao : formularioLogin;
   const tituloFormulario = modoRecuperacao ? "Recuperar senha" : "Bem-vindo!";
   const descricaoFormulario = modoRecuperacao
-    ? "Digite seu e-mail e escolha uma nova senha."
-    : "Entre para agendar consultas e acompanhar seus atendimentos.";
+    ? "Informe seu e-mail e defina uma nova senha."
+    : "Faca login para agendar sua consulta.";
 
   if (dispositivo.celular) {
     return (
@@ -294,7 +294,7 @@ function Login() {
             <LogoSaudePlus className="mx-auto mb-4" size="lg" />
             <h1 className="text-3xl font-bold tracking-tight text-white">Saúde+</h1>
             <p className="mt-1 text-sm text-blue-100">
-              Saquarema - Secretaria de Saúde
+              Saquarema - Secretaria de Saude
             </p>
           </div>
 
@@ -320,7 +320,7 @@ function Login() {
         <div className="grid w-full max-w-5xl grid-cols-[0.9fr_1.1fr] overflow-hidden rounded-3xl bg-white shadow-2xl">
           <section className="flex flex-col justify-center bg-blue-500 p-10 text-white">
             <LogoSaudePlus className="mb-6" size="lg" />
-            <h1 className="text-4xl font-bold">Saúde+</h1>
+            <h1 className="text-4xl font-bold">Saude+</h1>
             <p className="mt-3 max-w-sm text-blue-100">
               Interface otimizada para tablets, com leitura ampla e toque confortavel.
             </p>
@@ -333,8 +333,8 @@ function Login() {
               </h2>
               <p className="mb-8 text-gray-500">
                 {modoRecuperacao
-                  ? "Defina uma nova senha para acessar o sistema novamente."
-                  : "Área administrativa da Prefeitura de Saquarema"}
+                  ? "Defina uma nova senha para voltar ao sistema."
+                  : "Area administrativa - Prefeitura de Saquarema"}
               </p>
               {formulario}
             </div>
@@ -350,13 +350,8 @@ function Login() {
         <div className="text-center">
           <LogoSaudePlus className="mx-auto mb-6 shadow-xl" size="xl" />
           <h1 className="mb-3 text-5xl font-bold text-white">Saúde+</h1>
-          <p className="mb-10 text-lg text-blue-100">
-            A sua saúde a um toque de distância
-          </p>
-          <p className="mx-auto max-w-xs text-sm leading-relaxed text-blue-200">
-            Sistema de agendamento e gestão de consultas para a Secretaria de Saúde
-            de Saquarema. Interface moderna, fácil de usar e otimizada para todos
-            os dispositivos.
+          <p className="mb-10 text-lg text-blue-100">A sua saúde a um toque de distância</p>
+          <p className="mx-auto max-w-xs text-sm leading-relaxed text-blue-200">Sistema de agendamento e gestão de consultas para a Secretaria de Saúde de Saquarema. Interface moderna, fácil de usar e otimizada para todos os dispositivos.
           </p>
 
           <div className="mx-auto mt-10 grid max-w-xs grid-cols-2 gap-3">
@@ -375,16 +370,16 @@ function Login() {
       <section className="flex flex-1 items-center justify-center bg-gray-50 p-8">
         <div className="w-full max-w-md">
           <h2 className="mb-2 text-3xl font-bold text-gray-800">
-            {modoRecuperacao ? "Recuperar senha" : "Acesso ao Sistema"}
+            {modoRecuperacao ? "Recuperar senha" : "Acesso ao sistema"}
           </h2>
           <p className="mb-8 text-gray-500">
             {modoRecuperacao
-              ? "Confirme seus dados para criar uma nova senha."
-              : "Área administrativa da Prefeitura de Saquarema"}
+              ? "Informe seus dados para definir uma nova senha."
+              : "Area administrativa - Prefeitura de Saquarema"}
           </p>
           {formulario}
           <p className="mt-8 text-center text-xs text-gray-400">
-            Sistema Saúde+ v1.0
+            Sistema Saude+ v1.0
           </p>
         </div>
       </section>

@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ouvirClinicasAtualizadas } from "../../application/clinicas/clinicas-eventos";
-import { listarClinicas } from "../../application/clinicas/clinicas-use-cases";
+import { buscarClinicaPorId, listarClinicas } from "../../application/clinicas/clinicas-use-cases";
+import { obterSnapshotDispositivo } from "../../infrastructure/device/use-dispositivo";
 import CabecalhoApp from "../components/cabecalho-app";
 import FotoClinica from "../components/foto-clinica";
 import MenuInferiorPaciente from "../components/menu-inferior-paciente";
@@ -17,6 +18,24 @@ function obterEspecialidadesClinica(clinica) {
     .filter(Boolean);
 }
 
+function obterTelefoneDiscavel(telefone) {
+  const numeros = String(telefone || "").replace(/\D/g, "");
+  return numeros.length >= 10 ? numeros : "";
+}
+
+function dispositivoPodeLigar() {
+  if (typeof window === "undefined") return false;
+
+  const dispositivo = obterSnapshotDispositivo();
+  const userAgent = navigator.userAgent || "";
+  const plataformaMovel =
+    dispositivo.celular ||
+    /Android|iPhone|iPod|Windows Phone/i.test(userAgent) ||
+    (navigator.platform === "MacIntel" && (navigator.maxTouchPoints || 0) > 1);
+
+  return Boolean(plataformaMovel);
+}
+
 function PacienteConsultas() {
   const navigate = useNavigate();
   const [termoBusca, setTermoBusca] = useState("");
@@ -27,6 +46,7 @@ function PacienteConsultas() {
   const [filtroBuscaAberto, setFiltroBuscaAberto] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [erroCarregamento, setErroCarregamento] = useState("");
+  const [ligacaoEmAndamentoId, setLigacaoEmAndamentoId] = useState(null);
 
   const todosBairros = [
     "Todos",
@@ -138,6 +158,36 @@ function PacienteConsultas() {
 
   function aoClicarAgendar(clinica) {
     navigate(`/paciente/agendar?clinica=${clinica.id}`);
+  }
+
+  async function aoClicarLigar(clinica) {
+    if (!dispositivoPodeLigar()) {
+      return;
+    }
+
+    setLigacaoEmAndamentoId(clinica.id);
+    setErroCarregamento("");
+
+    try {
+      const clinicaAtualizada = await buscarClinicaPorId(clinica.id);
+      const telefone = obterTelefoneDiscavel(clinicaAtualizada?.telefone);
+
+      if (!telefone) {
+        setErroCarregamento("A clÃ­nica nÃ£o possui telefone vÃ¡lido cadastrado.");
+        return;
+      }
+
+      setClinicas((listaAtual) =>
+        listaAtual.map((item) =>
+          Number(item.id) === Number(clinica.id) ? { ...item, ...clinicaAtualizada } : item
+        )
+      );
+      window.location.href = `tel:${telefone}`;
+    } catch (erro) {
+      setErroCarregamento(erro.message || "NÃ£o foi possÃ­vel carregar o telefone da clÃ­nica.");
+    } finally {
+      setLigacaoEmAndamentoId(null);
+    }
   }
 
   function limparFiltrosPesquisa() {
@@ -364,12 +414,14 @@ function PacienteConsultas() {
                 </div>
 
                 <div className="flex flex-col gap-2 sm:flex-row">
-                  <a
-                    href={`tel:${clinica.telefone}`}
+                  <button
+                    type="button"
+                    onClick={() => aoClicarLigar(clinica)}
+                    disabled={ligacaoEmAndamentoId === clinica.id}
                     className="flex flex-1 items-center justify-center rounded-xl bg-gray-100 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-200"
                   >
-                    Ligar
-                  </a>
+                    {ligacaoEmAndamentoId === clinica.id ? "Abrindo..." : "Ligar"}
+                  </button>
                   <button
                     type="button"
                     onClick={() =>
