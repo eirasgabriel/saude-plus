@@ -158,11 +158,54 @@ As migrations ficam em `backend/migrations/`.
 
 ## Deploy No Vercel
 
+### Passo a passo rapido (CLI)
+
+1. Instale o Vercel CLI e autentique:
+
+```bash
+npm i -g vercel
+vercel login
+```
+
+2. Na raiz do monorepo, vincule o projeto:
+
+```bash
+vercel link
+```
+
+3. Configure as variaveis de ambiente de `Production` no painel da Vercel (Project Settings > Environment Variables) usando a lista deste README.
+
+4. Rode os checks locais antes de publicar:
+
+```bash
+npm run deploy:check
+```
+
+5. Publique em preview:
+
+```bash
+vercel
+```
+
+6. Publique em producao:
+
+```bash
+vercel --prod
+```
+
+### Passo a passo rapido (Dashboard)
+
+1. Crie um novo projeto na Vercel e importe este repositorio.
+2. Mantenha `Root Directory` como a raiz do repositorio e confirme os comandos detectados pelo `vercel.json`.
+3. Cadastre as variaveis de ambiente de producao antes do primeiro deploy.
+4. Clique em **Deploy** e valide `/api/health` apos a publicacao.
+
 O projeto ja inclui `vercel.json`, `.vercelignore` e uma Function em `api/[...path].js` para adaptar a API Node ao runtime serverless do Vercel. O frontend e compilado para `frontend/build`, e as rotas do React usam fallback para `index.html`.
 
 Configuracao esperada no Vercel:
 
 - Framework Preset: `Create React App` ou configuracao detectada pelo `vercel.json`.
+- Root Directory: raiz do repositorio.
 - Install Command: definido em `vercel.json`.
 - Build Command: `npm run frontend:build`.
 - Output Directory: `frontend/build`.

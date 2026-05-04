@@ -1,7 +1,54 @@
-async function parseJsonResposta(resposta) {
+import { obterTokenSessao, removerUsuarioSessao } from "../storage/sessao-usuario";
+
+function obterApiBaseUrl() {
+  const configurado = String(process.env.REACT_APP_BACKEND_URL || "").replace(/\/+$/, "");
+  const rodandoLocal =
+    typeof window !== "undefined" &&
+    ["localhost", "127.0.0.1"].includes(window.location.hostname);
+
+  if (configurado) {
+    try {
+      const urlConfigurada = new URL(configurado);
+      const backendLocal = ["localhost", "127.0.0.1"].includes(urlConfigurada.hostname);
+
+      if (backendLocal && typeof window !== "undefined" && !rodandoLocal) {
+        return "";
+      }
+    } catch {
+      return configurado;
+    }
+
+    return configurado;
+  }
+
+  if (rodandoLocal && window.location.port !== "3333") {
+    return "http://localhost:3333";
+  }
+
+  return "";
+}
+
+function montarUrlRequisicao(url) {
+  if (!String(url).startsWith("/api")) return url;
+
+  const apiBaseUrl = obterApiBaseUrl();
+  return apiBaseUrl ? `${apiBaseUrl}${url}` : url;
+}
+
+function descreverDestino(url) {
+  try {
+    const base = typeof window === "undefined" ? "http://localhost" : window.location.origin;
+    return new URL(url, base).href;
+  } catch {
+    return url;
+  }
+}
+
+async function parseJsonResposta(resposta, url) {
   const texto = await resposta.text();
   const conteudo = texto.trim();
   const contentType = resposta.headers.get("content-type") || "";
+  const destino = descreverDestino(url || resposta.url || "/api");
 
   if (!conteudo) {
     return {};
@@ -9,7 +56,7 @@ async function parseJsonResposta(resposta) {
 
   if (conteudo.startsWith("<") || conteudo.startsWith("<!")) {
     throw new Error(
-      "O servidor devolveu HTML em vez de JSON. Inicie o backend com npm run backend ou configure o proxy em /api."
+      `A API devolveu HTML em vez de JSON em ${destino}. No desenvolvimento, rode npm run iniciar; no Vercel, confirme se a Function /api foi publicada.`
     );
   }
 
@@ -27,13 +74,14 @@ async function parseJsonResposta(resposta) {
 
     throw new Error(
       contentType && !contentType.includes("application/json")
-        ? "A API nao retornou JSON. Verifique se o backend esta rodando em http://localhost:3333."
+        ? `A API nao retornou JSON em ${destino}. Content-Type recebido: ${contentType}.`
         : "Resposta do servidor em formato inesperado."
     );
   }
 }
 
 async function requisitarJson(url, opcoes = {}) {
+  const urlRequisicao = montarUrlRequisicao(url);
   let resposta;
   const token = obterTokenSessao();
   const headers = {
@@ -45,7 +93,7 @@ async function requisitarJson(url, opcoes = {}) {
   }
 
   try {
-    resposta = await fetch(url, {
+    resposta = await fetch(urlRequisicao, {
       cache: "no-store",
       ...opcoes,
       credentials: "include",
@@ -57,7 +105,7 @@ async function requisitarJson(url, opcoes = {}) {
     );
   }
 
-  const dados = await parseJsonResposta(resposta);
+  const dados = await parseJsonResposta(resposta, urlRequisicao);
 
   if (!resposta.ok) {
     if (resposta.status === 401) {
@@ -70,4 +118,3 @@ async function requisitarJson(url, opcoes = {}) {
 }
 
 export { parseJsonResposta, requisitarJson };
-import { obterTokenSessao, removerUsuarioSessao } from "../storage/sessao-usuario";
