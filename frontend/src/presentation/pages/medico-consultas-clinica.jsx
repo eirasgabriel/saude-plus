@@ -107,11 +107,7 @@ function MedicoConsultasClinica() {
           )
       );
     } catch (falha) {
-<<<<<<< HEAD
       setErro(falha.message || "Não conseguimos carregar as consultas da clínica agora.");
-=======
-      setErro(falha.message || "Não foi possível carregar as consultas da clínica.");
->>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
     } finally {
       setCarregando(false);
     }
@@ -197,11 +193,7 @@ function MedicoConsultasClinica() {
           : "Arquivo anexado e liberado nos downloads do paciente."
       );
     } catch (falha) {
-<<<<<<< HEAD
       setErro(falha.message || "Não conseguimos anexar o arquivo agora.");
-=======
-      setErro(falha.message || "Não foi possível anexar o arquivo.");
->>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
     } finally {
       setUploadEmAndamento("");
     }

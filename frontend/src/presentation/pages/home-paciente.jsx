@@ -2,8 +2,10 @@ import React, { useEffect, useMemo, useState } from "react";
 import { ArrowRight, CalendarDays, TestTube2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { buscarHistoricoPaciente } from "../../application/agenda/agendamento-use-cases";
+import { ouvirConsultasAtualizadas } from "../../application/agenda/consultas-eventos";
 import { obterUsuarioAtual } from "../../application/auth/auth-service";
 import { listarExamesPaciente } from "../../application/exames/exames-use-cases";
+import { ouvirExamesAtualizados } from "../../application/exames/exames-eventos";
 import { ouvirClinicasAtualizadas } from "../../application/clinicas/clinicas-eventos";
 import { listarClinicas } from "../../application/clinicas/clinicas-use-cases";
 import CabecalhoApp from "../components/cabecalho-app";
@@ -33,6 +35,20 @@ function obterAgendaDaConsulta(consulta) {
 
   return {
     clinicaId: Number(consulta.clinica_id),
+    data,
+    hora,
+  };
+}
+
+function obterAgendaDoExame(exame) {
+  const agenda = parseAgendaId(exame.agenda_id);
+  const data = exame.data || agenda?.data;
+  const hora = exame.horario || exame.hora || agenda?.hora;
+
+  if (!data || !hora) return null;
+
+  return {
+    clinicaId: agenda?.clinicaId || Number(exame.clinica_id),
     data,
     hora,
   };
@@ -89,6 +105,8 @@ function HomePaciente() {
   }, [usuario?.id]);
 
   useEffect(() => ouvirClinicasAtualizadas(carregarDashboard), [usuario?.id]);
+  useEffect(() => ouvirConsultasAtualizadas(carregarDashboard), [usuario?.id]);
+  useEffect(() => ouvirExamesAtualizados(carregarDashboard), [usuario?.id]);
 
   const consultasFuturas = useMemo(() => {
     const hoje = paraInicioDoDia(new Date());
@@ -101,6 +119,9 @@ function HomePaciente() {
           clinicas.find((c) => Number(c.id) === Number(agenda.clinicaId)) ||
           clinicas.find((c) => Number(c.id) === Number(consulta.clinica_id));
         const dataConsulta = paraInicioDoDia(new Date(`${agenda.data}T00:00:00`));
+        const status = String(consulta.status || "").toLowerCase();
+        const estaCancelada = ["cancelada", "cancelado"].includes(status);
+        const estaAtiva = ["agendada", "agendado", "confirmada", "confirmado"].includes(status);
 
         return {
           ...consulta,
@@ -108,31 +129,38 @@ function HomePaciente() {
           clinicaBairro: clinica?.bairro || "-",
           data: agenda.data,
           hora: agenda.hora,
-          ehFutura: dataConsulta >= hoje && consulta.status !== "cancelada",
+          apareceNaDashboard: !estaCancelada && (dataConsulta >= hoje || estaAtiva),
         };
       })
-      .filter((consulta) => consulta && consulta.ehFutura)
+      .filter((consulta) => consulta && consulta.apareceNaDashboard)
       .sort((a, b) => `${a.data} ${a.hora}`.localeCompare(`${b.data} ${b.hora}`));
   }, [clinicas, consultas]);
 
   const proximosExames = useMemo(() => {
     const hoje = paraInicioDoDia(new Date());
     return exames
-      .filter((exame) => {
-        const dataExame = paraInicioDoDia(new Date(`${exame.data}T00:00:00`));
-        return dataExame >= hoje && exame.status !== "cancelado";
-      })
       .map((exame) => {
+        const agenda = obterAgendaDoExame(exame);
+        if (!agenda) return null;
+
         const clinica = clinicas.find(
-          (item) => Number(item.id) === Number(exame.clinica_id)
+          (item) => Number(item.id) === Number(agenda.clinicaId)
         );
+        const status = String(exame.status || "").toLowerCase();
+        const dataExame = paraInicioDoDia(new Date(`${agenda.data}T00:00:00`));
+        const estaCancelado = ["cancelado", "cancelada"].includes(status);
+        const estaAgendado = ["agendado", "agendada"].includes(status);
 
         return {
           ...exame,
+          data: agenda.data,
+          horario: agenda.hora,
           clinica_nome: clinica?.nome || exame.clinica_nome,
           clinica_bairro: clinica?.bairro || exame.clinica_bairro,
+          apareceNaDashboard: !estaCancelado && (dataExame >= hoje || estaAgendado),
         };
       })
+      .filter((exame) => exame && exame.apareceNaDashboard)
       .sort((a, b) =>
         `${a.data} ${a.horario}`.localeCompare(`${b.data} ${b.horario}`)
       );
@@ -157,11 +185,7 @@ function HomePaciente() {
               <div>
               <h2 className="dashboard-section-title">Próximas consultas</h2>
               <p className="dashboard-section-description">
-<<<<<<< HEAD
                 Agendamentos futuros confirmados para você
-=======
-                Agendamentos futuros
->>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
               </p>
               </div>
             </div>
@@ -248,14 +272,28 @@ function HomePaciente() {
             </button>
           </div>
 
-          {proximosExames.length === 0 ? (
+          {carregando && (
+            <p className="py-8 text-center text-sm text-gray-500">
+              Carregando exames...
+            </p>
+          )}
+
+          {!carregando && erro && (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+              <p className="text-sm text-red-600">{erro}</p>
+            </div>
+          )}
+
+          {!carregando && !erro && proximosExames.length === 0 && (
             <div className="dashboard-card-muted text-center">
               <p className="font-semibold text-gray-700">Nenhum exame futuro</p>
               <p className="mt-1 text-sm text-gray-500">
                 Seus próximos exames aparecerão aqui.
               </p>
             </div>
-          ) : (
+          )}
+
+          {!carregando && !erro && proximosExames.length > 0 && (
             <div className="space-y-3">
               {proximosExames.map((exame) => (
                 <article

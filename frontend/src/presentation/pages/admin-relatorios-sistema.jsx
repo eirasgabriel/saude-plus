@@ -54,11 +54,7 @@ function AdminRelatoriosSistema() {
     try {
       setRelatorio(await obterRelatoriosSistema());
     } catch (falha) {
-<<<<<<< HEAD
       setErro(falha.message || "Não conseguimos carregar os relatórios agora.");
-=======
-      setErro(falha.message || "Não foi possível carregar os relatórios.");
->>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
     } finally {
       setCarregando(false);
     }

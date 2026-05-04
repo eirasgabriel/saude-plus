@@ -106,14 +106,9 @@ function HomeAdmin() {
   return (
     <div className="min-h-screen bg-gray-50">
       <CabecalhoApp
-<<<<<<< HEAD
+        contexto="Admin da Clínica"
         titulo="Painel da clínica"
         descricao={`Acompanhe a rotina da clínica ${nomeClinica}`}
-=======
-        contexto="Admin da Clínica"
-        titulo="Painel da Clínica"
-        descricao={`Seja bem-vindo ao sistema de gerenciamento da clínica ${nomeClinica}`}
->>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
         acao={
           <div
             className="relative z-30"

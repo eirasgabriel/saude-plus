@@ -25,11 +25,7 @@ function PacienteClinicaDetalhes() {
       setClinica(await buscarClinicaPorId(id));
     } catch (erroCarregar) {
       setClinica(null);
-<<<<<<< HEAD
       setErro(erroCarregar.message || "Não conseguimos carregar os dados da clínica agora.");
-=======
-      setErro(erroCarregar.message || "Não foi possível carregar a clínica.");
->>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
     } finally {
       setCarregando(false);
     }
@@ -92,7 +88,7 @@ function PacienteClinicaDetalhes() {
         aoVoltar={voltar}
         textoVoltar="Voltar"
         voltarSomenteIcone
-        contexto="Mais informa??es"
+        contexto="Mais informações"
         titulo={clinica.nome}
         descricao={clinica.bairro}
         acao={<MenuUsuarioPaciente />}

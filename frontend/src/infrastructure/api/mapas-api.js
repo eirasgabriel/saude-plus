@@ -1,5 +1,15 @@
-const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY || "";
+function lerEnv(nome) {
+  return String(process.env[nome] || "").trim();
+}
+
+const GOOGLE_MAPS_API_KEY = lerEnv("REACT_APP_GOOGLE_MAPS_API_KEY");
+const GOOGLE_MAPS_API_KEYS = {
+  embed: lerEnv("REACT_APP_GOOGLE_MAPS_EMBED_API_KEY") || GOOGLE_MAPS_API_KEY,
+  geocoding: lerEnv("REACT_APP_GOOGLE_MAPS_GEOCODING_API_KEY") || GOOGLE_MAPS_API_KEY,
+  javascript: lerEnv("REACT_APP_GOOGLE_MAPS_JAVASCRIPT_API_KEY") || GOOGLE_MAPS_API_KEY,
+};
 let googleMapsPromise = null;
+const GOOGLE_MAPS_API_KEY_REGEX = /^AIza[0-9A-Za-z_-]{35}$/;
 
 function obterCoordenadasDaClinica(clinica) {
   const latitude = Number(clinica?.latitude);
@@ -19,8 +29,50 @@ function obterCoordenadasDaClinica(clinica) {
   return { latitude, longitude };
 }
 
-function obterGoogleMapsApiKey() {
-  return GOOGLE_MAPS_API_KEY;
+function obterGoogleMapsApiKey(tipo = "javascript") {
+  return GOOGLE_MAPS_API_KEYS[tipo] || GOOGLE_MAPS_API_KEY;
+}
+
+function validarGoogleMapsApiKey(apiKey = obterGoogleMapsApiKey()) {
+  const chave = String(apiKey || "").trim();
+
+  return {
+    configurada: chave.length > 0,
+    formatoValido: GOOGLE_MAPS_API_KEY_REGEX.test(chave),
+  };
+}
+
+function obterStatusConfiguracaoGoogleMaps(tipo = "javascript") {
+  const variaveis = {
+    embed: "REACT_APP_GOOGLE_MAPS_EMBED_API_KEY",
+    geocoding: "REACT_APP_GOOGLE_MAPS_GEOCODING_API_KEY",
+    javascript: "REACT_APP_GOOGLE_MAPS_JAVASCRIPT_API_KEY",
+  };
+  const nomeVariavel = variaveis[tipo] || "REACT_APP_GOOGLE_MAPS_API_KEY";
+  const status = validarGoogleMapsApiKey(obterGoogleMapsApiKey(tipo));
+
+  if (!status.configurada) {
+    return {
+      ...status,
+      pronta: false,
+      mensagem: `Configure ${nomeVariavel} para usar o Google Maps.`,
+    };
+  }
+
+  if (!status.formatoValido) {
+    return {
+      ...status,
+      pronta: false,
+      mensagem:
+        `${nomeVariavel} nao parece ser uma chave publica valida do Google Maps.`,
+    };
+  }
+
+  return {
+    ...status,
+    pronta: true,
+    mensagem: "",
+  };
 }
 
 function carregarGoogleMaps() {
@@ -30,8 +82,10 @@ function carregarGoogleMaps() {
 
   if (window.google?.maps) return Promise.resolve(window.google.maps);
 
-  if (!GOOGLE_MAPS_API_KEY) {
-    return Promise.reject(new Error("Configure REACT_APP_GOOGLE_MAPS_API_KEY para usar o Google Maps."));
+  const configuracao = obterStatusConfiguracaoGoogleMaps("javascript");
+
+  if (!configuracao.pronta) {
+    return Promise.reject(new Error(configuracao.mensagem));
   }
 
   if (googleMapsPromise) return googleMapsPromise;
@@ -60,7 +114,7 @@ function carregarGoogleMaps() {
 
     const script = document.createElement("script");
     const params = new URLSearchParams({
-      key: GOOGLE_MAPS_API_KEY,
+      key: obterGoogleMapsApiKey("javascript"),
       loading: "async",
       callback: callbackName,
       language: "pt-BR",
@@ -71,7 +125,11 @@ function carregarGoogleMaps() {
     script.async = true;
     script.defer = true;
     script.dataset.saudeGoogleMaps = "true";
-    script.onerror = () => reject(new Error("Nao foi possivel carregar o Google Maps."));
+    script.onerror = () => {
+      googleMapsPromise = null;
+      delete window[callbackName];
+      reject(new Error("Nao foi possivel carregar o Google Maps. Confira a chave e as restricoes da API."));
+    };
 
     document.head.appendChild(script);
   });
@@ -105,7 +163,7 @@ function criarEnderecoClinica(clinica) {
 }
 
 function criarQueryLocalizacaoClinica(clinica) {
-  return criarEnderecoClinica(clinica) || criarQueryCoordenadas(obterCoordenadasDaClinica(clinica));
+  return criarQueryCoordenadas(obterCoordenadasDaClinica(clinica)) || criarEnderecoClinica(clinica);
 }
 
 function criarUrlGoogleMapsPorQuery(query) {
@@ -127,9 +185,9 @@ function criarUrlRotaGoogleMapsPorQuery(query) {
 function criarUrlEmbedGoogleMapsPorQuery(query) {
   if (!query) return "";
 
-  return `https://www.google.com/maps?q=${encodeURIComponent(
+  return `https://maps.google.com/maps?output=embed&z=16&hl=pt-BR&q=${encodeURIComponent(
     query
-  )}&z=16&output=embed`;
+  )}`;
 }
 
 function criarUrlGoogleMaps(coordenadas) {
@@ -201,4 +259,6 @@ export {
   geocodificarEndereco,
   obterCoordenadasDaClinica,
   obterGoogleMapsApiKey,
+  obterStatusConfiguracaoGoogleMaps,
+  validarGoogleMapsApiKey,
 };

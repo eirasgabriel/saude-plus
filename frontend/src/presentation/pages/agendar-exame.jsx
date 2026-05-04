@@ -63,11 +63,7 @@ function AgendarExame() {
       setClinica(await buscarClinicaPorId(clinicaIdParam));
     } catch (erro) {
       setClinica(null);
-<<<<<<< HEAD
       setErroAcao(erro.message || "Não conseguimos carregar os dados da unidade agora.");
-=======
-      setErroAcao(erro.message || "Não foi possível carregar a unidade.");
->>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
     } finally {
       setCarregandoClinica(false);
     }
@@ -89,11 +85,7 @@ function AgendarExame() {
       setHorarios(Array.isArray(lista) ? lista : []);
     } catch (erro) {
       setHorarios([]);
-<<<<<<< HEAD
       setErroAcao(erro.message || "Não conseguimos carregar os horários disponíveis agora.");
-=======
-      setErroAcao(erro.message || "Não foi possível carregar os horários.");
->>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
     } finally {
       setCarregandoHorarios(false);
     }
@@ -223,11 +215,7 @@ function AgendarExame() {
         textoVoltar="Voltar às unidades"
         voltarSomenteIcone
         titulo="Agendar exame"
-<<<<<<< HEAD
         descricao="Escolha o exame, a data e o horário"
-=======
-        descricao="Escolha exame, data e horário"
->>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
         acao={<MenuUsuarioPaciente />}
       />
 
@@ -272,11 +260,7 @@ function AgendarExame() {
           </div>
           {tiposExames.length === 0 && (
             <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-<<<<<<< HEAD
               Esta unidade ainda não possui exames disponíveis.
-=======
-              Esta unidade ainda não possui exames cadastrados.
->>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
             </p>
           )}
         </section>
@@ -327,11 +311,7 @@ function AgendarExame() {
             </div>
           )}
           <p className="mt-3 text-xs text-gray-400">
-<<<<<<< HEAD
-            Horários riscados já estáo ocupados ou indisponíveis.
-=======
             Horários riscados já estão ocupados ou indisponíveis.
->>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
           </p>
         </section>
 

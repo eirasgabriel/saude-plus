@@ -101,11 +101,7 @@ function HomeMaster() {
     <div className="min-h-screen bg-gray-50">
       <CabecalhoApp
         titulo="Painel Admin Master"
-<<<<<<< HEAD
-        descricao="Gerenciamento central de clínicas, usuários e indicadores do Saúde+."
-=======
         descricao="Gerenciamento central das clínicas, usuários e indicadores do Saúde+."
->>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
         acao={
           <div
             className="relative z-30"

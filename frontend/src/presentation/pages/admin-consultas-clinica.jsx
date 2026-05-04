@@ -261,11 +261,7 @@ function AdminConsultasClinica() {
           : "Arquivo anexado e liberado nos downloads do paciente."
       );
     } catch (falha) {
-<<<<<<< HEAD
       setErroConsultas(falha.message || "Não conseguimos anexar o arquivo agora.");
-=======
-      setErroConsultas(falha.message || "Não foi possível anexar o arquivo.");
->>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
     } finally {
       setUploadConsultaEmAndamento("");
     }

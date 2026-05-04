@@ -233,11 +233,7 @@ function PacienteDownloads() {
         setExames(Array.isArray(listaExames) ? listaExames : []);
         setClinicas(Array.isArray(listaClinicas) ? listaClinicas : []);
       } catch (falha) {
-<<<<<<< HEAD
         setErro(falha.message || "Não conseguimos carregar seus arquivos agora.");
-=======
-        setErro(falha.message || "Não foi possível carregar os downloads.");
->>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
       } finally {
         setCarregando(false);
       }

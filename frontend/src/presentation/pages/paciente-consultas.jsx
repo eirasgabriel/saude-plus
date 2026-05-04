@@ -150,11 +150,7 @@ function PacienteConsultas() {
     <div className="min-h-screen bg-gray-50">
       <CabecalhoApp
         titulo="Consultas"
-<<<<<<< HEAD
         descricao="Escolha uma clínica para agendar seu atendimento"
-=======
-        descricao="Escolha uma clínica para agendar atendimento"
->>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
         acao={<MenuUsuarioPaciente />}
       />
 
@@ -288,11 +284,7 @@ function PacienteConsultas() {
             <p className="text-sm text-gray-600">
               {clinicasFiltradas.length === 0
                 ? "Nenhuma clínica encontrada"
-<<<<<<< HEAD
                 : `${clinicasFiltradas.length} clínica${
-=======
-                : `${clinicasFiltradas.length} clinica${
->>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
                     clinicasFiltradas.length > 1 ? "s" : ""
                   } disponível${clinicasFiltradas.length > 1 ? "s" : ""}`}
             </p>

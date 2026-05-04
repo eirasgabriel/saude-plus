@@ -99,11 +99,7 @@ function MedicoExamesClinica() {
           )
       );
     } catch (falha) {
-<<<<<<< HEAD
       setErro(falha.message || "Não conseguimos carregar os exames da clínica agora.");
-=======
-      setErro(falha.message || "Não foi possível carregar os exames da clínica.");
->>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
     } finally {
       setCarregando(false);
     }
@@ -193,11 +189,7 @@ function MedicoExamesClinica() {
           : "Arquivo anexado e liberado nos downloads."
       );
     } catch (falha) {
-<<<<<<< HEAD
       setErro(falha.message || "Não conseguimos anexar o resultado agora.");
-=======
-      setErro(falha.message || "Não foi possível anexar o resultado.");
->>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
     } finally {
       setUploadEmAndamento("");
     }

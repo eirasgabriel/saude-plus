@@ -337,19 +337,11 @@ function AdminGerenciarUsuarios() {
                 <thead className="bg-gray-50 text-gray-600">
                   <tr>
                     <th className="text-left px-3 py-3 font-semibold rounded-l-xl">Usuário</th>
-<<<<<<< HEAD
-                    <th className="text-left px-3 py-3 font-semibold">N?vel</th>
-                    <th className="text-left px-3 py-3 font-semibold">Clínica</th>
-                    <th className="text-left px-3 py-3 font-semibold">?ltimo acesso</th>
-                    <th className="text-left px-3 py-3 font-semibold">Status</th>
-                    <th className="text-right px-3 py-3 font-semibold rounded-r-xl">A??es</th>
-=======
                     <th className="text-left px-3 py-3 font-semibold">Nível</th>
                     <th className="text-left px-3 py-3 font-semibold">Clínica</th>
                     <th className="text-left px-3 py-3 font-semibold">Último acesso</th>
                     <th className="text-left px-3 py-3 font-semibold">Status</th>
                     <th className="text-right px-3 py-3 font-semibold rounded-r-xl">Ações</th>
->>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
                   </tr>
                 </thead>
                 <tbody>
