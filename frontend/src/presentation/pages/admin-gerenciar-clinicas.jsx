@@ -237,7 +237,11 @@ function AdminGerenciarClinicas() {
       setFormulario(formularioComCoordenadas);
       setMensagem("Coordenadas preenchidas pelo Google Maps.");
     } catch (erro) {
+<<<<<<< HEAD
       setMensagem(erro.message || "Não conseguimos buscar as coordenadas agora.");
+=======
+      setMensagem(erro.message || "Não foi possível buscar as coordenadas.");
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
     } finally {
       setGeocodificando(false);
     }
@@ -250,7 +254,11 @@ function AdminGerenciarClinicas() {
     if (!arquivo) return;
 
     if (!arquivo.type.startsWith("image/")) {
+<<<<<<< HEAD
       setMensagem("Selecione uma imagem para a foto da clínica.");
+=======
+      setMensagem("Selecione um arquivo de imagem para a foto da clínica.");
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
       return;
     }
 
@@ -264,7 +272,11 @@ function AdminGerenciarClinicas() {
       alterarCampo("fotoPerfil", fotoPerfil);
       setMensagem("");
     } catch {
+<<<<<<< HEAD
       setMensagem("Não conseguimos carregar a imagem selecionada.");
+=======
+      setMensagem("Não foi possível carregar a imagem selecionada.");
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
     }
   }
 
@@ -279,7 +291,11 @@ function AdminGerenciarClinicas() {
 
     try {
       setGeocodificando(true);
+<<<<<<< HEAD
       setMensagem("Conferindo as coordenadas da clínica...");
+=======
+      setMensagem("Conferindo coordenadas da clínica...");
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
       const formularioParaSalvar = await obterFormularioComCoordenadas(formulario);
 
       setFormulario(formularioParaSalvar);
@@ -288,7 +304,11 @@ function AdminGerenciarClinicas() {
       limparFormulario();
       await carregarClinicas();
     } catch (erro) {
+<<<<<<< HEAD
       setMensagem(erro.message || "Não conseguimos salvar a clínica agora.");
+=======
+      setMensagem(erro.message || "Não foi possível salvar a clínica.");
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
     } finally {
       setGeocodificando(false);
     }
@@ -363,7 +383,11 @@ function AdminGerenciarClinicas() {
                 {clinicaEditandoId ? "Editar unidade" : "Nova unidade"}
               </h2>
               <p className="text-gray-500 text-sm">
+<<<<<<< HEAD
                 Essas informações aparecem no painel principal.
+=======
+                Os dados ficam disponíveis no painel master.
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
               </p>
             </div>
 

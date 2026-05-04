@@ -54,7 +54,11 @@ function AdminRelatoriosSistema() {
     try {
       setRelatorio(await obterRelatoriosSistema());
     } catch (falha) {
+<<<<<<< HEAD
       setErro(falha.message || "Não conseguimos carregar os relatórios agora.");
+=======
+      setErro(falha.message || "Não foi possível carregar os relatórios.");
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
     } finally {
       setCarregando(false);
     }
@@ -104,7 +108,7 @@ function AdminRelatoriosSistema() {
         aoVoltar={() => navigate("/admin/master")}
         textoVoltar="Voltar ao painel"
         voltarSomenteIcone
-        titulo="Relatorios do sistema"
+        titulo="Relatórios do sistema"
         descricao={
           <>
             Indicadores calculados a partir das clínicas, usuários e consultas cadastradas.
@@ -128,7 +132,7 @@ function AdminRelatoriosSistema() {
 
         <section className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <p className="text-gray-500 text-sm">Agendamentos no mes</p>
+            <p className="text-gray-500 text-sm">Agendamentos no mês</p>
             <strong className="text-3xl text-gray-800">
               {resumo.agendamentosMes || resumo.consultasMes}
             </strong>
@@ -151,7 +155,7 @@ function AdminRelatoriosSistema() {
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
             <p className="text-gray-500 text-sm">Realizadas</p>
             <strong className="text-3xl text-gray-800">{resumo.consultasRealizadas}</strong>
-            <p className="text-xs text-gray-400 mt-1">Atendimentos concluidos</p>
+            <p className="text-xs text-gray-400 mt-1">Atendimentos concluídos</p>
           </div>
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
             <p className="text-gray-500 text-sm">Usuários ativos</p>
@@ -232,11 +236,11 @@ function AdminRelatoriosSistema() {
                 Especialidades mais buscadas
               </h2>
               <p className="text-gray-500 text-sm mb-4">
-                Volume de consultas por area de atendimento.
+                Volume de consultas por área de atendimento.
               </p>
               {porEspecialidade.length === 0 ? (
                 <p className="rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-500">
-                  Nenhuma consulta registrada no periodo atual.
+                  Nenhuma consulta registrada no período atual.
                 </p>
               ) : (
                 <div className="space-y-3">
@@ -269,7 +273,7 @@ function AdminRelatoriosSistema() {
               </p>
               {porTipoExame.length === 0 ? (
                 <p className="rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-500">
-                  Nenhum exame registrado no periodo atual.
+                  Nenhum exame registrado no período atual.
                 </p>
               ) : (
                 <div className="space-y-3">
@@ -292,7 +296,7 @@ function AdminRelatoriosSistema() {
               </p>
               {statusConsultas.length === 0 ? (
                 <p className="rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-500">
-                  Nenhum status de consulta para exibir neste periodo.
+                  Nenhum status de consulta para exibir neste período.
                 </p>
               ) : (
                 <div className="grid grid-cols-2 gap-3">

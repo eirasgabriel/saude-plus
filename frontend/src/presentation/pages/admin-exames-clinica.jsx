@@ -91,7 +91,11 @@ function AdminExamesClinica() {
       setExamesClinica(examesFormatados);
       setUsuarios(listaUsuarios);
     } catch (falha) {
+<<<<<<< HEAD
       setErro(falha.message || "Não conseguimos carregar a clínica vinculada agora.");
+=======
+      setErro(falha.message || "Não foi possível carregar a clínica vinculada.");
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
     }
   }
 
@@ -184,7 +188,11 @@ function AdminExamesClinica() {
       setExamesEmEdicao([]);
       setMensagem("Exames atualizados com sucesso.");
     } catch (falha) {
+<<<<<<< HEAD
       setErro(falha.message || "Não conseguimos salvar os exames agora.");
+=======
+      setErro(falha.message || "Não foi possível salvar os exames.");
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
     }
   }
 
@@ -250,7 +258,11 @@ function AdminExamesClinica() {
           : "Arquivo anexado e liberado na categoria correta de downloads."
       );
     } catch (falha) {
+<<<<<<< HEAD
       setErro(falha.message || "Não conseguimos anexar o arquivo agora.");
+=======
+      setErro(falha.message || "Não foi possível anexar o arquivo.");
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
     } finally {
       setUploadEmAndamento("");
     }

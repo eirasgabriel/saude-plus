@@ -411,7 +411,7 @@ function HomeMedico() {
 
           <div className="dashboard-metric">
             <div className="mb-3 flex items-center justify-between gap-3">
-              <p className="text-sm text-gray-500">Proximos 7 dias</p>
+              <p className="text-sm text-gray-500">Próximos 7 dias</p>
               <Activity className="h-5 w-5 text-blue-400" aria-hidden="true" />
             </div>
             <strong className="text-3xl text-gray-800">{resumo.proximosSeteDias}</strong>
@@ -440,7 +440,7 @@ function HomeMedico() {
                   <div>
                     <h2 className="dashboard-section-title">Agenda de hoje</h2>
                     <p className="dashboard-section-description">
-                      Consultas e exames organizados por horario
+                      Consultas e exames organizados por horário
                     </p>
                   </div>
                 </div>
@@ -455,7 +455,7 @@ function HomeMedico() {
                     Nenhum item na agenda de hoje
                   </p>
                   <p className="mt-1 text-sm text-gray-500">
-                    Quando houver consultas ou exames para sua agenda, eles aparecerao aqui.
+                    Quando houver consultas ou exames para sua agenda, eles aparecerão aqui.
                   </p>
                 </div>
               ) : (

@@ -81,7 +81,11 @@ function PacienteExames() {
       setClinicas(clinicasDisponiveis);
       setClinicasFiltradas(clinicasDisponiveis);
     } catch (erro) {
+<<<<<<< HEAD
       setErroCarregamento(erro.message || "Não conseguimos carregar as unidades agora.");
+=======
+      setErroCarregamento(erro.message || "Não foi possível carregar as unidades.");
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
     } finally {
       setCarregando(false);
     }

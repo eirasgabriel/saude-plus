@@ -202,7 +202,11 @@ function AgendarConsulta() {
         textoVoltar="Voltar às clínicas"
         voltarSomenteIcone
         titulo="Agendar consulta"
+<<<<<<< HEAD
         descricao="Escolha a data e o horário"
+=======
+        descricao="Escolha data e horário"
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
         acao={<MenuUsuarioPaciente />}
       />
 

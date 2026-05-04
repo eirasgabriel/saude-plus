@@ -72,7 +72,11 @@ function validarFormulario(formulario) {
     return "Use uma senha com pelo menos 8 caracteres.";
   }
   if (formulario.senha !== formulario.confirmarSenha) {
+<<<<<<< HEAD
     return "A confirmação precisa ser igual à senha.";
+=======
+    return "As senhas não coincidem.";
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
   }
 
   return "";
@@ -120,7 +124,11 @@ function CadastroPaciente() {
         estado: endereco.estado || atual.estado,
       }));
     } catch (erroCep) {
+<<<<<<< HEAD
       setErro(erroCep.message || "Não conseguimos buscar esse CEP agora. Você pode preencher o endereço manualmente.");
+=======
+      setErro(erroCep.message || "Não foi possível consultar o CEP.");
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
     } finally {
       setBuscandoCep(false);
     }
@@ -160,7 +168,11 @@ function CadastroPaciente() {
       setMensagem("Cadastro criado. Vamos abrir sua Área de paciente.");
       setTimeout(() => navigate("/paciente/inicio"), 700);
     } catch (erroSalvar) {
+<<<<<<< HEAD
       setErro(erroSalvar.message || "Não conseguimos criar seu cadastro agora. Tente novamente em instantes.");
+=======
+      setErro(erroSalvar.message || "Não foi possível criar o cadastro.");
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
     } finally {
       setCarregando(false);
     }
@@ -170,6 +182,7 @@ function CadastroPaciente() {
     <div className="min-h-screen bg-gray-50 lg:flex">
       <section className="hidden w-1/2 flex-col items-center justify-center bg-gradient-to-br from-blue-400 to-blue-600 p-8 text-white lg:flex">
         <div className="text-center">
+<<<<<<< HEAD
           <LogoSaudePlus className="mx-auto mb-4 shadow-xl" size="lg" />
           <h1 className="mb-2 text-4xl font-bold">Saúde+</h1>
           <p className="mb-6 text-base text-blue-100">
@@ -177,6 +190,15 @@ function CadastroPaciente() {
           </p>
           <p className="mx-auto max-w-xs text-sm leading-6 text-blue-200">
             Crie sua conta para agendar consultas, acompanhar exames e acessar seus atendimentos em um só lugar.
+=======
+          <LogoSaudePlus className="mx-auto mb-6 shadow-xl" size="xl" />
+          <h1 className="text-5xl font-bold mb-3">Saúde+</h1>
+          <p className="text-blue-100 text-lg mb-10">
+            Saúde na palma da mão
+          </p>
+          <p className="text-blue-200 text-sm max-w-xs mx-auto leading-relaxed">
+            Registre-se para acessar sua área de paciente, onde você poderá agendar consultas, acompanhar resultados de exames e muito mais.
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
           </p>
 
           <div className="mx-auto mt-6 grid max-w-xs grid-cols-2 gap-2">
@@ -196,14 +218,22 @@ function CadastroPaciente() {
 
       <main className="flex min-h-svh flex-1 items-center justify-center bg-gradient-to-b from-white-400 to-white-500 px-4 py-4 sm:px-6 sm:py-5 lg:min-h-0 lg:bg-gray-50 lg:p-5">
         <div className="w-full max-w-2xl">
+<<<<<<< HEAD
           <div className="mb-4 text-center text-white lg:hidden">
             <LogoSaudePlus className="mx-auto mb-3" size="md" />
             <h1 className="text-2xl font-bold tracking-tight">Saúde+</h1>
             <p className="mt-1 text-xs text-blue-100">
+=======
+          <div className="lg:hidden mb-7 text-center text-white">
+            <LogoSaudePlus className="mx-auto mb-4" size="lg" />
+            <h1 className="text-3xl font-bold tracking-tight">Saude+</h1>
+            <p className="text-blue-100 mt-1 text-sm">
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
               Saquarema - Secretaria de Saúde
             </p>
           </div>
 
+<<<<<<< HEAD
           <div className="rounded-2xl bg-white p-4 shadow-xl sm:p-5 lg:border lg:border-gray-100 lg:shadow-sm">
             <div className="mb-4">
               <div className="flex items-center gap-3">
@@ -220,6 +250,21 @@ function CadastroPaciente() {
               </div>
               <p className="mt-1 text-sm text-gray-500 sm:ml-[52px]">
                 Use seus dados pessoais para acessar sua Área do paciente.
+=======
+          <div className="rounded-2xl bg-white p-5 shadow-xl sm:rounded-3xl sm:p-8 lg:border lg:border-gray-100 lg:shadow-sm">
+            <div className="mb-6">
+              <Link
+                to="/login"
+                className="text-sm font-semibold text-blue-500 hover:text-blue-600"
+              >
+                Voltar ao login
+              </Link>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mt-4">
+                Criar cadastro
+              </h2>
+              <p className="text-gray-500 text-sm mt-2">
+                Use seus dados pessoais para acessar a área do paciente.
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
               </p>
             </div>
 
@@ -387,8 +432,13 @@ function CadastroPaciente() {
             </form>
           </div>
 
+<<<<<<< HEAD
           <p className="mt-3 text-center text-xs text-blue-100 lg:text-gray-400">
             Sistema Saúde+ v1.0
+=======
+          <p className="text-center mt-6 text-xs text-blue-100 lg:text-gray-400">
+            Prefeitura Municipal de Saquarema - Sistema Saúde+ v1.0
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
           </p>
         </div>
       </main>

@@ -155,9 +155,13 @@ function HomePaciente() {
                 <CalendarDays className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
-              <h2 className="dashboard-section-title">Proximas consultas</h2>
+              <h2 className="dashboard-section-title">Próximas consultas</h2>
               <p className="dashboard-section-description">
+<<<<<<< HEAD
                 Agendamentos futuros confirmados para você
+=======
+                Agendamentos futuros
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
               </p>
               </div>
             </div>
@@ -187,7 +191,7 @@ function HomePaciente() {
             <div className="dashboard-card-muted text-center">
               <p className="font-semibold text-gray-700">Nenhuma consulta futura</p>
               <p className="mt-1 text-sm text-gray-500">
-                Seus proximos agendamentos aparecerao aqui.
+                Seus próximos agendamentos aparecerão aqui.
               </p>
             </div>
           )}
@@ -228,9 +232,9 @@ function HomePaciente() {
                 <TestTube2 className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
-              <h2 className="dashboard-section-title">Proximos exames</h2>
+              <h2 className="dashboard-section-title">Próximos exames</h2>
               <p className="dashboard-section-description">
-                Solicitacoes e resultados previstos
+                Solicitações e resultados previstos
               </p>
               </div>
             </div>
@@ -248,7 +252,7 @@ function HomePaciente() {
             <div className="dashboard-card-muted text-center">
               <p className="font-semibold text-gray-700">Nenhum exame futuro</p>
               <p className="mt-1 text-sm text-gray-500">
-                Seus proximos exames aparecerao aqui.
+                Seus próximos exames aparecerão aqui.
               </p>
             </div>
           ) : (

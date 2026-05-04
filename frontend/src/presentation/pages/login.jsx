@@ -25,7 +25,11 @@ function Login() {
   function validarFormularioLogin() {
     if (!email.trim()) return "Digite seu e-mail para continuar.";
     if (!emailValido(email)) {
+<<<<<<< HEAD
       return "Revise o e-mail informado e tente novamente.";
+=======
+      return "E-mail inválido. Verifique e tente novamente.";
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
     }
     if (!senha) return "Digite sua senha para continuar.";
     if (senha.length < 8) return "Use uma senha com pelo menos 8 caracteres.";
@@ -33,13 +37,22 @@ function Login() {
   }
 
   function validarFormularioRecuperacao() {
+<<<<<<< HEAD
     if (!email.trim()) return "Digite o e-mail cadastrado.";
     if (!emailValido(email)) return "Digite um e-mail válido.";
+=======
+    if (!email.trim()) return "Informe o e-mail cadastrado.";
+    if (!emailValido(email)) return "Informe um e-mail válido.";
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
     if (novaSenha.length < 8) {
       return "Use uma nova senha com pelo menos 8 caracteres.";
     }
     if (novaSenha !== confirmarNovaSenha) {
+<<<<<<< HEAD
       return "A confirmação precisa ser igual à nova senha.";
+=======
+      return "As senhas nao coincidem.";
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
     }
     return "";
   }
@@ -248,13 +261,21 @@ function Login() {
 
       <div className="mb-6">
         <label className="mb-2 block text-sm font-semibold text-gray-700">
+<<<<<<< HEAD
           Código de recuperação
+=======
+          Código de recuperacao
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
         </label>
         <input
           type="password"
           value={codigoRecuperacao}
           onChange={(e) => setCodigoRecuperacao(e.target.value)}
+<<<<<<< HEAD
           placeholder="Código temporário enviado pela unidade"
+=======
+          placeholder="Código temporario enviado pela unidade"
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
           autoComplete="one-time-code"
           className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-800 shadow-sm transition focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
@@ -350,12 +371,23 @@ function Login() {
         <div className="text-center">
           <LogoSaudePlus className="mx-auto mb-6 shadow-xl" size="xl" />
           <h1 className="mb-3 text-5xl font-bold text-white">Saúde+</h1>
+<<<<<<< HEAD
           <p className="mb-10 text-lg text-blue-100">A sua saúde a um toque de distância</p>
           <p className="mx-auto max-w-xs text-sm leading-relaxed text-blue-200">Sistema de agendamento e gestáo de consultas para a Secretaria de Saúde de Saquarema. Interface moderna, fácil de usar e otimizada para todos os dispositivos.
           </p>
 
           <div className="mx-auto mt-10 grid max-w-xs grid-cols-2 gap-3">
             {["Bacaxá", "Itaúna", "Vilatur", "Sampaio Corrêa"].map((bairro) => (
+=======
+          <p className="mb-10 text-lg text-blue-100">Saúde na palma da mão</p>
+          <p className="mx-auto max-w-xs text-sm leading-relaxed text-blue-200">
+            Gerenciamento de consultas para as unidades de saúde do município de
+            Saquarema.
+          </p>
+
+          <div className="mx-auto mt-10 grid max-w-xs grid-cols-2 gap-3">
+            {["Bacaxá", "Itaúna", "Vilatur", "Sampaio Correa"].map((bairro) => (
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
               <div
                 key={bairro}
                 className="rounded-xl bg-white bg-opacity-20 px-4 py-2 text-sm font-medium text-white"

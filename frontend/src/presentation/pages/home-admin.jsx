@@ -106,8 +106,14 @@ function HomeAdmin() {
   return (
     <div className="min-h-screen bg-gray-50">
       <CabecalhoApp
+<<<<<<< HEAD
         titulo="Painel da clínica"
         descricao={`Acompanhe a rotina da clínica ${nomeClinica}`}
+=======
+        contexto="Admin da Clínica"
+        titulo="Painel da Clínica"
+        descricao={`Seja bem-vindo ao sistema de gerenciamento da clínica ${nomeClinica}`}
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
         acao={
           <div
             className="relative z-30"
@@ -229,7 +235,7 @@ function HomeAdmin() {
                 {relatorioClinica.atendimentosMes}
               </strong>
               <p className="mt-1 text-xs text-gray-400">
-                Registros reais do periodo atual
+                Registros reais do período atual
               </p>
             </div>
           </div>
@@ -243,7 +249,7 @@ function HomeAdmin() {
               <strong className="text-2xl text-gray-800">
                 {relatorioClinica.capacidadeDiaria}
               </strong>
-              <p className="mt-1 text-xs text-gray-400">quantidade configurada por dia</p>
+              <p className="mt-1 text-xs text-gray-400">quantidade diária</p>
             </div>
             <div className="dashboard-metric">
               <div className="mb-3 flex items-center justify-between gap-3">

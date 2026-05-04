@@ -188,7 +188,7 @@ function criarDocumentoProntuario(consulta) {
     especialidade: consulta.especialidade,
     status: consulta.status,
     descricao:
-      "Registro clinico anexado pelo medico com resumo do atendimento, conduta e orientacoes.",
+      "Registro clinico anexado pelo médico com resumo do atendimento, conduta e orientações.",
   };
 }
 
@@ -204,7 +204,7 @@ function criarDocumentoAtestado(consulta) {
     especialidade: consulta.especialidade,
     status: consulta.status,
     descricao:
-      "Atestado anexado pelo medico para comprovacao de comparecimento ao atendimento.",
+      "Atestado anexado pelo médico para comprovação de comparecimento ao atendimento.",
   };
 }
 
@@ -233,7 +233,11 @@ function PacienteDownloads() {
         setExames(Array.isArray(listaExames) ? listaExames : []);
         setClinicas(Array.isArray(listaClinicas) ? listaClinicas : []);
       } catch (falha) {
+<<<<<<< HEAD
         setErro(falha.message || "Não conseguimos carregar seus arquivos agora.");
+=======
+        setErro(falha.message || "Não foi possível carregar os downloads.");
+>>>>>>> 10efe36c543a094dfe48a17abf2ae8a83d38a4e1
       } finally {
         setCarregando(false);
       }
