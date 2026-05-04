@@ -18,12 +18,12 @@ function ModalNotificacoes({ aberto, aoFechar }) {
 
     try {
       const resultado = await ativarNotificacoesPush({ exibirConfirmacao: true });
-      setMensagem(resultado.mensagem || "Notificacoes ativadas com sucesso.");
+      setMensagem(resultado.mensagem || "Notificações ativadas. Vamos avisar quando houver novidades.");
       window.setTimeout(aoFechar, 900);
     } catch (falha) {
       setErro(
         falha.message ||
-          "Nao foi possivel ativar as notificacoes neste dispositivo."
+          "Não conseguimos ativar notificações neste dispositivo."
       );
     } finally {
       setCarregando(false);
@@ -46,7 +46,7 @@ function ModalNotificacoes({ aberto, aoFechar }) {
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white p-1 shadow-sm ring-1 ring-blue-100">
           <img
             src="/icons/logo-saude-plus.png"
-            alt="Saude+"
+            alt="Saúde+"
             className="h-full w-full object-contain"
           />
         </div>
@@ -55,12 +55,12 @@ function ModalNotificacoes({ aberto, aoFechar }) {
           id="modal-notificacoes-titulo"
           className="text-xl font-bold leading-tight text-slate-900"
         >
-          Ativar notificacoes?
+          Ativar notificações?
         </h2>
 
         <p className="mt-3 text-sm leading-6 text-slate-500">
-          O Saude+ pode avisar sobre consultas, exames, resultados e atualizacoes
-          importantes mesmo quando voce nao estiver com a tela aberta.
+          O Saúde+ pode avisar sobre consultas, exames e resultados importantes,
+          mesmo quando você não estiver com o app aberto.
         </p>
 
         {mensagem && (
@@ -82,7 +82,7 @@ function ModalNotificacoes({ aberto, aoFechar }) {
             disabled={carregando || Boolean(mensagem)}
             className="min-h-12 rounded-xl bg-blue-400 px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-blue-200"
           >
-            {carregando ? "Ativando..." : "Permitir notificacoes"}
+            {carregando ? "Ativando..." : "Permitir notificações"}
           </button>
 
           <button
@@ -91,7 +91,7 @@ function ModalNotificacoes({ aberto, aoFechar }) {
             disabled={carregando}
             className="min-h-12 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {erro ? "Entendi" : "Agora nao"}
+            {erro ? "Entendi" : "Agora não"}
           </button>
         </div>
       </div>

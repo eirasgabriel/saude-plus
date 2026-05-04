@@ -25,7 +25,7 @@ function PacienteClinicaDetalhes() {
       setClinica(await buscarClinicaPorId(id));
     } catch (erroCarregar) {
       setClinica(null);
-      setErro(erroCarregar.message || "Nao foi possivel carregar a clinica.");
+      setErro(erroCarregar.message || "Não conseguimos carregar os dados da clínica agora.");
     } finally {
       setCarregando(false);
     }
@@ -60,7 +60,7 @@ function PacienteClinicaDetalhes() {
   if (carregando) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50 px-6">
-        <p className="text-sm text-gray-500">Carregando informacoes...</p>
+        <p className="text-sm text-gray-500">Carregando informações...</p>
       </div>
     );
   }
@@ -69,7 +69,7 @@ function PacienteClinicaDetalhes() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-6 text-center">
         <p className="mb-5 text-sm text-red-600">
-          {erro || "Clinica nao encontrada."}
+          {erro || "Clínica não encontrada."}
         </p>
         <button
           type="button"
@@ -88,7 +88,7 @@ function PacienteClinicaDetalhes() {
         aoVoltar={voltar}
         textoVoltar="Voltar"
         voltarSomenteIcone
-        contexto="Mais informacoes"
+        contexto="Mais informa??es"
         titulo={clinica.nome}
         descricao={clinica.bairro}
         acao={<MenuUsuarioPaciente />}
@@ -127,7 +127,7 @@ function PacienteClinicaDetalhes() {
 
                 <dl className="space-y-4 text-sm">
                   <div>
-                    <dt className="font-semibold text-gray-800">Endereco</dt>
+                    <dt className="font-semibold text-gray-800">Endereço</dt>
                     <dd className="mt-1 text-gray-600">{clinica.endereco}</dd>
                   </div>
                   <div>
@@ -135,7 +135,7 @@ function PacienteClinicaDetalhes() {
                     <dd className="mt-1 text-gray-600">{clinica.telefone}</dd>
                   </div>
                   <div>
-                    <dt className="font-semibold text-gray-800">Horario</dt>
+                    <dt className="font-semibold text-gray-800">Horário</dt>
                     <dd className="mt-1 text-gray-600">{clinica.horario}</dd>
                   </div>
                 </dl>

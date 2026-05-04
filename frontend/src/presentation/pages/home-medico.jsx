@@ -117,12 +117,12 @@ function HomeMedico() {
   const consultasConhecidasRef = useRef(new Set());
   const statusConsultasConhecidosRef = useRef(new Map());
   const primeiraCargaConsultasRef = useRef(true);
-  const nomeUsuario = usuario?.nome || "Medico";
-  const nomeClinica = clinicaVinculada?.nome || "clinica vinculada";
+  const nomeUsuario = usuario?.nome || "Médico";
+  const nomeClinica = clinicaVinculada?.nome || "clínica vinculada";
 
   const carregarDashboard = useCallback(async () => {
     if (!usuario?.clinica_id) {
-      setErro("Nao ha clinica vinculada ao seu usuario.");
+      setErro("Seu usuário ainda não tem uma clínica vinculada.");
       return;
     }
 
@@ -140,7 +140,7 @@ function HomeMedico() {
       setConsultas(Array.isArray(consultasClinica) ? consultasClinica : []);
       setExames(Array.isArray(examesClinica) ? examesClinica : []);
     } catch (falha) {
-      setErro(falha.message || "Nao foi possivel carregar sua agenda.");
+      setErro(falha.message || "Não conseguimos carregar sua agenda agora.");
     } finally {
       setCarregando(false);
     }
@@ -173,7 +173,7 @@ function HomeMedico() {
           data: agenda.data,
           horario: agenda.horario,
           paciente: consulta.paciente || "",
-          especialidade: consulta.especialidade || "Nao informada",
+          especialidade: consulta.especialidade || "Não informada",
           status: consulta.status || "agendada",
         };
       })
@@ -350,7 +350,7 @@ function HomeMedico() {
               type="button"
               onClick={() => setMenuUsuarioAberto((v) => !v)}
               className="flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white transition hover:bg-white/30"
-              aria-label="Perfil do usuario"
+              aria-label="Perfil do usuário"
             >
               <UserCircle className="h-6 w-6" aria-hidden="true" />
             </button>
@@ -361,7 +361,7 @@ function HomeMedico() {
                     Conta
                   </p>
                   <p className="mt-0.5 text-sm font-semibold text-gray-800">
-                    Opcoes do usuario
+                    Opções do usuário
                   </p>
                 </div>
                 <button
@@ -505,16 +505,16 @@ function HomeMedico() {
 
                 <div className="space-y-3">
                   <div className="dashboard-card-muted">
-                    <p className="text-sm text-gray-500">Especialidades da clinica</p>
+                    <p className="text-sm text-gray-500">Especialidades da clínica</p>
                     <p className="mt-1 font-semibold text-gray-800">
                       {(clinicaVinculada?.especialidades || []).slice(0, 3).join(", ") ||
-                        "Sem dados cadastrados"}
+                        "Ainda sem dados cadastrados"}
                     </p>
                   </div>
                   <div className="dashboard-card-muted">
-                    <p className="text-sm text-gray-500">Horario de funcionamento</p>
+                    <p className="text-sm text-gray-500">Horário de funcionamento</p>
                     <p className="mt-1 font-semibold text-gray-800">
-                      {clinicaVinculada?.horario || "Nao informado"}
+                      {clinicaVinculada?.horario || "Não informado"}
                     </p>
                   </div>
                 </div>

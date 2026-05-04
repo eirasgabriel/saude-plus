@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { ArrowLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { realizarLogin } from "../../application/auth/auth-service";
 import { salvarUsuario } from "../../application/usuarios/usuarios-use-cases";
@@ -58,20 +59,20 @@ function validarFormulario(formulario) {
     (valor) => !valor.trim()
   );
 
-  if (possuiCampoVazio) return "Preencha todos os campos para criar o cadastro.";
-  if (!formulario.nome.trim()) return "Informe seu nome completo.";
-  if (!formulario.email.trim()) return "Informe seu email.";
+  if (possuiCampoVazio) return "Preencha todos os campos para finalizar seu cadastro.";
+  if (!formulario.nome.trim()) return "Digite seu nome completo.";
+  if (!formulario.email.trim()) return "Digite seu e-mail.";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formulario.email)) {
-    return "Informe um email valido.";
+    return "Digite um e-mail válido.";
   }
-  if (cpfNumeros.length !== 11) return "Informe um CPF com 11 digitos.";
-  if (telefoneNumeros.length < 10) return "Informe um telefone com DDD.";
-  if (cepNumeros.length !== 8) return "Informe um CEP com 8 digitos.";
+  if (cpfNumeros.length !== 11) return "Digite um CPF com 11 dígitos.";
+  if (telefoneNumeros.length < 10) return "Digite um telefone com DDD.";
+  if (cepNumeros.length !== 8) return "Digite um CEP com 8 dígitos.";
   if (formulario.senha.length < 8) {
-    return "A senha deve ter pelo menos 8 caracteres.";
+    return "Use uma senha com pelo menos 8 caracteres.";
   }
   if (formulario.senha !== formulario.confirmarSenha) {
-    return "A confirmacao de senha precisa ser igual a senha.";
+    return "A confirmação precisa ser igual à senha.";
   }
 
   return "";
@@ -85,7 +86,7 @@ function CadastroPaciente() {
   const [carregando, setCarregando] = useState(false);
   const [buscandoCep, setBuscandoCep] = useState(false);
   const estiloInput =
-    "mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 text-base text-gray-800 bg-white hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition shadow-sm";
+    "mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 shadow-sm transition hover:border-blue-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-400";
 
   function alterarCampo(campo, valor) {
     const normalizadores = {
@@ -119,7 +120,7 @@ function CadastroPaciente() {
         estado: endereco.estado || atual.estado,
       }));
     } catch (erroCep) {
-      setErro(erroCep.message || "Nao foi possivel consultar o CEP.");
+      setErro(erroCep.message || "Não conseguimos buscar esse CEP agora. Você pode preencher o endereço manualmente.");
     } finally {
       setBuscandoCep(false);
     }
@@ -156,10 +157,10 @@ function CadastroPaciente() {
       });
 
       await realizarLogin(formulario.email.trim(), formulario.senha);
-      setMensagem("Cadastro criado com sucesso. Abrindo sua area de paciente...");
+      setMensagem("Cadastro criado. Vamos abrir sua Área de paciente.");
       setTimeout(() => navigate("/paciente/inicio"), 700);
     } catch (erroSalvar) {
-      setErro(erroSalvar.message || "Nao foi possivel criar o cadastro.");
+      setErro(erroSalvar.message || "Não conseguimos criar seu cadastro agora. Tente novamente em instantes.");
     } finally {
       setCarregando(false);
     }
@@ -167,23 +168,23 @@ function CadastroPaciente() {
 
   return (
     <div className="min-h-screen bg-gray-50 lg:flex">
-      <section className="hidden lg:flex w-1/2 bg-gradient-to-br from-blue-400 to-blue-600 flex-col items-center justify-center p-12 text-white">
+      <section className="hidden w-1/2 flex-col items-center justify-center bg-gradient-to-br from-blue-400 to-blue-600 p-8 text-white lg:flex">
         <div className="text-center">
-          <LogoSaudePlus className="mx-auto mb-6 shadow-xl" size="xl" />
-          <h1 className="text-5xl font-bold mb-3">Saude+</h1>
-          <p className="text-blue-100 text-lg mb-10">
-            Saude na palma da mao
+          <LogoSaudePlus className="mx-auto mb-4 shadow-xl" size="lg" />
+          <h1 className="mb-2 text-4xl font-bold">Saúde+</h1>
+          <p className="mb-6 text-base text-blue-100">
+            Saúde na palma da mão
           </p>
-          <p className="text-blue-200 text-sm max-w-xs mx-auto leading-relaxed">
-            Registre-se para acessar sua area de paciente, onde voce podera agendar consultas, acompanhar resultados de exames e muito mais.
+          <p className="mx-auto max-w-xs text-sm leading-6 text-blue-200">
+            Crie sua conta para agendar consultas, acompanhar exames e acessar seus atendimentos em um só lugar.
           </p>
 
-          <div className="mt-10 grid grid-cols-2 gap-3 max-w-xs mx-auto">
-            {["Cadastro rápido", "Consultas", "Exames", "Vida Saudável"].map(
+          <div className="mx-auto mt-6 grid max-w-xs grid-cols-2 gap-2">
+            {["Cadastro rápido", "Consultas", "Exames", "Vida saudável"].map(
               (item) => (
                 <div
                   key={item}
-                  className="bg-white bg-opacity-20 rounded-xl px-4 py-2 text-white text-sm font-medium"
+                  className="rounded-lg bg-white bg-opacity-20 px-3 py-2 text-sm font-medium text-white"
                 >
                   {item}
                 </div>
@@ -193,36 +194,39 @@ function CadastroPaciente() {
         </div>
       </section>
 
-      <main className="flex min-h-svh flex-1 items-center justify-center bg-gradient-to-b from-white-400 to-white-500 px-4 py-6 sm:px-6 sm:py-8 lg:min-h-0 lg:bg-gray-50 lg:p-8">
+      <main className="flex min-h-svh flex-1 items-center justify-center bg-gradient-to-b from-white-400 to-white-500 px-4 py-4 sm:px-6 sm:py-5 lg:min-h-0 lg:bg-gray-50 lg:p-5">
         <div className="w-full max-w-2xl">
-          <div className="lg:hidden mb-7 text-center text-white">
-            <LogoSaudePlus className="mx-auto mb-4" size="lg" />
-            <h1 className="text-3xl font-bold tracking-tight">Saude+</h1>
-            <p className="text-blue-100 mt-1 text-sm">
-              Saquarema - Secretaria de Saude
+          <div className="mb-4 text-center text-white lg:hidden">
+            <LogoSaudePlus className="mx-auto mb-3" size="md" />
+            <h1 className="text-2xl font-bold tracking-tight">Saúde+</h1>
+            <p className="mt-1 text-xs text-blue-100">
+              Saquarema - Secretaria de Saúde
             </p>
           </div>
 
-          <div className="rounded-2xl bg-white p-5 shadow-xl sm:rounded-3xl sm:p-8 lg:border lg:border-gray-100 lg:shadow-sm">
-            <div className="mb-6">
-              <Link
-                to="/login"
-                className="text-sm font-semibold text-blue-500 hover:text-blue-600"
-              >
-                Voltar ao login
-              </Link>
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mt-4">
-                Criar cadastro
-              </h2>
-              <p className="text-gray-500 text-sm mt-2">
-                Use seus dados pessoais para acessar a area do paciente.
+          <div className="rounded-2xl bg-white p-4 shadow-xl sm:p-5 lg:border lg:border-gray-100 lg:shadow-sm">
+            <div className="mb-4">
+              <div className="flex items-center gap-3">
+                <Link
+                  to="/login"
+                  aria-label="Voltar para o login"
+                  className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-500 transition hover:bg-blue-100 hover:text-blue-600"
+                >
+                  <ArrowLeft className="h-5 w-5" aria-hidden="true" />
+                </Link>
+                <h2 className="text-2xl font-bold text-gray-800">
+                  Criar cadastro
+                </h2>
+              </div>
+              <p className="mt-1 text-sm text-gray-500 sm:ml-[52px]">
+                Use seus dados pessoais para acessar sua Área do paciente.
               </p>
             </div>
 
-            <form onSubmit={aoEnviar} noValidate className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form onSubmit={aoEnviar} noValidate className="space-y-3">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <label className="block">
-                  <span className="text-sm font-semibold text-gray-700">Nome</span>
+                  <span className="text-xs font-semibold text-gray-700">Nome</span>
                   <input
                     value={formulario.nome}
                     onChange={(evento) => alterarCampo("nome", evento.target.value)}
@@ -233,7 +237,7 @@ function CadastroPaciente() {
                 </label>
 
                 <label className="block">
-                  <span className="text-sm font-semibold text-gray-700">Email</span>
+                  <span className="text-xs font-semibold text-gray-700">E-mail</span>
                   <input
                     type="email"
                     value={formulario.email}
@@ -245,7 +249,7 @@ function CadastroPaciente() {
                 </label>
 
                 <label className="block">
-                  <span className="text-sm font-semibold text-gray-700">CPF</span>
+                  <span className="text-xs font-semibold text-gray-700">CPF</span>
                   <input
                     value={formulario.cpf}
                     onChange={(evento) => alterarCampo("cpf", evento.target.value)}
@@ -257,7 +261,7 @@ function CadastroPaciente() {
                 </label>
 
                 <label className="block">
-                  <span className="text-sm font-semibold text-gray-700">Telefone</span>
+                  <span className="text-xs font-semibold text-gray-700">Telefone</span>
                   <input
                     value={formulario.telefone}
                     onChange={(evento) => alterarCampo("telefone", evento.target.value)}
@@ -269,7 +273,7 @@ function CadastroPaciente() {
                 </label>
 
                 <label className="block">
-                  <span className="text-sm font-semibold text-gray-700">CEP</span>
+                  <span className="text-xs font-semibold text-gray-700">CEP</span>
                   <input
                     value={formulario.cep}
                     onChange={(evento) => alterarCampo("cep", evento.target.value)}
@@ -281,13 +285,13 @@ function CadastroPaciente() {
                   />
                   {buscandoCep && (
                     <span className="mt-1 block text-xs font-medium text-blue-500">
-                      Buscando endereco...
+                      Buscando endereço...
                     </span>
                   )}
                 </label>
 
                 <label className="block">
-                  <span className="text-sm font-semibold text-gray-700">Endereco</span>
+                  <span className="text-xs font-semibold text-gray-700">Endereço</span>
                   <input
                     value={formulario.endereco}
                     onChange={(evento) => alterarCampo("endereco", evento.target.value)}
@@ -298,7 +302,7 @@ function CadastroPaciente() {
                 </label>
 
                 <label className="block">
-                  <span className="text-sm font-semibold text-gray-700">Bairro</span>
+                  <span className="text-xs font-semibold text-gray-700">Bairro</span>
                   <input
                     value={formulario.bairro}
                     onChange={(evento) => alterarCampo("bairro", evento.target.value)}
@@ -310,7 +314,7 @@ function CadastroPaciente() {
 
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_84px]">
                   <label className="block">
-                    <span className="text-sm font-semibold text-gray-700">Cidade</span>
+                    <span className="text-xs font-semibold text-gray-700">Cidade</span>
                     <input
                       value={formulario.cidade}
                       onChange={(evento) => alterarCampo("cidade", evento.target.value)}
@@ -321,7 +325,7 @@ function CadastroPaciente() {
                   </label>
 
                   <label className="block">
-                    <span className="text-sm font-semibold text-gray-700">UF</span>
+                    <span className="text-xs font-semibold text-gray-700">UF</span>
                     <input
                       value={formulario.estado}
                       onChange={(evento) => alterarCampo("estado", evento.target.value)}
@@ -333,19 +337,19 @@ function CadastroPaciente() {
                 </div>
 
                 <label className="block">
-                  <span className="text-sm font-semibold text-gray-700">Senha</span>
+                  <span className="text-xs font-semibold text-gray-700">Senha</span>
                   <input
                     type="password"
                     value={formulario.senha}
                     onChange={(evento) => alterarCampo("senha", evento.target.value)}
-                    placeholder="Minimo de 8 caracteres"
+                    placeholder="Mínimo de 8 caracteres"
                     autoComplete="new-password"
                     className={estiloInput}
                   />
                 </label>
 
                 <label className="block">
-                  <span className="text-sm font-semibold text-gray-700">
+                  <span className="text-xs font-semibold text-gray-700">
                     Confirmar senha
                   </span>
                   <input
@@ -362,13 +366,13 @@ function CadastroPaciente() {
               </div>
 
               {erro && (
-                <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
+                <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-600">
                   {erro}
                 </p>
               )}
 
               {mensagem && (
-                <p className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
+                <p className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm font-medium text-green-700">
                   {mensagem}
                 </p>
               )}
@@ -376,15 +380,15 @@ function CadastroPaciente() {
               <button
                 type="submit"
                 disabled={carregando}
-                className="w-full bg-blue-400 hover:bg-blue-500 text-white font-bold py-4 rounded-xl text-lg transition-all duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full rounded-xl bg-blue-400 py-3 text-base font-bold text-white transition-all duration-200 hover:bg-blue-500 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {carregando ? "Criando cadastro..." : "Cadastrar-se"}
+                {carregando ? "Criando sua conta..." : "Criar minha conta"}
               </button>
             </form>
           </div>
 
-          <p className="text-center mt-6 text-xs text-blue-100 lg:text-gray-400">
-            Prefeitura Municipal de Saquarema - Sistema Saude+ v1.0
+          <p className="mt-3 text-center text-xs text-blue-100 lg:text-gray-400">
+            Sistema Saúde+ v1.0
           </p>
         </div>
       </main>

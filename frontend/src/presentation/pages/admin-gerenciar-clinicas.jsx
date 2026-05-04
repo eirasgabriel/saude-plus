@@ -116,7 +116,7 @@ function AdminGerenciarClinicas() {
       setRelatorio(relatorioSistema);
     } catch (erro) {
       if (!silencioso) {
-        setMensagem(erro.message || "Nao foi possivel carregar as clinicas.");
+        setMensagem(erro.message || "Não conseguimos carregar as clínicas agora.");
       }
     } finally {
       if (ultimaCargaRef.current === cargaAtual) {
@@ -205,7 +205,7 @@ function AdminGerenciarClinicas() {
     const endereco = criarEnderecoClinica(formularioAtual);
 
     if (!formularioAtual.endereco.trim() && !formularioAtual.bairro.trim()) {
-      throw new Error("Informe endereco ou bairro para buscar as coordenadas.");
+      throw new Error("Informe endereço ou bairro para buscar as coordenadas.");
     }
 
     if (!obterGoogleMapsApiKey()) {
@@ -237,7 +237,7 @@ function AdminGerenciarClinicas() {
       setFormulario(formularioComCoordenadas);
       setMensagem("Coordenadas preenchidas pelo Google Maps.");
     } catch (erro) {
-      setMensagem(erro.message || "Nao foi possivel buscar as coordenadas.");
+      setMensagem(erro.message || "Não conseguimos buscar as coordenadas agora.");
     } finally {
       setGeocodificando(false);
     }
@@ -250,12 +250,12 @@ function AdminGerenciarClinicas() {
     if (!arquivo) return;
 
     if (!arquivo.type.startsWith("image/")) {
-      setMensagem("Selecione um arquivo de imagem para a foto da clinica.");
+      setMensagem("Selecione uma imagem para a foto da clínica.");
       return;
     }
 
     if (arquivo.size > 1024 * 1024) {
-      setMensagem("Use uma imagem de ate 1MB para manter o sistema rapido.");
+      setMensagem("Use uma imagem de até 1 MB para manter o app rápido.");
       return;
     }
 
@@ -264,7 +264,7 @@ function AdminGerenciarClinicas() {
       alterarCampo("fotoPerfil", fotoPerfil);
       setMensagem("");
     } catch {
-      setMensagem("Nao foi possivel carregar a imagem selecionada.");
+      setMensagem("Não conseguimos carregar a imagem selecionada.");
     }
   }
 
@@ -273,22 +273,22 @@ function AdminGerenciarClinicas() {
     setMensagem("");
 
     if (!formulario.nome.trim() || !formulario.bairro.trim()) {
-      setMensagem("Informe pelo menos o nome e o bairro da clinica.");
+      setMensagem("Informe pelo menos o nome e o bairro da clínica.");
       return;
     }
 
     try {
       setGeocodificando(true);
-      setMensagem("Conferindo coordenadas da clinica...");
+      setMensagem("Conferindo as coordenadas da clínica...");
       const formularioParaSalvar = await obterFormularioComCoordenadas(formulario);
 
       setFormulario(formularioParaSalvar);
       await salvarClinicaApi(normalizarClinica(formularioParaSalvar, clinicaEditandoId));
-      setMensagem(clinicaEditandoId ? "Clinica atualizada no backend." : "Clinica adicionada no backend.");
+      setMensagem(clinicaEditandoId ? "Clínica atualizada com sucesso." : "Clínica adicionada com sucesso.");
       limparFormulario();
       await carregarClinicas();
     } catch (erro) {
-      setMensagem(erro.message || "Nao foi possivel salvar a clinica.");
+      setMensagem(erro.message || "Não conseguimos salvar a clínica agora.");
     } finally {
       setGeocodificando(false);
     }
@@ -322,7 +322,7 @@ function AdminGerenciarClinicas() {
       await alternarStatusClinica(clinica);
       await carregarClinicas();
     } catch (erro) {
-      setMensagem(erro.message || "Nao foi possivel alterar o status.");
+      setMensagem(erro.message || "Não conseguimos alterar o status agora.");
     }
   }
 
@@ -333,22 +333,22 @@ function AdminGerenciarClinicas() {
         aoVoltar={() => navigate("/admin/master")}
         textoVoltar="Voltar ao painel"
         voltarSomenteIcone
-        titulo="Gerenciar clinicas"
-        descricao="Cadastre, edite e acompanhe as unidades de saude do municipio."
+        titulo="Gerenciar clínicas"
+        descricao="Cadastre, edite e acompanhe as unidades de saúde do município."
       />
 
       <main className="app-content space-y-5">
         <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <p className="text-gray-500 text-sm">Clinicas ativas</p>
+            <p className="text-gray-500 text-sm">Clínicas ativas</p>
             <strong className="text-3xl text-gray-800">{resumo.ativas}</strong>
           </div>
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <p className="text-gray-500 text-sm">Atendimentos medicos/dia</p>
+            <p className="text-gray-500 text-sm">Atendimentos médicos/dia</p>
             <strong className="text-3xl text-gray-800">{resumo.atendimentosPorDia}</strong>
           </div>
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <p className="text-gray-500 text-sm">Atendimentos no mes</p>
+            <p className="text-gray-500 text-sm">Atendimentos no mês</p>
             <strong className="text-3xl text-gray-800">{resumo.atendimentos}</strong>
           </div>
         </section>
@@ -363,14 +363,14 @@ function AdminGerenciarClinicas() {
                 {clinicaEditandoId ? "Editar unidade" : "Nova unidade"}
               </h2>
               <p className="text-gray-500 text-sm">
-                Os dados ficam disponiveis no painel master.
+                Essas informações aparecem no painel principal.
               </p>
             </div>
 
             <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
               <div className="mb-3 flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-sm font-bold text-gray-800">Foto da clinica</p>
+                  <p className="text-sm font-bold text-gray-800">Foto da clínica</p>
                   <p className="text-xs text-gray-500">
                     Usada como foto de perfil nos cards da unidade.
                   </p>
@@ -383,6 +383,7 @@ function AdminGerenciarClinicas() {
                   src={formulario.fotoPerfil}
                   nome={formulario.nome}
                   className="flex h-20 w-20 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-blue-50 text-2xl font-bold text-blue-500"
+                  conteudoVazio={<span className="text-4xl leading-none">+</span>}
                 />
 
                 <div className="min-w-0 flex-1 space-y-2">
@@ -414,7 +415,7 @@ function AdminGerenciarClinicas() {
             <input
               value={formulario.nome}
               onChange={(evento) => alterarCampo("nome", evento.target.value)}
-              placeholder="Nome da clinica"
+              placeholder="Nome da clínica"
               className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
             <input
@@ -426,7 +427,7 @@ function AdminGerenciarClinicas() {
             <input
               value={formulario.endereco}
               onChange={(evento) => alterarCampo("endereco", evento.target.value)}
-              placeholder="Endereco completo"
+              placeholder="Endereço completo"
               className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -462,7 +463,7 @@ function AdminGerenciarClinicas() {
               </label>
             </div>
             <p className="text-xs text-gray-400">
-              O sistema preenche essas coordenadas pelo endereco ao salvar, quando a chave do Google Maps esta configurada.
+              Quando a chave do Google Maps está configurada, o sistema preenche as coordenadas pelo endereço ao salvar.
             </p>
             <button
               type="button"
@@ -471,7 +472,7 @@ function AdminGerenciarClinicas() {
               className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-600 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400"
             >
               <MapPin className="h-4 w-4" aria-hidden="true" />
-              {geocodificando ? "Buscando coordenadas..." : "Preencher pelo endereco"}
+              {geocodificando ? "Buscando coordenadas..." : "Preencher pelo endereço"}
             </button>
             <input
               value={formulario.telefone}
@@ -482,13 +483,13 @@ function AdminGerenciarClinicas() {
             <input
               value={formulario.especialidades}
               onChange={(evento) => alterarCampo("especialidades", evento.target.value)}
-              placeholder="Especialidades de consultas separadas por virgula"
+              placeholder="Especialidades de consulta separadas por vírgula"
               className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
             <input
               value={formulario.especialidadesExames}
               onChange={(evento) => alterarCampo("especialidadesExames", evento.target.value)}
-              placeholder="Especialidades de exames separadas por virgula"
+              placeholder="Especialidades de exames separadas por vírgula"
               className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -497,7 +498,7 @@ function AdminGerenciarClinicas() {
                 min="0"
                 value={formulario.capacidadeDiaria}
                 onChange={(evento) => alterarCampo("capacidadeDiaria", evento.target.value)}
-                placeholder="Atendimentos medicos por dia"
+                placeholder="Atendimentos médicos por dia"
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-300"
               />
               <select
@@ -512,7 +513,7 @@ function AdminGerenciarClinicas() {
             <input
               value={formulario.horario}
               onChange={(evento) => alterarCampo("horario", evento.target.value)}
-              placeholder="Horario de funcionamento"
+              placeholder="Horário de funcionamento"
               className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
 
@@ -531,8 +532,8 @@ function AdminGerenciarClinicas() {
                 {geocodificando
                   ? "Localizando..."
                   : clinicaEditandoId
-                  ? "Salvar edicao"
-                  : "Adicionar clinica"}
+                  ? "Salvar edição"
+                  : "Adicionar clínica"}
               </button>
               {clinicaEditandoId && (
                 <button
@@ -549,7 +550,7 @@ function AdminGerenciarClinicas() {
           <section className="space-y-4">
             {carregando && (
               <p className="rounded-xl bg-white px-4 py-3 text-sm text-gray-500">
-                Carregando clinicas...
+                Carregando clínicas...
               </p>
             )}
             {clinicasComIndicadores.map((clinica) => (
@@ -585,10 +586,10 @@ function AdminGerenciarClinicas() {
                         {clinica.telefone} | {clinica.horario}
                       </p>
                       <p className="text-gray-500 text-sm mt-1">
-                        Consultas: {(clinica.especialidades || []).join(", ") || "Sem dados"}
+                        Consultas: {(clinica.especialidades || []).join(", ") || "Ainda sem dados"}
                       </p>
                       <p className="text-gray-500 text-sm mt-1">
-                        Exames: {(clinica.especialidadesExames || []).join(", ") || "Sem dados"}
+                        Exames: {(clinica.especialidadesExames || []).join(", ") || "Ainda sem dados"}
                       </p>
                     </div>
                   </div>
@@ -617,11 +618,11 @@ function AdminGerenciarClinicas() {
                     <strong>{clinica.capacidadeDiaria}/dia</strong>
                   </div>
                   <div className="bg-gray-50 rounded-xl p-3">
-                    <p className="text-gray-500 text-xs">Mes</p>
+                    <p className="text-gray-500 text-xs">Mês</p>
                     <strong>{clinica.atendimentosMes}</strong>
                   </div>
                   <div className="bg-gray-50 rounded-xl p-3">
-                    <p className="text-gray-500 text-xs">Ocupacao</p>
+                    <p className="text-gray-500 text-xs">Ocupação</p>
                     <strong>{clinica.ocupacao}%</strong>
                   </div>
                 </div>

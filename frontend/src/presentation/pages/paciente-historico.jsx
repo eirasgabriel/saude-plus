@@ -115,7 +115,7 @@ function PacienteHistorico() {
       setExames(examesCarregados);
       setClinicas(Array.isArray(listaClinicas) ? listaClinicas : []);
     } catch (e) {
-      setErro(e.message || "Nao foi possivel carregar seu historico.");
+      setErro(e.message || "Não conseguimos carregar seu histórico agora.");
     } finally {
       setCarregando(false);
     }
@@ -149,7 +149,7 @@ function PacienteHistorico() {
 
         return {
           ...consulta,
-          clinicaNome: clinica?.nome || "Clinica nao identificada",
+          clinicaNome: clinica?.nome || "Clínica não identificada",
           data: agenda.data,
           hora: agenda.hora,
           status: consulta.status || "realizada",
@@ -220,7 +220,7 @@ function PacienteHistorico() {
 
           {!carregando && !erro && consultasHistorico.length === 0 && (
             <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-              <p className="font-semibold text-gray-700">Nenhuma consulta no historico</p>
+              <p className="font-semibold text-gray-700">Nenhuma consulta no histórico</p>
               <p className="mt-1 text-sm text-gray-500">
                 Consultas realizadas ou canceladas aparecerao aqui.
               </p>
@@ -267,7 +267,7 @@ function PacienteHistorico() {
 
           {examesHistorico.length === 0 && (
             <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-              <p className="font-semibold text-gray-700">Nenhum exame no historico</p>
+              <p className="font-semibold text-gray-700">Nenhum exame no histórico</p>
               <p className="mt-1 text-sm text-gray-500">
                 Quando houver exames agendados ou finalizados, eles aparecerao nesta coluna.
               </p>

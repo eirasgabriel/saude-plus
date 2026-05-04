@@ -78,7 +78,7 @@ function HomePaciente() {
       setClinicas(Array.isArray(listaClinicas) ? listaClinicas : []);
       setExames(Array.isArray(listaExames) ? listaExames : []);
     } catch (e) {
-      setErro(e.message || "Nao foi possivel carregar suas consultas.");
+      setErro(e.message || "Não conseguimos carregar suas consultas agora.");
     } finally {
       setCarregando(false);
     }
@@ -104,7 +104,7 @@ function HomePaciente() {
 
         return {
           ...consulta,
-          clinicaNome: clinica?.nome || "Clinica nao identificada",
+          clinicaNome: clinica?.nome || "Clínica não identificada",
           clinicaBairro: clinica?.bairro || "-",
           data: agenda.data,
           hora: agenda.hora,
@@ -142,7 +142,7 @@ function HomePaciente() {
     <div className="min-h-screen bg-gray-50">
       <CabecalhoApp
         titulo={`Olá, ${nomeUsuario}`}
-        descricao="Acompanhe seus proximos atendimentos"
+        descricao="Acompanhe seus próximos atendimentos"
         acao={<MenuUsuarioPaciente />}
       />
 
@@ -157,7 +157,7 @@ function HomePaciente() {
               <div>
               <h2 className="dashboard-section-title">Proximas consultas</h2>
               <p className="dashboard-section-description">
-                Agendamentos futuros confirmados para voce
+                Agendamentos futuros confirmados para você
               </p>
               </div>
             </div>

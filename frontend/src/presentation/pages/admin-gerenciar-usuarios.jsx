@@ -12,8 +12,8 @@ import CabecalhoApp from "../components/cabecalho-app";
 
 const ROTULOS_NIVEIS = {
   admin_master: "Admin master",
-  admin_clinica: "Admin clinica",
-  medico: "Medico",
+  admin_clinica: "Admin da clínica",
+  medico: "Médico",
   paciente: "Paciente",
 };
 
@@ -40,7 +40,7 @@ function AdminGerenciarUsuarios() {
     try {
       setClinicas(await listarClinicas());
     } catch (erro) {
-      setMensagem(erro.message || "Nao foi possivel carregar as clinicas.");
+      setMensagem(erro.message || "Não conseguimos carregar as clínicas agora.");
     }
   }
 
@@ -54,7 +54,7 @@ function AdminGerenciarUsuarios() {
       setUsuarios(usuariosApi);
       setClinicas(clinicasApi);
     } catch (erro) {
-      setMensagem(erro.message || "Nao foi possivel carregar os dados.");
+      setMensagem(erro.message || "Não conseguimos carregar os dados agora.");
     }
   }
 
@@ -119,12 +119,12 @@ function AdminGerenciarUsuarios() {
     setMensagem("");
 
     if (!formulario.nome.trim() || !formulario.email.trim()) {
-      setMensagem("Informe nome e email para salvar o usuario.");
+      setMensagem("Digite nome e e-mail para salvar o usuário.");
       return;
     }
 
     if (!usuarioEditandoId && formulario.senha.length < 8) {
-      setMensagem("Informe uma senha inicial com pelo menos 8 caracteres.");
+      setMensagem("Use uma senha inicial com pelo menos 8 caracteres.");
       return;
     }
 
@@ -140,11 +140,11 @@ function AdminGerenciarUsuarios() {
         status: formulario.status,
         ...(formulario.senha ? { senha: formulario.senha } : {}),
       });
-      setMensagem(usuarioEditandoId ? "Usuario atualizado no backend." : "Usuario criado no backend.");
+      setMensagem(usuarioEditandoId ? "Usuário atualizado com sucesso." : "Usuário criado com sucesso.");
       limparFormulario();
       await carregarDados();
     } catch (erro) {
-      setMensagem(erro.message || "Nao foi possivel salvar o usuario.");
+      setMensagem(erro.message || "Não conseguimos salvar o usuário agora.");
     }
   }
 
@@ -169,7 +169,7 @@ function AdminGerenciarUsuarios() {
       await alternarStatusUsuario(usuario);
       await carregarDados();
     } catch (erro) {
-      setMensagem(erro.message || "Nao foi possivel alterar o status.");
+      setMensagem(erro.message || "Não conseguimos alterar o status agora.");
     }
   }
 
@@ -180,14 +180,14 @@ function AdminGerenciarUsuarios() {
         aoVoltar={() => navigate("/admin/master")}
         textoVoltar="Voltar ao painel"
         voltarSomenteIcone
-        titulo="Gerenciar usuarios"
-        descricao="Controle acessos de pacientes, medicos, administradores de clinica e prefeitura."
+        titulo="Gerenciar usuários"
+        descricao="Gerencie o acesso de pacientes, médicos, administradores de clínica e equipe da prefeitura."
       />
 
       <main className="app-content space-y-5">
         <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <p className="text-gray-500 text-sm">Usuarios</p>
+            <p className="text-gray-500 text-sm">Usuários</p>
             <strong className="text-3xl text-gray-800">{resumo.total}</strong>
           </div>
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
@@ -195,7 +195,7 @@ function AdminGerenciarUsuarios() {
             <strong className="text-3xl text-gray-800">{resumo.ativos}</strong>
           </div>
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <p className="text-gray-500 text-sm">Medicos</p>
+            <p className="text-gray-500 text-sm">Médicos</p>
             <strong className="text-3xl text-gray-800">{resumo.porNivel.medico || 0}</strong>
           </div>
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
@@ -213,10 +213,10 @@ function AdminGerenciarUsuarios() {
           >
             <div>
               <h2 className="text-xl font-semibold text-gray-800">
-                {usuarioEditandoId ? "Editar acesso" : "Novo usuario"}
+                {usuarioEditandoId ? "Editar acesso" : "Novo usuário"}
               </h2>
               <p className="text-gray-500 text-sm">
-                Defina o nivel de permissao e o vinculo com a clinica.
+                Defina o nível de permissão e o vínculo com a clínica.
               </p>
             </div>
 
@@ -230,7 +230,7 @@ function AdminGerenciarUsuarios() {
               type="email"
               value={formulario.email}
               onChange={(evento) => alterarCampo("email", evento.target.value)}
-              placeholder="Email de acesso"
+              placeholder="E-mail de acesso"
               className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
             <input
@@ -261,7 +261,7 @@ function AdminGerenciarUsuarios() {
               onChange={(evento) => alterarCampo("clinica_id", evento.target.value)}
               className="w-full border border-gray-200 rounded-xl px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-300"
             >
-              <option value="">Sem clinica vinculada</option>
+              <option value="">Sem clínica vinculada</option>
               {clinicas.map((clinica) => (
                 <option key={clinica.id} value={clinica.id}>
                   {clinica.nome}
@@ -288,7 +288,7 @@ function AdminGerenciarUsuarios() {
                 type="submit"
                 className="flex-1 bg-blue-400 text-white rounded-xl py-3 font-semibold hover:bg-blue-500 transition"
               >
-                {usuarioEditandoId ? "Salvar edicao" : "Criar usuario"}
+                {usuarioEditandoId ? "Salvar edição" : "Criar usuário"}
               </button>
               {usuarioEditandoId && (
                 <button
@@ -307,14 +307,14 @@ function AdminGerenciarUsuarios() {
               <div>
                 <h2 className="text-xl font-semibold text-gray-800">Acessos cadastrados</h2>
                 <p className="text-gray-500 text-sm">
-                  {usuariosFiltrados.length} usuario(s) encontrado(s).
+                  {usuariosFiltrados.length} usuário(s) encontrado(s).
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   value={filtroTexto}
                   onChange={(evento) => setFiltroTexto(evento.target.value)}
-                  placeholder="Buscar por nome ou email"
+                  placeholder="Buscar por nome ou e-mail"
                   className="border border-gray-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
                 />
                 <select
@@ -336,12 +336,12 @@ function AdminGerenciarUsuarios() {
               <table className="w-full min-w-[760px] text-sm">
                 <thead className="bg-gray-50 text-gray-600">
                   <tr>
-                    <th className="text-left px-3 py-3 font-semibold rounded-l-xl">Usuario</th>
-                    <th className="text-left px-3 py-3 font-semibold">Nivel</th>
-                    <th className="text-left px-3 py-3 font-semibold">Clinica</th>
-                    <th className="text-left px-3 py-3 font-semibold">Ultimo acesso</th>
+                    <th className="text-left px-3 py-3 font-semibold rounded-l-xl">Usuário</th>
+                    <th className="text-left px-3 py-3 font-semibold">N?vel</th>
+                    <th className="text-left px-3 py-3 font-semibold">Clínica</th>
+                    <th className="text-left px-3 py-3 font-semibold">?ltimo acesso</th>
                     <th className="text-left px-3 py-3 font-semibold">Status</th>
-                    <th className="text-right px-3 py-3 font-semibold rounded-r-xl">Acoes</th>
+                    <th className="text-right px-3 py-3 font-semibold rounded-r-xl">A??es</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -356,8 +356,8 @@ function AdminGerenciarUsuarios() {
                       </td>
                       <td className="px-3 py-3 text-gray-600">
                         {usuario.clinica_id
-                          ? clinicas.find((clinica) => Number(clinica.id) === Number(usuario.clinica_id))?.nome || "Sem vinculo"
-                          : "Sem vinculo"}
+                          ? clinicas.find((clinica) => Number(clinica.id) === Number(usuario.clinica_id))?.nome || "Sem vínculo"
+                          : "Sem vínculo"}
                       </td>
                       <td className="px-3 py-3 text-gray-500">{usuario.ultimo_acesso}</td>
                       <td className="px-3 py-3">

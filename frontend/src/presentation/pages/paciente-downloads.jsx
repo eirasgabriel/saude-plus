@@ -94,21 +94,21 @@ function baixarDataUrl(nomeArquivo, dataUrl) {
 
 function montarConteudoDocumento(documento, usuario) {
   return [
-    `Saude+ - ${documento.categoria}`,
+    `Saúde+ - ${documento.categoria}`,
     "",
     `Paciente: ${usuario?.nome || "Paciente"}`,
     `Documento: ${documento.titulo}`,
     `Data: ${formatarData(documento.data)}`,
     `Unidade: ${documento.clinica}`,
     documento.responsavel ? `Anexado por: ${documento.responsavel}` : null,
-    documento.medico ? `Medico: ${documento.medico}` : null,
+    documento.medico ? `Médico: ${documento.medico}` : null,
     documento.especialidade ? `Especialidade: ${documento.especialidade}` : null,
-    documento.horario ? `Horario: ${documento.horario}` : null,
+    documento.horario ? `Horário: ${documento.horario}` : null,
     documento.status ? `Status: ${documento.status}` : null,
     "",
     documento.descricao,
     "",
-    "Documento gerado a partir dos anexos liberados no Saude+.",
+    "Documento gerado a partir dos anexos liberados no Saúde+.",
   ]
     .filter((linha) => linha !== null)
     .join("\n");
@@ -137,7 +137,7 @@ function montarDownloadsConsultas(consultas, clinicas) {
         id: String(consulta.id),
         data: agenda.data,
         horario: agenda.hora,
-        clinica: clinica?.nome || "Clinica nao identificada",
+        clinica: clinica?.nome || "Clínica não identificada",
         medico: consulta.medico || "",
         especialidade: consulta.especialidade || "Atendimento",
         status,
@@ -161,11 +161,11 @@ function criarDocumentoExame(exame) {
     titulo: exame.tipo || "Resultado de exame",
     data: exame.data,
     horario: exame.horario,
-    clinica: exame.clinica_nome || "Unidade nao informada",
+    clinica: exame.clinica_nome || "Unidade não informada",
     status: exame.status || "liberado",
     responsavel:
       exame.resultado_anexado_por_nome ||
-      (exame.resultado_anexado_por === "medico" ? "Medico" : "Admin da clinica"),
+      (exame.resultado_anexado_por === "medico" ? "Médico" : "Admin da clínica"),
     nomeArquivo:
       exame.resultado_nome_arquivo ||
       `${normalizarNomeArquivo(exame.tipo || "resultado-exame")}.txt`,
@@ -233,7 +233,7 @@ function PacienteDownloads() {
         setExames(Array.isArray(listaExames) ? listaExames : []);
         setClinicas(Array.isArray(listaClinicas) ? listaClinicas : []);
       } catch (falha) {
-        setErro(falha.message || "Nao foi possivel carregar os downloads.");
+        setErro(falha.message || "Não conseguimos carregar seus arquivos agora.");
       } finally {
         setCarregando(false);
       }
@@ -301,7 +301,7 @@ function PacienteDownloads() {
       {
         chave: "prontuarios",
         titulo: "Prontuarios",
-        descricao: "Registros clinicos anexados pelos medicos.",
+        descricao: "Registros clínicos anexados pelos médicos.",
         Icone: ClipboardList,
         documentos: [
           ...consultasComAnexos.map(criarDocumentoProntuario),
@@ -313,7 +313,7 @@ function PacienteDownloads() {
       {
         chave: "atestados",
         titulo: "Atestados",
-        descricao: "Atestados e comprovantes emitidos pelos medicos.",
+        descricao: "Atestados e comprovantes emitidos pelos médicos.",
         Icone: Stethoscope,
         documentos: [
           ...consultasComAnexos.map(criarDocumentoAtestado),

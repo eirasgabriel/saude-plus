@@ -81,7 +81,7 @@ function PacienteExames() {
       setClinicas(clinicasDisponiveis);
       setClinicasFiltradas(clinicasDisponiveis);
     } catch (erro) {
-      setErroCarregamento(erro.message || "Nao foi possivel carregar as unidades.");
+      setErroCarregamento(erro.message || "Não conseguimos carregar as unidades agora.");
     } finally {
       setCarregando(false);
     }
@@ -298,7 +298,7 @@ function PacienteExames() {
                 ? "Nenhuma unidade encontrada"
                 : `${clinicasFiltradas.length} unidade${
                     clinicasFiltradas.length > 1 ? "s" : ""
-                  } disponivel${clinicasFiltradas.length > 1 ? "s" : ""}`}
+                  } disponível${clinicasFiltradas.length > 1 ? "s" : ""}`}
             </p>
             <p className="text-xs font-medium text-blue-400">Saquarema/RJ</p>
           </div>
@@ -358,10 +358,10 @@ function PacienteExames() {
                 </div>
 
                 <p className="mb-2 text-xs text-gray-500">
-                  <span className="font-semibold">Horario:</span> {clinica.horario}
+                  <span className="font-semibold">Horário:</span> {clinica.horario}
                 </p>
                 <p className="mb-3 text-xs text-gray-500">
-                  <span className="font-semibold">Endereco:</span> {clinica.endereco}
+                  <span className="font-semibold">Endereço:</span> {clinica.endereco}
                 </p>
 
                 <div className="mb-4 flex flex-wrap gap-1.5">
@@ -405,7 +405,7 @@ function PacienteExames() {
                   >
                     {clinica.aberta && obterEspecialidadesExames(clinica).length
                       ? "Agendar"
-                      : "Indisponivel"}
+                      : "Indisponível"}
                   </button>
                 </div>
               </div>

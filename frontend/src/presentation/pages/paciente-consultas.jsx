@@ -78,7 +78,7 @@ function PacienteConsultas() {
       setClinicas(Array.isArray(lista) ? lista : []);
       setClinicasFiltradas(Array.isArray(lista) ? lista : []);
     } catch (erro) {
-      setErroCarregamento(erro.message || "Nao foi possivel carregar as clinicas.");
+      setErroCarregamento(erro.message || "Não conseguimos carregar as clínicas agora.");
     } finally {
       setCarregando(false);
     }
@@ -150,7 +150,7 @@ function PacienteConsultas() {
     <div className="min-h-screen bg-gray-50">
       <CabecalhoApp
         titulo="Consultas"
-        descricao="Escolha uma clinica para agendar atendimento"
+        descricao="Escolha uma clínica para agendar seu atendimento"
         acao={<MenuUsuarioPaciente />}
       />
 
@@ -164,7 +164,7 @@ function PacienteConsultas() {
             type="text"
             value={termoBusca}
             onChange={(e) => setTermoBusca(e.target.value)}
-            placeholder="Clinica ou bairro..."
+            placeholder="Clínica ou bairro..."
             className="w-full rounded-xl border border-gray-100 bg-gray-50 py-2.5 pl-4 pr-24 text-sm text-gray-700 placeholder:text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 sm:pl-20"
           />
           {termoBusca && (
@@ -269,7 +269,7 @@ function PacienteConsultas() {
         </section>
         {carregando && (
           <p className="py-6 text-center text-sm text-gray-500">
-            Carregando clinicas...
+            Carregando clínicas...
           </p>
         )}
 
@@ -283,10 +283,10 @@ function PacienteConsultas() {
           <div className="mb-4 flex items-center justify-between gap-4">
             <p className="text-sm text-gray-600">
               {clinicasFiltradas.length === 0
-                ? "Nenhuma clinica encontrada"
-                : `${clinicasFiltradas.length} clinica${
+                ? "Nenhuma clínica encontrada"
+                : `${clinicasFiltradas.length} clínica${
                     clinicasFiltradas.length > 1 ? "s" : ""
-                  } disponivel${clinicasFiltradas.length > 1 ? "s" : ""}`}
+                  } disponível${clinicasFiltradas.length > 1 ? "s" : ""}`}
             </p>
             <p className="text-xs font-medium text-blue-400">Saquarema/RJ</p>
           </div>
@@ -295,7 +295,7 @@ function PacienteConsultas() {
         {!carregando && !erroCarregamento && clinicasFiltradas.length === 0 && (
           <div className="py-16 text-center">
             <p className="text-base font-medium text-gray-500">
-              Nenhuma clinica encontrada
+              Nenhuma clínica encontrada
             </p>
             <p className="mt-1 text-sm text-gray-400">
               Tente outro nome, especialidade ou bairro
@@ -346,10 +346,10 @@ function PacienteConsultas() {
                 </div>
 
                 <p className="mb-2 text-xs text-gray-500">
-                  <span className="font-semibold">Horario:</span> {clinica.horario}
+                  <span className="font-semibold">Horário:</span> {clinica.horario}
                 </p>
                 <p className="mb-3 text-xs text-gray-500">
-                  <span className="font-semibold">Endereco:</span> {clinica.endereco}
+                  <span className="font-semibold">Endereço:</span> {clinica.endereco}
                 </p>
 
                 <div className="mb-4 flex flex-wrap gap-1.5">
@@ -391,7 +391,7 @@ function PacienteConsultas() {
                         : "cursor-not-allowed bg-gray-200 text-gray-400"
                     }`}
                   >
-                    {clinica.aberta ? "Agendar" : "Indisponivel"}
+                    {clinica.aberta ? "Agendar" : "Indisponível"}
                   </button>
                 </div>
               </div>

@@ -22,7 +22,7 @@ function arquivoParaDataUrl(arquivo) {
   return new Promise((resolve, reject) => {
     const leitor = new FileReader();
     leitor.onload = () => resolve(leitor.result);
-    leitor.onerror = () => reject(new Error("Nao foi possivel ler o arquivo selecionado."));
+    leitor.onerror = () => reject(new Error("Não conseguimos ler o arquivo selecionado."));
     leitor.readAsDataURL(arquivo);
   });
 }
@@ -56,7 +56,7 @@ function formatarConsulta(consulta) {
     horario: consulta.horario || consulta.hora || agenda?.horario || "-",
     paciente: consulta.paciente || "",
     medico: consulta.medico || "",
-    especialidade: consulta.especialidade || "Nao informada",
+    especialidade: consulta.especialidade || "Não informada",
     status: consulta.status || "agendada",
   };
 }
@@ -76,7 +76,7 @@ function MedicoConsultasClinica() {
     observacoes: "",
   });
 
-  const nomeClinica = clinica?.nome || "clinica vinculada";
+  const nomeClinica = clinica?.nome || "clínica vinculada";
   const horarioFuncionamento = useMemo(
     () => extrairIntervaloFuncionamento(clinica?.horario),
     [clinica]
@@ -84,7 +84,7 @@ function MedicoConsultasClinica() {
 
   const carregarDados = useCallback(async () => {
     if (!usuario?.clinica_id) {
-      setErro("Nao ha clinica vinculada ao seu usuario.");
+      setErro("Seu usuário ainda não tem uma clínica vinculada.");
       return;
     }
 
@@ -107,7 +107,7 @@ function MedicoConsultasClinica() {
           )
       );
     } catch (falha) {
-      setErro(falha.message || "Nao foi possivel carregar as consultas da clinica.");
+      setErro(falha.message || "Não conseguimos carregar as consultas da clínica agora.");
     } finally {
       setCarregando(false);
     }
@@ -162,7 +162,7 @@ function MedicoConsultasClinica() {
       (arquivo) => arquivo.size > TAMANHO_MAXIMO_ANEXO
     );
     if (arquivoMuitoGrande) {
-      setErro(`O arquivo ${arquivoMuitoGrande.name} deve ter no maximo 2 MB.`);
+      setErro(`O arquivo ${arquivoMuitoGrande.name} deve ter no máximo 2 MB.`);
       return;
     }
 
@@ -181,9 +181,9 @@ function MedicoConsultasClinica() {
         arquivos,
         descricao:
           formularioUpload.observacoes ||
-          `Arquivo anexado por Dr(a). ${usuario?.nome || "Medico"} na ${nomeClinica}.`,
+          `Arquivo anexado por Dr(a). ${usuario?.nome || "Médico"} na ${nomeClinica}.`,
         anexadoPor: "medico",
-        anexadoPorNome: usuario?.nome || "Medico",
+        anexadoPorNome: usuario?.nome || "Médico",
       });
       const total = Array.isArray(documentos) ? documentos.length : 1;
       fecharUpload();
@@ -193,7 +193,7 @@ function MedicoConsultasClinica() {
           : "Arquivo anexado e liberado nos downloads do paciente."
       );
     } catch (falha) {
-      setErro(falha.message || "Nao foi possivel anexar o arquivo.");
+      setErro(falha.message || "Não conseguimos anexar o arquivo agora.");
     } finally {
       setUploadEmAndamento("");
     }
@@ -204,7 +204,7 @@ function MedicoConsultasClinica() {
       <CabecalhoApp
         compacto
         titulo="Consultas"
-        descricao={`Atendimentos marcados para Dr(a). ${usuario?.nome || "Medico"} na ${nomeClinica}`}
+        descricao={`Atendimentos marcados para Dr(a). ${usuario?.nome || "Médico"} na ${nomeClinica}`}
         acao={<MenuUsuario mostrarPerfil={false} />}
       />
 
@@ -267,10 +267,10 @@ function MedicoConsultasClinica() {
                 <thead>
                   <tr>
                     <th>Data</th>
-                    <th>Horario</th>
+                    <th>Horário</th>
                     <th>Paciente</th>
                     <th>Especialidade</th>
-                    <th>Medico</th>
+                    <th>Médico</th>
                     <th>Status</th>
                     <th>Arquivo</th>
                   </tr>
@@ -286,7 +286,7 @@ function MedicoConsultasClinica() {
                       </td>
                       <td>{consulta.paciente}</td>
                       <td>{consulta.especialidade}</td>
-                      <td>{consulta.medico || "Nao informado"}</td>
+                      <td>{consulta.medico || "Não informado"}</td>
                       <td>
                         <span className="clinic-record-status">
                           {consulta.status}

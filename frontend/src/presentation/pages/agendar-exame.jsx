@@ -63,7 +63,7 @@ function AgendarExame() {
       setClinica(await buscarClinicaPorId(clinicaIdParam));
     } catch (erro) {
       setClinica(null);
-      setErroAcao(erro.message || "Nao foi possivel carregar a unidade.");
+      setErroAcao(erro.message || "Não conseguimos carregar os dados da unidade agora.");
     } finally {
       setCarregandoClinica(false);
     }
@@ -85,7 +85,7 @@ function AgendarExame() {
       setHorarios(Array.isArray(lista) ? lista : []);
     } catch (erro) {
       setHorarios([]);
-      setErroAcao(erro.message || "Nao foi possivel carregar os horarios.");
+      setErroAcao(erro.message || "Não conseguimos carregar os horários disponíveis agora.");
     } finally {
       setCarregandoHorarios(false);
     }
@@ -117,13 +117,13 @@ function AgendarExame() {
   async function aoConfirmar(evento) {
     evento.preventDefault();
     if (!clinica || !tipoExame || !data || !horarioId) {
-      setErroAcao("Escolha exame, data e horario para confirmar.");
+      setErroAcao("Escolha o exame, a data e o horário antes de confirmar.");
       return;
     }
 
     const slot = horarios.find((item) => item.id === horarioId);
     if (!slot?.disponivel) {
-      setErroAcao("Escolha um horario disponivel para confirmar.");
+      setErroAcao("Escolha um horário disponível para confirmar.");
       return;
     }
 
@@ -150,7 +150,7 @@ function AgendarExame() {
       setObservacoes("");
       await carregarHorarios();
     } catch (erro) {
-      setErroAcao(erro.message || "Falha ao agendar exame.");
+      setErroAcao(erro.message || "Não conseguimos agendar o exame. Tente novamente.");
     } finally {
       setEnviando(false);
     }
@@ -159,7 +159,7 @@ function AgendarExame() {
   if (carregandoClinica) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50 px-6">
-        <p className="text-sm text-gray-500">Carregando unidade...</p>
+        <p className="text-sm text-gray-500">Carregando dados da unidade...</p>
       </div>
     );
   }
@@ -171,14 +171,14 @@ function AgendarExame() {
           <MenuUsuarioPaciente />
         </div>
         <p className="mb-6 text-center text-gray-600">
-          Selecione uma unidade na aba Exames para agendar.
+          Escolha uma unidade na aba Exames para continuar com o agendamento.
         </p>
         <button
           type="button"
           onClick={() => navigate("/paciente/exames")}
           className="rounded-xl bg-blue-400 px-8 py-3 font-bold text-white hover:bg-blue-500"
         >
-          Ver unidades
+          Ver unidades disponíveis
         </button>
       </div>
     );
@@ -198,7 +198,7 @@ function AgendarExame() {
         />
         <div className="p-6 text-center">
           <p className="text-gray-600">
-            Esta unidade nao esta recebendo agendamentos no momento.
+            Esta unidade não está recebendo agendamentos no momento.
           </p>
         </div>
       </div>
@@ -212,10 +212,10 @@ function AgendarExame() {
       <CabecalhoApp
         compacto
         aoVoltar={aoVoltar}
-        textoVoltar="Voltar as unidades"
+        textoVoltar="Voltar às unidades"
         voltarSomenteIcone
         titulo="Agendar exame"
-        descricao="Escolha exame, data e horario"
+        descricao="Escolha o exame, a data e o horário"
         acao={<MenuUsuarioPaciente />}
       />
 
@@ -260,7 +260,7 @@ function AgendarExame() {
           </div>
           {tiposExames.length === 0 && (
             <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-              Esta unidade ainda nao possui exames cadastrados.
+              Esta unidade ainda não possui exames disponíveis.
             </p>
           )}
         </section>
@@ -285,7 +285,7 @@ function AgendarExame() {
 
         <section>
           <p className="mb-3 text-xs font-medium uppercase text-gray-500">
-            Horarios disponiveis
+            Horários disponíveis
           </p>
           {carregandoHorarios ? (
             <p className="py-6 text-center text-sm text-gray-500">Carregando...</p>
@@ -311,13 +311,13 @@ function AgendarExame() {
             </div>
           )}
           <p className="mt-3 text-xs text-gray-400">
-            Horarios riscados ja estao ocupados ou indisponiveis.
+            Horários riscados já estáo ocupados ou indisponíveis.
           </p>
         </section>
 
         <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
           <label className="mb-2 block text-sm font-semibold text-gray-700">
-            Observacoes (opcional)
+            Observações (opcional)
           </label>
           <textarea
             value={observacoes}
@@ -354,7 +354,7 @@ function AgendarExame() {
             <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-white p-1 shadow-sm ring-1 ring-blue-100">
               <img
                 src="/icons/logo-saude-plus.png"
-                alt="Saude+"
+                alt="Saúde+"
                 className="h-full w-full object-contain"
               />
             </div>
@@ -376,7 +376,7 @@ function AgendarExame() {
               }}
               className="w-full rounded-xl bg-blue-400 py-3 font-bold text-white hover:bg-blue-500"
             >
-              Voltar ao inicio
+              Voltar ao início
             </button>
           </div>
         </div>

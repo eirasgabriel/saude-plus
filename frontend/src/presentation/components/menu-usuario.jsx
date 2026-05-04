@@ -62,7 +62,7 @@ function MenuUsuario({
         type="button"
         onClick={abrirOuFecharMenu}
         className="flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white transition hover:bg-white/30"
-        aria-label="Perfil do usuario"
+        aria-label="Perfil do usuário"
       >
         <UserCircle className="h-6 w-6" aria-hidden="true" />
       </button>
@@ -74,7 +74,7 @@ function MenuUsuario({
               Conta
             </p>
             <p className="mt-0.5 text-sm font-semibold text-gray-800">
-              Opcoes do usuario
+              Opções do usuário
             </p>
           </div>
           {mostrarPerfil && (

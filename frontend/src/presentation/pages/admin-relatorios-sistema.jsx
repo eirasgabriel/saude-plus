@@ -54,7 +54,7 @@ function AdminRelatoriosSistema() {
     try {
       setRelatorio(await obterRelatoriosSistema());
     } catch (falha) {
-      setErro(falha.message || "Nao foi possivel carregar os relatorios.");
+      setErro(falha.message || "Não conseguimos carregar os relatórios agora.");
     } finally {
       setCarregando(false);
     }
@@ -107,7 +107,7 @@ function AdminRelatoriosSistema() {
         titulo="Relatorios do sistema"
         descricao={
           <>
-            Indicadores calculados a partir das clinicas, usuarios e consultas cadastradas.
+            Indicadores calculados a partir das clínicas, usuários e consultas cadastradas.
             <span className="mt-1 block text-xs">
               Atualizado em {formatarAtualizacao(atualizadoEm)}
             </span>
@@ -117,7 +117,7 @@ function AdminRelatoriosSistema() {
 
       <main className="app-content space-y-5">
         {carregando && (
-          <p className="text-center text-sm text-gray-500">Carregando relatorios...</p>
+          <p className="text-center text-sm text-gray-500">Carregando relatórios...</p>
         )}
 
         {!carregando && erro && (
@@ -154,7 +154,7 @@ function AdminRelatoriosSistema() {
             <p className="text-xs text-gray-400 mt-1">Atendimentos concluidos</p>
           </div>
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <p className="text-gray-500 text-sm">Usuarios ativos</p>
+            <p className="text-gray-500 text-sm">Usuários ativos</p>
             <strong className="text-3xl text-gray-800">{resumo.usuariosAtivos}</strong>
             <p className="text-xs text-gray-400 mt-1">De {resumo.totalUsuarios} cadastrados</p>
           </div>
@@ -170,7 +170,7 @@ function AdminRelatoriosSistema() {
             <div className="flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-xl font-semibold text-gray-800">
-                  Desempenho por clinica
+                  Desempenho por clínica
                 </h2>
                 <p className="text-gray-500 text-sm">
                   Compara volume, ocupacao e atendimentos reais das unidades.
@@ -185,12 +185,12 @@ function AdminRelatoriosSistema() {
               <table className="w-full min-w-[720px] text-sm">
                 <thead className="bg-gray-50 text-gray-600">
                   <tr>
-                    <th className="text-left px-3 py-3 font-semibold rounded-l-xl">Clinica</th>
+                    <th className="text-left px-3 py-3 font-semibold rounded-l-xl">Clínica</th>
                     <th className="text-left px-3 py-3 font-semibold">Consultas</th>
                     <th className="text-left px-3 py-3 font-semibold">Exames</th>
                     <th className="text-left px-3 py-3 font-semibold">Realizadas</th>
                     <th className="text-left px-3 py-3 font-semibold">Canceladas</th>
-                    <th className="text-left px-3 py-3 font-semibold">Ocupacao</th>
+                    <th className="text-left px-3 py-3 font-semibold">Ocupação</th>
                     <th className="text-left px-3 py-3 font-semibold rounded-r-xl">Atendimentos</th>
                   </tr>
                 </thead>
@@ -333,9 +333,9 @@ function AdminRelatoriosSistema() {
                 <tr>
                   <th className="text-left px-3 py-3 font-semibold rounded-l-xl">Data</th>
                   <th className="text-left px-3 py-3 font-semibold">Paciente</th>
-                  <th className="text-left px-3 py-3 font-semibold">Clinica</th>
+                  <th className="text-left px-3 py-3 font-semibold">Clínica</th>
                   <th className="text-left px-3 py-3 font-semibold">Tipo</th>
-                  <th className="text-left px-3 py-3 font-semibold">Medico</th>
+                  <th className="text-left px-3 py-3 font-semibold">Médico</th>
                   <th className="text-left px-3 py-3 font-semibold rounded-r-xl">Status</th>
                 </tr>
               </thead>
@@ -347,7 +347,7 @@ function AdminRelatoriosSistema() {
                     </td>
                     <td className="px-3 py-3 font-semibold text-gray-800">{exame.paciente}</td>
                     <td className="px-3 py-3 text-gray-600">
-                      {exame.clinica || "Sem clinica"}
+                      {exame.clinica || "Sem clínica"}
                     </td>
                     <td className="px-3 py-3 text-gray-600">{exame.tipo}</td>
                     <td className="px-3 py-3 text-gray-600">{exame.medico || "-"}</td>
@@ -383,7 +383,7 @@ function AdminRelatoriosSistema() {
                 onChange={(evento) => setClinicaConsultasRecentes(evento.target.value)}
                 className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-200"
               >
-                <option value="">Todas as clinicas</option>
+                <option value="">Todas as clínicas</option>
                 {clinicasDisponiveis.map((clinica) => (
                   <option key={clinica.id} value={clinica.id}>
                     {clinica.nome}
@@ -399,9 +399,9 @@ function AdminRelatoriosSistema() {
                 <tr>
                   <th className="text-left px-3 py-3 font-semibold rounded-l-xl">Data</th>
                   <th className="text-left px-3 py-3 font-semibold">Paciente</th>
-                  <th className="text-left px-3 py-3 font-semibold">Clinica</th>
+                  <th className="text-left px-3 py-3 font-semibold">Clínica</th>
                   <th className="text-left px-3 py-3 font-semibold">Especialidade</th>
-                  <th className="text-left px-3 py-3 font-semibold">Medico</th>
+                  <th className="text-left px-3 py-3 font-semibold">Médico</th>
                   <th className="text-left px-3 py-3 font-semibold rounded-r-xl">Status</th>
                 </tr>
               </thead>
@@ -413,7 +413,7 @@ function AdminRelatoriosSistema() {
                     </td>
                     <td className="px-3 py-3 font-semibold text-gray-800">{consulta.paciente}</td>
                     <td className="px-3 py-3 text-gray-600">
-                      {consulta.clinica || "Sem clinica"}
+                      {consulta.clinica || "Sem clínica"}
                     </td>
                     <td className="px-3 py-3 text-gray-600">{consulta.especialidade}</td>
                     <td className="px-3 py-3 text-gray-600">{consulta.medico}</td>
@@ -428,7 +428,7 @@ function AdminRelatoriosSistema() {
             </table>
             {consultasRecentesFiltradas.length === 0 && (
               <p className="px-3 py-4 text-sm text-gray-500">
-                Nenhuma consulta recente encontrada para a clinica selecionada.
+                Nenhuma consulta recente encontrada para a clínica selecionada.
               </p>
             )}
           </div>

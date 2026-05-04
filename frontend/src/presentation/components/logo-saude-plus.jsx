@@ -16,7 +16,7 @@ function LogoSaudePlus({ size = "md", className = "" }) {
     >
       <img
         src="/icons/logo-saude-plus.png"
-        alt="Saude+"
+        alt="Saúde+"
         className="h-full w-full object-contain"
       />
     </div>

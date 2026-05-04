@@ -45,8 +45,8 @@ async function enviarSubscriptionParaBackend(subscription) {
 }
 
 async function exibirNotificacaoSaudePlus({
-  titulo = "Saude+",
-  corpo = "Voce tem uma nova atualizacao no Saude+.",
+  titulo = "Saúde+",
+  corpo = "Você tem uma nova atualização no Saúde+.",
   url = "/paciente/inicio",
   tag = "saude-plus",
 } = {}) {
@@ -69,7 +69,7 @@ async function exibirNotificacaoSaudePlus({
       return true;
     }
   } catch (erro) {
-    console.warn("Service worker indisponivel para notificacao:", erro.message);
+    console.warn("Service worker indisponível para notificação:", erro.message);
   }
 
   new Notification(titulo, opcoes);
@@ -111,14 +111,14 @@ function notificacoesJaInicializadas() {
 
 async function ativarNotificacoesPush({ exibirConfirmacao = true } = {}) {
   if (!suportaNotificacoesPush()) {
-    throw new Error("Este navegador nao suporta notificacoes push.");
+    throw new Error("Este navegador não suporta notificações push.");
   }
 
   const permission = await Notification.requestPermission();
   armazenarPermissaoNotificacoes(permission);
 
   if (permission !== "granted") {
-    throw new Error("Permissao de notificacao nao concedida.");
+    throw new Error("Você precisa permitir notificações para receber avisos.");
   }
 
   const registration = await registrarServiceWorker();
@@ -128,19 +128,19 @@ async function ativarNotificacoesPush({ exibirConfirmacao = true } = {}) {
     localStorage.setItem(CHAVE_VAPID_PUBLIC_KEY, "local");
     if (exibirConfirmacao) {
       await exibirNotificacaoSaudePlus({
-        titulo: "Notificacoes ativadas",
-        corpo: "O Saude+ podera avisar sobre consultas, exames e atualizacoes.",
+        titulo: "Notificações ativadas",
+        corpo: "O Saúde+ poderá avisar sobre consultas, exames e resultados.",
       });
     }
     return {
       status: "local",
       mensagem:
-        "Permissao concedida. As notificacoes locais ja estao ativas neste navegador.",
+        "Permissão concedida. As notificações já estáo ativas neste navegador.",
     };
   }
 
   if (!registration?.pushManager) {
-    throw new Error("Nao foi possivel registrar o dispositivo para push.");
+    throw new Error("Não conseguimos registrar este dispositivo para notificações.");
   }
 
   let subscription = await registration.pushManager.getSubscription();
@@ -163,29 +163,29 @@ async function ativarNotificacoesPush({ exibirConfirmacao = true } = {}) {
   localStorage.setItem(CHAVE_VAPID_PUBLIC_KEY, VAPID_PUBLIC_KEY);
   if (exibirConfirmacao) {
     await exibirNotificacaoSaudePlus({
-      titulo: "Notificacoes ativadas",
-      corpo: "O Saude+ podera avisar sobre consultas, exames e atualizacoes.",
+      titulo: "Notificações ativadas",
+      corpo: "O Saúde+ poderá avisar sobre consultas, exames e resultados.",
     });
   }
 
   return {
     status: "ativo",
-    mensagem: "Notificacoes push ativadas neste dispositivo.",
+    mensagem: "Notificações ativadas neste dispositivo.",
   };
 }
 
 async function testarNotificacaoPush() {
   const exibida = await exibirNotificacaoSaudePlus({
-    titulo: "Saude+",
-    corpo: "Teste enviado com sucesso. Suas notificacoes estao funcionando.",
+    titulo: "Saúde+",
+    corpo: "Teste enviado. Suas notificações estáo funcionando.",
     tag: "saude-plus-teste",
   });
 
   if (!exibida) {
-    throw new Error("Ative as notificacoes antes de enviar um teste.");
+    throw new Error("Ative as notificações antes de enviar um teste.");
   }
 
-  return { mensagem: "Notificacao de teste enviada." };
+  return { mensagem: "Notificação de teste enviada." };
 }
 
 async function solicitarPermissaoNotificacoesUmaVez() {

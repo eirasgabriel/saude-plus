@@ -23,7 +23,7 @@ function arquivoParaDataUrl(arquivo) {
   return new Promise((resolve, reject) => {
     const leitor = new FileReader();
     leitor.onload = () => resolve(leitor.result);
-    leitor.onerror = () => reject(new Error("Nao foi possivel ler o arquivo selecionado."));
+    leitor.onerror = () => reject(new Error("Não conseguimos ler o arquivo selecionado."));
     leitor.readAsDataURL(arquivo);
   });
 }
@@ -68,7 +68,7 @@ function MedicoExamesClinica() {
     observacoes: "",
   });
 
-  const nomeClinica = clinica?.nome || "clinica vinculada";
+  const nomeClinica = clinica?.nome || "clínica vinculada";
   const horarioFuncionamento = useMemo(
     () => extrairIntervaloFuncionamento(clinica?.horario),
     [clinica]
@@ -76,7 +76,7 @@ function MedicoExamesClinica() {
 
   const carregarDados = useCallback(async () => {
     if (!usuario?.clinica_id) {
-      setErro("Nao ha clinica vinculada ao seu usuario.");
+      setErro("Seu usuário ainda não tem uma clínica vinculada.");
       return;
     }
 
@@ -99,7 +99,7 @@ function MedicoExamesClinica() {
           )
       );
     } catch (falha) {
-      setErro(falha.message || "Nao foi possivel carregar os exames da clinica.");
+      setErro(falha.message || "Não conseguimos carregar os exames da clínica agora.");
     } finally {
       setCarregando(false);
     }
@@ -154,7 +154,7 @@ function MedicoExamesClinica() {
       (arquivo) => arquivo.size > TAMANHO_MAXIMO_RESULTADO
     );
     if (arquivoMuitoGrande) {
-      setErro(`O arquivo ${arquivoMuitoGrande.name} deve ter no maximo 2 MB.`);
+      setErro(`O arquivo ${arquivoMuitoGrande.name} deve ter no máximo 2 MB.`);
       return;
     }
 
@@ -173,9 +173,9 @@ function MedicoExamesClinica() {
         arquivos,
         descricao:
           formularioUpload.observacoes ||
-          `Laudo liberado por Dr(a). ${usuario?.nome || "Medico"} na ${nomeClinica}.`,
+          `Laudo liberado por Dr(a). ${usuario?.nome || "Médico"} na ${nomeClinica}.`,
         anexadoPor: "medico",
-        anexadoPorNome: usuario?.nome || "Medico",
+        anexadoPorNome: usuario?.nome || "Médico",
       });
       const documentos = Array.isArray(resultado) ? resultado : [resultado];
       setExames((atuais) => {
@@ -189,7 +189,7 @@ function MedicoExamesClinica() {
           : "Arquivo anexado e liberado nos downloads."
       );
     } catch (falha) {
-      setErro(falha.message || "Nao foi possivel anexar o resultado.");
+      setErro(falha.message || "Não conseguimos anexar o resultado agora.");
     } finally {
       setUploadEmAndamento("");
     }
@@ -200,7 +200,7 @@ function MedicoExamesClinica() {
       <CabecalhoApp
         compacto
         titulo="Exames"
-        descricao={`Exames marcados para Dr(a). ${usuario?.nome || "Medico"} na ${nomeClinica}`}
+        descricao={`Exames marcados para Dr(a). ${usuario?.nome || "Médico"} na ${nomeClinica}`}
         acao={<MenuUsuario mostrarPerfil={false} />}
       />
 
@@ -258,10 +258,10 @@ function MedicoExamesClinica() {
                 <thead>
                   <tr>
                     <th>Data</th>
-                    <th>Horario</th>
+                    <th>Horário</th>
                     <th>Paciente</th>
                     <th>Exame</th>
-                    <th>Medico</th>
+                    <th>Médico</th>
                     <th>Status</th>
                     <th>Arquivo</th>
                   </tr>
@@ -281,7 +281,7 @@ function MedicoExamesClinica() {
                         </td>
                         <td>{exame.paciente}</td>
                         <td>{exame.tipo}</td>
-                        <td>{exame.medico || "Nao informado"}</td>
+                        <td>{exame.medico || "Não informado"}</td>
                         <td>
                           <span className="clinic-record-status">
                             {exame.status}

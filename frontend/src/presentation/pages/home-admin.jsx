@@ -30,7 +30,7 @@ function HomeAdmin() {
   const [erro, setErro] = useState("");
   const [menuUsuarioAberto, setMenuUsuarioAberto] = useState(false);
   const tempoFechamentoMenuRef = useRef(null);
-  const nomeClinica = clinicaVinculada?.nome || "Clinica nao identificada";
+  const nomeClinica = clinicaVinculada?.nome || "Clínica não identificada";
 
   async function carregarDados() {
     setCarregandoRelatorio(true);
@@ -42,7 +42,7 @@ function HomeAdmin() {
       setClinicaVinculada(clinica);
       setRelatorio(relatorioSistema);
     } catch (falha) {
-      setErro(falha.message || "Nao foi possivel carregar o painel da clinica.");
+      setErro(falha.message || "Não conseguimos carregar o painel da clínica agora.");
     } finally {
       setCarregandoRelatorio(false);
     }
@@ -106,9 +106,8 @@ function HomeAdmin() {
   return (
     <div className="min-h-screen bg-gray-50">
       <CabecalhoApp
-        contexto="Admin da Clinica"
-        titulo="Painel da Clinica"
-        descricao={`Seja bem-vindo ao sistema de gerenciamento da clinica ${nomeClinica}`}
+        titulo="Painel da clínica"
+        descricao={`Acompanhe a rotina da clínica ${nomeClinica}`}
         acao={
           <div
             className="relative z-30"
@@ -119,7 +118,7 @@ function HomeAdmin() {
               type="button"
               onClick={() => setMenuUsuarioAberto((v) => !v)}
               className="flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white transition hover:bg-white/30"
-              aria-label="Perfil do usuario"
+              aria-label="Perfil do usuário"
             >
               <UserCircle className="h-6 w-6" aria-hidden="true" />
             </button>
@@ -130,7 +129,7 @@ function HomeAdmin() {
                     Conta
                   </p>
                   <p className="mt-0.5 text-sm font-semibold text-gray-800">
-                    Opcoes do usuario
+                    Opções do usuário
                   </p>
                 </div>
                 <button
@@ -154,7 +153,7 @@ function HomeAdmin() {
           <div className="dashboard-section-header mb-0">
             <div>
               <h2 className="dashboard-section-title sm:text-xl">
-                Relatorio geral da clinica
+                Relatório geral da clínica
               </h2>
               <p className="dashboard-section-description">
                 Indicadores da unidade vinculada: {nomeClinica}
@@ -176,7 +175,7 @@ function HomeAdmin() {
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <div className="dashboard-metric">
               <div className="mb-3 flex items-center justify-between gap-3">
-                <p className="text-sm text-gray-500">Atendimentos no mes</p>
+                <p className="text-sm text-gray-500">Atendimentos no mês</p>
                 <CalendarDays className="h-5 w-5 text-blue-400" aria-hidden="true" />
               </div>
               <strong className="text-3xl text-gray-800">
@@ -207,7 +206,7 @@ function HomeAdmin() {
 
             <div className="dashboard-metric">
               <div className="mb-3 flex items-center justify-between gap-3">
-                <p className="text-sm text-gray-500">Ocupacao</p>
+                <p className="text-sm text-gray-500">Ocupação</p>
                 <Percent className="h-5 w-5 text-emerald-500" aria-hidden="true" />
               </div>
               <strong className="text-3xl text-gray-800">
@@ -238,7 +237,7 @@ function HomeAdmin() {
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
             <div className="dashboard-metric">
               <div className="mb-3 flex items-center justify-between gap-3">
-                <p className="text-sm text-gray-500">Atendimentos medicos/dia</p>
+                <p className="text-sm text-gray-500">Atendimentos médicos/dia</p>
                 <Building2 className="h-5 w-5 text-blue-400" aria-hidden="true" />
               </div>
               <strong className="text-2xl text-gray-800">
@@ -267,7 +266,7 @@ function HomeAdmin() {
                 {(clinicaVinculada?.especialidades || []).length}
               </strong>
               <p className="mt-1 text-xs text-gray-400">
-                {(clinicaVinculada?.especialidades || []).slice(0, 3).join(", ") || "Sem dados"}
+                {(clinicaVinculada?.especialidades || []).slice(0, 3).join(", ") || "Ainda sem dados"}
               </p>
             </div>
           </div>

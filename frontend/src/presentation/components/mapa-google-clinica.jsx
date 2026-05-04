@@ -27,7 +27,7 @@ function MapaGoogleClinica({ clinica }) {
   const [mensagem, setMensagem] = useState("");
 
   const tituloMarcador = useMemo(
-    () => `${clinica?.nome || "Clinica"} - ${clinica?.bairro || "Saquarema"}`,
+    () => `${clinica?.nome || "Clínica"} - ${clinica?.bairro || "Saquarema"}`,
     [clinica?.bairro, clinica?.nome]
   );
   const enderecoExibido = String(clinica?.endereco || "").trim() || criarEnderecoClinica(clinica);
@@ -102,7 +102,7 @@ function MapaGoogleClinica({ clinica }) {
         setModoFallback(true);
         setMensagem(
           erro.message ||
-            "Nao foi possivel carregar o Google Maps. O mapa abaixo usa o endereco como fallback."
+            "Não conseguimos carregar o Google Maps. Mostramos o endereço como alternativa."
         );
       } finally {
         if (!cancelado) setCarregando(false);
@@ -138,7 +138,7 @@ function MapaGoogleClinica({ clinica }) {
       <div className="relative min-h-[320px] bg-gray-100">
         {modoFallback && urlEmbed ? (
           <iframe
-            title={`Mapa de ${clinica?.nome || "clinica"}`}
+            title={`Mapa de ${clinica?.nome || "clínica"}`}
             src={urlEmbed}
             className="h-[320px] w-full border-0 sm:h-[420px]"
             loading="lazy"
@@ -152,7 +152,7 @@ function MapaGoogleClinica({ clinica }) {
         {!queryLocalizacao && !carregando && (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-100 p-6 text-center">
             <p className="text-sm text-red-600">
-              Informe endereco ou latitude e longitude para exibir a localizacao desta clinica.
+              Informe endereço ou latitude e longitude para exibir a localização desta clínica.
             </p>
           </div>
         )}

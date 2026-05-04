@@ -54,7 +54,7 @@ function CardClinica({
 
       {/* Endereço — ícone de localização */}
       <div className="flex items-start gap-2 mb-2">
-        <span className="text-gray-400 text-sm mt-0.5">📍</span>
+        <span className="text-gray-400 text-sm mt-0.5">Localização</span>
         <p className="min-w-0 break-words text-sm text-gray-600">{endereco}</p>
       </div>
 

@@ -23,14 +23,14 @@ import CabecalhoApp from "../components/cabecalho-app";
 
 const CARTOES_ADMIN = [
   {
-    titulo: "Clinicas",
-    descricao: "Gerenciar unidades de saude",
+    titulo: "Clínicas",
+    descricao: "Gerenciar unidades de saúde",
     rota: "/admin/master/clinicas",
     detalhe: "Cadastro, status e capacidade",
     Icone: Building2,
   },
   {
-    titulo: "Usuarios",
+    titulo: "Usuários",
     descricao: "Gerenciar acessos",
     rota: "/admin/master/usuarios",
     detalhe: "Perfis, bloqueios e vinculos",
@@ -101,7 +101,7 @@ function HomeMaster() {
     <div className="min-h-screen bg-gray-50">
       <CabecalhoApp
         titulo="Painel Admin Master"
-        descricao="Gerenciamento central das clinicas, usuarios e indicadores do Saude+."
+        descricao="Gerenciamento central de clínicas, usuários e indicadores do Saúde+."
         acao={
           <div
             className="relative z-30"
@@ -123,7 +123,7 @@ function HomeMaster() {
                     Conta
                   </p>
                   <p className="mt-0.5 text-sm font-semibold text-gray-800">
-                    Opcoes do usuario
+                    Opções do usuário
                   </p>
                 </div>
                 <button
@@ -146,14 +146,14 @@ function HomeMaster() {
         <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <div className="dashboard-metric">
             <div className="mb-3 flex items-center justify-between gap-3">
-              <p className="text-sm text-gray-500">Clinicas ativas</p>
+              <p className="text-sm text-gray-500">Clínicas ativas</p>
               <Building2 className="h-5 w-5 text-blue-400" aria-hidden="true" />
             </div>
             <strong className="text-3xl text-gray-800">{resumo.clinicasAtivas}</strong>
           </div>
           <div className="dashboard-metric">
             <div className="mb-3 flex items-center justify-between gap-3">
-              <p className="text-sm text-gray-500">Usuarios ativos</p>
+              <p className="text-sm text-gray-500">Usuários ativos</p>
               <Users className="h-5 w-5 text-blue-400" aria-hidden="true" />
             </div>
             <strong className="text-3xl text-gray-800">{resumo.usuariosAtivos}</strong>

@@ -79,39 +79,51 @@ function CabecalhoApp({
                   "flex items-center justify-between gap-4"
               )}
             >
-              <div className="min-w-0">
-                {contexto && (
-                  <p
-                    className={juntarClasses(
-                      compacto ? "text-xs" : "text-sm",
-                      "text-blue-100"
-                    )}
-                  >
-                    {contexto}
-                  </p>
+              <div className="flex min-w-0 items-center gap-4 sm:gap-5">
+                {!aoVoltar && (
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white p-1.5 shadow-sm ring-1 ring-white/60">
+                    <img
+                      src="/icons/logo-saude-plus.png"
+                      alt="Saúde+"
+                      className="h-full w-full object-contain"
+                    />
+                  </div>
                 )}
-                {titulo && (
-                  <h1
-                    className={juntarClasses(
-                      compacto
-                        ? "text-xl font-bold leading-tight text-white sm:text-2xl"
-                        : "text-xl font-bold leading-tight text-white sm:text-2xl",
-                      tituloClassName
-                    )}
-                  >
-                    {titulo}
-                  </h1>
-                )}
-                {descricao && (
-                  <p
-                    className={juntarClasses(
-                      compacto ? "mt-0.5 text-xs text-blue-100" : "mt-1 text-sm text-blue-100",
-                      descricaoClassName
-                    )}
-                  >
-                    {descricao}
-                  </p>
-                )}
+
+                <div className="min-w-0">
+                  {contexto && (
+                    <p
+                      className={juntarClasses(
+                        compacto ? "text-xs" : "text-sm",
+                        "text-blue-100"
+                      )}
+                    >
+                      {contexto}
+                    </p>
+                  )}
+                  {titulo && (
+                    <h1
+                      className={juntarClasses(
+                        compacto
+                          ? "text-xl font-bold leading-tight text-white sm:text-2xl"
+                          : "text-xl font-bold leading-tight text-white sm:text-2xl",
+                        tituloClassName
+                      )}
+                    >
+                      {titulo}
+                    </h1>
+                  )}
+                  {descricao && (
+                    <p
+                      className={juntarClasses(
+                        compacto ? "mt-0.5 text-xs text-blue-100" : "mt-1 text-sm text-blue-100",
+                        descricaoClassName
+                      )}
+                    >
+                      {descricao}
+                    </p>
+                  )}
+                </div>
               </div>
               {(!aoVoltar || voltarLateral) && acao}
             </div>

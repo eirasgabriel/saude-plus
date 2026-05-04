@@ -22,7 +22,7 @@ function arquivoParaDataUrl(arquivo) {
     const leitor = new FileReader();
 
     leitor.onload = () => resolve(leitor.result);
-    leitor.onerror = () => reject(new Error("Nao foi possivel ler o arquivo selecionado."));
+    leitor.onerror = () => reject(new Error("Não conseguimos ler o arquivo selecionado."));
     leitor.readAsDataURL(arquivo);
   });
 }
@@ -70,7 +70,7 @@ function AdminConsultasClinica() {
   const [consultasEmEdicao, setConsultasEmEdicao] = useState([]);
   const [menuUsuarioAberto, setMenuUsuarioAberto] = useState(false);
   const tempoFechamentoMenuRef = useRef(null);
-  const nomeClinica = clinicaVinculada?.nome || "Clinica nao identificada";
+  const nomeClinica = clinicaVinculada?.nome || "Clínica não identificada";
 
   const carregarClinicaVinculada = useCallback(async () => {
     if (!usuario?.clinica_id) return;
@@ -84,7 +84,7 @@ function AdminConsultasClinica() {
       setClinicaVinculada(clinica);
       setUsuarios(Array.isArray(usuariosApi) ? usuariosApi : []);
     } catch (erro) {
-      setErroConsultas(erro.message || "Nao foi possivel carregar a clinica vinculada.");
+      setErroConsultas(erro.message || "Não conseguimos carregar a clínica vinculada agora.");
     }
   }, [usuario?.clinica_id]);
 
@@ -131,7 +131,7 @@ function AdminConsultasClinica() {
             data,
             horario,
             paciente,
-            especialidade: consulta.especialidade || "Nao informada",
+            especialidade: consulta.especialidade || "Não informada",
             medico: consulta.medico || "",
             status: consulta.status || "agendada",
           };
@@ -145,7 +145,7 @@ function AdminConsultasClinica() {
 
       setConsultasDoDia(consultasFormatadas);
     } catch (e) {
-      setErroConsultas(e.message || "Nao foi possivel carregar as consultas da clinica.");
+      setErroConsultas(e.message || "Não conseguimos carregar as consultas da clínica agora.");
     } finally {
       setCarregandoConsultas(false);
     }
@@ -229,7 +229,7 @@ function AdminConsultasClinica() {
       (arquivo) => arquivo.size > TAMANHO_MAXIMO_ANEXO_CONSULTA
     );
     if (arquivoMuitoGrande) {
-      setErroConsultas(`O arquivo ${arquivoMuitoGrande.name} deve ter no maximo 2 MB.`);
+      setErroConsultas(`O arquivo ${arquivoMuitoGrande.name} deve ter no máximo 2 MB.`);
       return;
     }
 
@@ -250,7 +250,7 @@ function AdminConsultasClinica() {
         descricao:
           formularioUploadConsulta.observacoes ||
           `Arquivo anexado pela ${nomeClinica}.`,
-        anexadoPorNome: usuario?.nome || "Admin da clinica",
+        anexadoPorNome: usuario?.nome || "Admin da clínica",
       });
       const totalDocumentos = Array.isArray(documentos) ? documentos.length : 1;
 
@@ -261,7 +261,7 @@ function AdminConsultasClinica() {
           : "Arquivo anexado e liberado nos downloads do paciente."
       );
     } catch (falha) {
-      setErroConsultas(falha.message || "Nao foi possivel anexar o arquivo.");
+      setErroConsultas(falha.message || "Não conseguimos anexar o arquivo agora.");
     } finally {
       setUploadConsultaEmAndamento("");
     }
@@ -304,9 +304,8 @@ function AdminConsultasClinica() {
   return (
     <div className="min-h-screen bg-gray-50">
       <CabecalhoApp
-        contexto="Admin da Clinica"
         titulo="Consultas"
-        descricao={`Consultas da clinica ${nomeClinica}`}
+        descricao={`Consultas da clínica ${nomeClinica}`}
         acao={
           <div
             className="relative z-30"
@@ -317,7 +316,7 @@ function AdminConsultasClinica() {
               type="button"
               onClick={() => setMenuUsuarioAberto((v) => !v)}
               className="flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white transition hover:bg-white/30"
-              aria-label="Perfil do usuario"
+              aria-label="Perfil do usuário"
             >
               <UserCircle className="h-6 w-6" aria-hidden="true" />
             </button>
@@ -328,7 +327,7 @@ function AdminConsultasClinica() {
                     Conta
                   </p>
                   <p className="mt-0.5 text-sm font-semibold text-gray-800">
-                    Opcoes do usuario
+                    Opções do usuário
                   </p>
                 </div>
                 <button
@@ -425,7 +424,7 @@ function AdminConsultasClinica() {
 
           {!carregandoConsultas && !erroConsultas && consultasDoDia.length === 0 && (
             <p className="clinic-record-empty">
-              Nenhuma consulta cadastrada para esta clinica.
+              Ainda não há consultas cadastradas para esta clínica.
             </p>
           )}
 
@@ -435,10 +434,10 @@ function AdminConsultasClinica() {
                 <thead>
                   <tr>
                     <th>Data</th>
-                    <th>Horario</th>
+                    <th>Horário</th>
                     <th>Paciente</th>
                     <th>Especialidade</th>
-                    <th>Medico</th>
+                    <th>Médico</th>
                     <th>Status</th>
                     <th>Arquivo</th>
                   </tr>

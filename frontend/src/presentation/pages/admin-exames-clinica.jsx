@@ -25,7 +25,7 @@ function arquivoParaDataUrl(arquivo) {
     const leitor = new FileReader();
 
     leitor.onload = () => resolve(leitor.result);
-    leitor.onerror = () => reject(new Error("Nao foi possivel ler o arquivo selecionado."));
+    leitor.onerror = () => reject(new Error("Não conseguimos ler o arquivo selecionado."));
     leitor.readAsDataURL(arquivo);
   });
 }
@@ -61,7 +61,7 @@ function AdminExamesClinica() {
   const [examesEmEdicao, setExamesEmEdicao] = useState([]);
   const [menuUsuarioAberto, setMenuUsuarioAberto] = useState(false);
   const tempoFechamentoMenuRef = useRef(null);
-  const nomeClinica = clinicaVinculada?.nome || "Clinica nao identificada";
+  const nomeClinica = clinicaVinculada?.nome || "Clínica não identificada";
   const horarioFuncionamento = useMemo(
     () => extrairIntervaloFuncionamento(clinicaVinculada?.horario),
     [clinicaVinculada]
@@ -91,7 +91,7 @@ function AdminExamesClinica() {
       setExamesClinica(examesFormatados);
       setUsuarios(listaUsuarios);
     } catch (falha) {
-      setErro(falha.message || "Nao foi possivel carregar a clinica vinculada.");
+      setErro(falha.message || "Não conseguimos carregar a clínica vinculada agora.");
     }
   }
 
@@ -184,7 +184,7 @@ function AdminExamesClinica() {
       setExamesEmEdicao([]);
       setMensagem("Exames atualizados com sucesso.");
     } catch (falha) {
-      setErro(falha.message || "Nao foi possivel salvar os exames.");
+      setErro(falha.message || "Não conseguimos salvar os exames agora.");
     }
   }
 
@@ -211,7 +211,7 @@ function AdminExamesClinica() {
       (arquivo) => arquivo.size > TAMANHO_MAXIMO_RESULTADO
     );
     if (arquivoMuitoGrande) {
-      setErro(`O arquivo ${arquivoMuitoGrande.name} deve ter no maximo 2 MB.`);
+      setErro(`O arquivo ${arquivoMuitoGrande.name} deve ter no máximo 2 MB.`);
       return;
     }
 
@@ -231,7 +231,7 @@ function AdminExamesClinica() {
         arquivos,
         descricao: formularioUpload.observacoes || `Arquivo anexado pela ${nomeClinica}.`,
         anexadoPor: "admin_clinica",
-        anexadoPorNome: usuario?.nome || "Admin da clinica",
+        anexadoPorNome: usuario?.nome || "Admin da clínica",
       });
       const documentos = Array.isArray(resultado) ? resultado : [resultado];
       setExamesClinica((atuais) => {
@@ -250,7 +250,7 @@ function AdminExamesClinica() {
           : "Arquivo anexado e liberado na categoria correta de downloads."
       );
     } catch (falha) {
-      setErro(falha.message || "Nao foi possivel anexar o arquivo.");
+      setErro(falha.message || "Não conseguimos anexar o arquivo agora.");
     } finally {
       setUploadEmAndamento("");
     }
@@ -275,9 +275,8 @@ function AdminExamesClinica() {
   return (
     <div className="min-h-screen bg-gray-50">
       <CabecalhoApp
-        contexto="Admin da Clinica"
         titulo="Exames"
-        descricao={`Exames da clinica ${nomeClinica}`}
+        descricao={`Exames da clínica ${nomeClinica}`}
         acao={
           <div
             className="relative z-30"
@@ -288,7 +287,7 @@ function AdminExamesClinica() {
               type="button"
               onClick={() => setMenuUsuarioAberto((v) => !v)}
               className="flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white transition hover:bg-white/30"
-              aria-label="Perfil do usuario"
+              aria-label="Perfil do usuário"
             >
               <UserCircle className="h-6 w-6" aria-hidden="true" />
             </button>
@@ -299,7 +298,7 @@ function AdminExamesClinica() {
                     Conta
                   </p>
                   <p className="mt-0.5 text-sm font-semibold text-gray-800">
-                    Opcoes do usuario
+                    Opções do usuário
                   </p>
                 </div>
                 <button
@@ -397,10 +396,10 @@ function AdminExamesClinica() {
               <thead>
                 <tr>
                   <th>Data</th>
-                  <th>Horario</th>
+                  <th>Horário</th>
                   <th>Paciente</th>
                   <th>Exame</th>
-                  <th>Medico</th>
+                  <th>Médico</th>
                   <th>Status</th>
                   <th>Arquivo</th>
                 </tr>
@@ -501,7 +500,7 @@ function AdminExamesClinica() {
                           </button>
                         </div>
                       ) : (
-                        exame.medico || "Nao informado"
+                        exame.medico || "Não informado"
                       )}
                     </td>
                     <td>
@@ -572,7 +571,7 @@ function AdminExamesClinica() {
                 </h2>
                 <p className="mt-1 text-sm text-gray-500">
                   {exameUploadSelecionado.tipo} -{" "}
-                  {exameUploadSelecionado.paciente || "Paciente nao identificado"}
+                  {exameUploadSelecionado.paciente || "Paciente não identificado"}
                 </p>
               </div>
               <button

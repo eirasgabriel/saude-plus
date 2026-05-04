@@ -15,7 +15,7 @@ const CAMPOS_PERFIL = [
   { chave: "cpf", rotulo: "CPF", inputMode: "numeric" },
   { chave: "telefone", rotulo: "Telefone", inputMode: "tel", autoComplete: "tel" },
   { chave: "cep", rotulo: "CEP", inputMode: "numeric", autoComplete: "postal-code" },
-  { chave: "endereco", rotulo: "Endereco", autoComplete: "street-address" },
+  { chave: "endereco", rotulo: "Endereço", autoComplete: "street-address" },
   { chave: "bairro", rotulo: "Bairro", autoComplete: "address-level3" },
   { chave: "cidade", rotulo: "Cidade", autoComplete: "address-level2" },
   { chave: "estado", rotulo: "UF", autoComplete: "address-level1" },
@@ -71,18 +71,18 @@ function validarFormulario(formulario) {
   const telefoneNumeros = somenteNumeros(formulario.telefone);
   const cepNumeros = somenteNumeros(formulario.cep);
 
-  if (!formulario.nome.trim()) return "Informe seu nome completo.";
-  if (!formulario.email.trim()) return "Informe seu email.";
+  if (!formulario.nome.trim()) return "Digite seu nome completo.";
+  if (!formulario.email.trim()) return "Digite seu e-mail.";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formulario.email)) {
-    return "Informe um email valido.";
+    return "Digite um e-mail válido.";
   }
-  if (cpfNumeros.length !== 11) return "Informe um CPF com 11 digitos.";
-  if (telefoneNumeros.length < 10) return "Informe um telefone com DDD.";
-  if (cepNumeros.length !== 8) return "Informe um CEP com 8 digitos.";
-  if (!formulario.endereco.trim()) return "Informe seu endereco.";
-  if (!formulario.bairro.trim()) return "Informe seu bairro.";
-  if (!formulario.cidade.trim()) return "Informe sua cidade.";
-  if (formulario.estado.trim().length !== 2) return "Informe a UF com 2 letras.";
+  if (cpfNumeros.length !== 11) return "Digite um CPF com 11 dígitos.";
+  if (telefoneNumeros.length < 10) return "Digite um telefone com DDD.";
+  if (cepNumeros.length !== 8) return "Digite um CEP com 8 dígitos.";
+  if (!formulario.endereco.trim()) return "Digite seu endereço.";
+  if (!formulario.bairro.trim()) return "Digite seu bairro.";
+  if (!formulario.cidade.trim()) return "Digite sua cidade.";
+  if (formulario.estado.trim().length !== 2) return "Digite a UF com 2 letras.";
 
   return "";
 }
@@ -146,7 +146,7 @@ function PacientePerfil() {
         estado: endereco.estado || atual.estado,
       }));
     } catch (erroCep) {
-      setErro(erroCep.message || "Nao foi possivel consultar o CEP.");
+      setErro(erroCep.message || "Não conseguimos buscar esse CEP agora. Você pode preencher o endereço manualmente.");
     } finally {
       setBuscandoCep(false);
     }
@@ -185,7 +185,7 @@ function PacientePerfil() {
       setEditando(false);
       setMensagem("Dados atualizados com sucesso.");
     } catch (erroSalvar) {
-      setErro(erroSalvar.message || "Nao foi possivel atualizar seus dados.");
+      setErro(erroSalvar.message || "Não conseguimos atualizar seus dados agora.");
     } finally {
       setCarregando(false);
     }
@@ -211,7 +211,7 @@ function PacientePerfil() {
             <div>
               <h2 className="text-lg font-bold text-gray-800">Dados pessoais</h2>
               <p className="text-sm text-gray-500">
-                Informacoes usadas no seu cadastro de paciente.
+                Informações usadas no seu cadastro de paciente.
               </p>
             </div>
             {!editando && (
@@ -250,7 +250,7 @@ function PacientePerfil() {
 
           {buscandoCep && (
             <p className="rounded-xl bg-blue-50 px-4 py-3 text-sm font-medium text-blue-600">
-              Buscando endereco...
+              Buscando endereço...
             </p>
           )}
 
@@ -273,7 +273,7 @@ function PacientePerfil() {
                 disabled={carregando}
                 className="flex-1 rounded-xl bg-blue-400 py-3 font-bold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {carregando ? "Salvando..." : "Salvar alteracoes"}
+                {carregando ? "Salvando..." : "Salvar alterações"}
               </button>
               <button
                 type="button"

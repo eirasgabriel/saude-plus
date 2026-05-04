@@ -10,11 +10,12 @@ function FotoClinica({
   nome,
   className = "flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-blue-50 text-2xl font-bold text-blue-500",
   imgClassName = "h-full w-full object-cover",
+  conteudoVazio,
 }) {
   if (src) {
     return (
       <div className={className}>
-        <img src={src} alt={`Foto de ${nome || "clinica"}`} className={imgClassName} />
+        <img src={src} alt={`Foto de ${nome || "clínica"}`} className={imgClassName} />
       </div>
     );
   }
@@ -23,10 +24,10 @@ function FotoClinica({
 
   return (
     <div className={className}>
-      {inicial || (
+      {conteudoVazio || inicial || (
         <img
           src="/icons/logo-saude-plus.png"
-          alt="Saude+"
+          alt="Saúde+"
           className="h-4/5 w-4/5 object-contain"
         />
       )}

@@ -1,5 +1,5 @@
 // TELA: Agendar consulta — alinhada à home do paciente (header azul, cards brancos, botões grandes)
-// Horarios e confirmacao via camada de aplicacao consumindo o backend.
+// Horários e confirmação via camada de aplicação consumindo a API.
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -63,7 +63,7 @@ function AgendarConsulta() {
       setClinica(await buscarClinicaPorId(clinicaIdParam));
     } catch (erro) {
       setClinica(null);
-      setErroAcao(erro.message || "Nao foi possivel carregar a clinica.");
+      setErroAcao(erro.message || "Não conseguimos carregar os dados da clínica agora.");
     } finally {
       setCarregandoClinica(false);
     }
@@ -137,7 +137,7 @@ function AgendarConsulta() {
       setSucesso(true);
       await carregarHorarios();
     } catch (err) {
-      setErroAcao(err.message || "Falha ao agendar.");
+      setErroAcao(err.message || "Não conseguimos concluir o agendamento. Tente novamente.");
     } finally {
       setEnviando(false);
     }
@@ -146,7 +146,7 @@ function AgendarConsulta() {
   if (carregandoClinica) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
-        <p className="text-gray-500 text-sm">Carregando clinica...</p>
+        <p className="text-gray-500 text-sm">Carregando dados da clínica...</p>
       </div>
     );
   }
@@ -158,7 +158,7 @@ function AgendarConsulta() {
           <MenuUsuarioPaciente />
         </div>
         <p className="text-gray-600 text-center mb-6">
-          Selecione uma clínica na lista para agendar.
+          Escolha uma clínica na lista para continuar com o agendamento.
         </p>
         <button
           type="button"
@@ -199,10 +199,10 @@ function AgendarConsulta() {
       <CabecalhoApp
         compacto
         aoVoltar={aoVoltar}
-        textoVoltar="Voltar as clinicas"
+        textoVoltar="Voltar às clínicas"
         voltarSomenteIcone
         titulo="Agendar consulta"
-        descricao="Escolha data e horario"
+        descricao="Escolha a data e o horário"
         acao={<MenuUsuarioPaciente />}
       />
 
@@ -221,7 +221,7 @@ function AgendarConsulta() {
               <h2 className="text-base font-bold text-gray-800">{clinica.nome}</h2>
               <p className="text-blue-400 text-sm font-medium">{clinica.bairro}</p>
               <p className="text-gray-500 text-xs mt-1 flex items-start gap-1">
-                <span>📍</span> {clinica.endereco}
+                <span>Localização</span> {clinica.endereco}
               </p>
             </div>
           </div>
@@ -295,7 +295,7 @@ function AgendarConsulta() {
             </div>
           )}
           <p className="text-gray-400 text-xs mt-3">
-            Horários riscados já estão ocupados ou indisponíveis.
+            Horários riscados já estáo ocupados ou indisponíveis.
           </p>
         </section>
 
